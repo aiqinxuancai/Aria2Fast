@@ -146,7 +146,7 @@
                                 CornerRadius="4">
                                 <Border.Visibility>
                                     <MultiBinding Converter="{StaticResource ExistVisibilityConverter}">
-                                        <Binding Path="Data.Status" />
+                                        <Binding Path="Data.Seeder" />
                                         <Binding Path="Data.Status" />
                                     </MultiBinding>
                                 </Border.Visibility>
@@ -155,7 +155,7 @@
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Foreground="#515A6E"
-                                    Text="文件已删除">
+                                    Text="做种">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="#FFFFFF" />

@@ -187,10 +187,17 @@ namespace Aria2Fast.View.Contver
         {
             if (values.Length == 2)
             {
+                bool? seed = (bool?)values[0];
+                //string? seed = (bool?)values[0];
+
                 //if ((long)values[0] == 0 && (long)values[1] == (long)TaskState.Completed) //TODO
                 //{
                 //    return Visibility.Visible;
                 //}
+                if (seed == true)
+                {
+                    return Visibility.Visible;
+                }
             }
 
             return Visibility.Collapsed;
