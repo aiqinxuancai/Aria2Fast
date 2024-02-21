@@ -1,0 +1,62 @@
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
+using Aria2Fast.Service;
+using Aria2Fast.Utils;
+
+namespace Aria2Fast
+{
+    /// <summary>
+    /// Interaction logic for App.xaml
+    /// </summary>
+    public partial class App : Application
+    {
+        static App()
+        {
+            //TimeHelper.SecondsToFormatString(99);
+
+            TextOptions.TextFormattingModeProperty.OverrideMetadata(typeof(Window),
+                new FrameworkPropertyMetadata(TextFormattingMode.Display, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
+        }
+        public static void ExitAria2Fast()
+        {
+            if (Aria2Fast.MainWindow.Instance != null)
+            {
+                Aria2Fast.MainWindow.Instance.Close();
+            }
+            App.Current.Shutdown();
+        }
+
+
+        App()
+        {
+            //TODO 检查多开
+
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            DispatcherUnhandledException += Current_DispatcherUnhandledException;
+        }
+
+
+        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception ex = (Exception)e.ExceptionObject;
+            EasyLogManager.Logger.Error(ex);
+            MessageBox.Show(ex?.Message + Environment.NewLine + ex?.InnerException?.ToString(), "Error#1", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            EasyLogManager.Logger.Error(e.Exception);
+            MessageBox.Show(e?.Exception?.Message + Environment.NewLine + e?.Exception?.InnerException?.ToString(), "Error#2", MessageBoxButton.OK, MessageBoxImage.Information);
+            e.Handled = true;
+        }
+    }
+}
