@@ -429,37 +429,38 @@ namespace Aria2Fast.Service
                         }
                         else
                         {
-                            //其他类型订阅，如https、ftp
-                            try
-                            {
-                                savePath = await AutoEpisodeTitle(subscription, subject, savePath);
+                            //其他类型订阅，如https、ftp?
+                            //try
+                            //{
 
-                                EasyLogManager.Logger.Info($"添加下载{subject} {link.Uri} {savePath}");
-                                var aria2Result = Aria2ApiManager.Instance.DownloadUrl(downloadUrl, savePath).Result;
+                            //    savePath = await AutoEpisodeTitle(subscription, subject, savePath);
 
-                                if (aria2Result.isSuccessed)
-                                {
-                                    TaskUrlToSubscriptionName[aria2Result.Gid] = subject;
-                                    if (!string.IsNullOrWhiteSpace(aria2Result.InfoHash))
-                                    {
-                                        TaskUrlToSubscriptionName[aria2Result.InfoHash] = subject;
-                                    }
-                                }
+                            //    EasyLogManager.Logger.Info($"添加下载{subject} {link.Uri} {savePath}");
+                            //    var aria2Result = Aria2ApiManager.Instance.DownloadUrl(downloadUrl, savePath).Result;
 
-                                if (aria2Result.isSuccessed)
-                                {
-                                    subscription.AlreadyAddedDownloadModel.Add(new SubscriptionSubTaskModel() { Name = subject, Url = downloadUrl, Time = DateTime.Now });
-                                    EasyLogManager.Logger.Info($"添加成功");
-                                }
-                                else
-                                {
-                                    EasyLogManager.Logger.Error($"添加失败");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                EasyLogManager.Logger.Error(ex.ToString());
-                            }
+                            //    if (aria2Result.isSuccessed)
+                            //    {
+                            //        TaskUrlToSubscriptionName[aria2Result.Gid] = subject;
+                            //        if (!string.IsNullOrWhiteSpace(aria2Result.InfoHash))
+                            //        {
+                            //            TaskUrlToSubscriptionName[aria2Result.InfoHash] = subject;
+                            //        }
+                            //    }
+
+                            //    if (aria2Result.isSuccessed)
+                            //    {
+                            //        subscription.AlreadyAddedDownloadModel.Add(new SubscriptionSubTaskModel() { Name = subject, Url = downloadUrl, Time = DateTime.Now });
+                            //        EasyLogManager.Logger.Info($"添加成功");
+                            //    }
+                            //    else
+                            //    {
+                            //        EasyLogManager.Logger.Error($"添加失败");
+                            //    }
+                            //}
+                            //catch (Exception ex)
+                            //{
+                            //    EasyLogManager.Logger.Error(ex.ToString());
+                            //}
                         }
 
                     }

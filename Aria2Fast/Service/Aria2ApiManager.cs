@@ -302,7 +302,7 @@ namespace Aria2Fast.Service
             try
             {
                 Debug.WriteLine($"删除任务：{gid}");
-                var result = await _client.ForceRemoveAsync(gid);
+                var result = await _client.RemoveAsync(gid);
                 return IsGid(result);
             }
             catch (Exception ex)

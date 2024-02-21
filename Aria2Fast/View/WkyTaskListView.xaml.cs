@@ -97,11 +97,12 @@ namespace Aria2Fast.View
         {
             try
             {
+                var selectedItems = _selectedItems;
                 var title = "";
-                foreach (var item in _selectedItems)
+                foreach (var item in selectedItems)
                 {
                     title += item.SubscriptionName;
-                    if (item != _selectedItems.Last())
+                    if (item != selectedItems.Last())
                     {
                         title += "\n";
                     }
@@ -119,7 +120,8 @@ namespace Aria2Fast.View
         {
             try
             {
-                foreach (var item in _selectedItems)
+                var selectedItems = _selectedItems;
+                foreach (var item in selectedItems)
                 {
                     if (item.Data.Status == Aria2ApiManager.KARIA2_STATUS_PAUSED ||
                             item.Data.Status == Aria2ApiManager.KARIA2_STATUS_ERROR)
@@ -140,8 +142,8 @@ namespace Aria2Fast.View
         {
             try
             {
-
-                foreach (var item in _selectedItems)
+                var selectedItems = _selectedItems;
+                foreach (var item in selectedItems)
                 {
                     if (item.Data.Status != Aria2ApiManager.KARIA2_STATUS_COMPLETE)
                     {
@@ -160,30 +162,32 @@ namespace Aria2Fast.View
 
         private async void MenuDelete_Click(object sender, RoutedEventArgs e)
         {
+            var selectedItems = _selectedItems;
+
             var title = "";
-            foreach (var item in _selectedItems)
+            foreach (var item in selectedItems)
             {
                 title += item.SubscriptionName;
-                if (item != _selectedItems.Last())
+                if (item != selectedItems.Last())
                 {
                     title += "\n";
                 }
             }
 
             var content = "";
-            if (_selectedItems.Count == 1) 
+            if (selectedItems.Count == 1) 
             {
                 content = $"是否确认删除任务：\r\n{title}？";
             }
             else
             {
-                content = $"是否确认删除{_selectedItems.Count}个任务？";
+                content = $"是否确认删除{selectedItems.Count}个任务？";
             }
 
             MainWindow.Instance.ShowMessageBox("提示", content, async () => {
                 try
                 {
-                    foreach (var item in _selectedItems)
+                    foreach (var item in selectedItems)
                     {
                         if (item.Data.Status == Aria2ApiManager.KARIA2_STATUS_ERROR ||
                         item.Data.Status == Aria2ApiManager.KARIA2_STATUS_REMOVED ||
@@ -215,11 +219,13 @@ namespace Aria2Fast.View
 
         private async void MenuDeleteFile_Click(object sender, RoutedEventArgs e)
         {
+            var selectedItems = _selectedItems;
+
             var title = "";
-            foreach (var item in _selectedItems)
+            foreach (var item in selectedItems)
             {
                 title += item.SubscriptionName; //TODO
-                if (item != _selectedItems.Last())
+                if (item != selectedItems.Last())
                 {
                     title += "\n";
                 }
@@ -227,13 +233,13 @@ namespace Aria2Fast.View
 
 
             var content = "";
-            if (_selectedItems.Count == 1)
+            if (selectedItems.Count == 1)
             {
                 content = $"是否确认删除任务及文件：\r\n{title}？";
             }
             else
             {
-                content = $"是否确认删除{_selectedItems.Count}个任务及文件？";
+                content = $"是否确认删除{selectedItems.Count}个任务及文件？";
             }
 
 
@@ -241,7 +247,7 @@ namespace Aria2Fast.View
             MainWindow.Instance.ShowMessageBox("提示", content, async () => {
                 try
                 {
-                    foreach (var item in _selectedItems)
+                    foreach (var item in selectedItems)
                     {
                         await Aria2ApiManager.Instance.DeleteFile(item.Data.Gid);
                     }

@@ -22,11 +22,11 @@ namespace Aria2Fast.Service.Model
         {
             get
             {
-                if (!string.IsNullOrWhiteSpace(Data.Gid) && 
-                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.ContainsKey(Data.Gid))
-                {
-                    return true;
-                }
+                //if (!string.IsNullOrWhiteSpace(Data.Gid) && 
+                //    SubscriptionManager.Instance.TaskUrlToSubscriptionName.ContainsKey(Data.Gid))
+                //{
+                //    return true;
+                //}
                 if (!string.IsNullOrWhiteSpace(Data.InfoHash) && 
                     SubscriptionManager.Instance.TaskUrlToSubscriptionName.ContainsKey(Data.InfoHash))
                 {
@@ -73,13 +73,13 @@ namespace Aria2Fast.Service.Model
             {
                 if (FromSubscription)
                 {
-                    var name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.Gid];
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        return name;
-                    }
+                    //var name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.Gid];
+                    //if (!string.IsNullOrWhiteSpace(name))
+                    //{
+                    //    return name;
+                    //}
 
-                    name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.InfoHash!];
+                    var name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.InfoHash!];
                     if (!string.IsNullOrWhiteSpace(name))
                     {
                         return name;

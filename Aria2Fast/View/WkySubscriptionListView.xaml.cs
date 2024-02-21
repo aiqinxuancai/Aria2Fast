@@ -41,7 +41,10 @@ namespace Aria2Fast.View
             //主动刷新？
             this.ViewModel = viewModel;
             this.ViewModel = SubscriptionManager.Instance.SubscriptionModel; //订阅列表绑定
-            this.SubscriptionButton.IsEnabled = false;
+            this.SubscriptionButton.IsEnabled = Aria2ApiManager.Instance.Connected;
+
+
+            //
 
             Aria2ApiManager.Instance.EventReceived
                 .OfType<LoginResultEvent>()
