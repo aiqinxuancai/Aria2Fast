@@ -198,18 +198,13 @@ namespace Aria2Fast
                     LinkStatusProgressBar.Visibility = Visibility.Collapsed;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
                     LinkStatusBorder.Background = myBrush;
-
-                    if (string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.Aria2RpcHost))
-                    {
-                        Aria2RpcHostTextBlock.Text = "请在设置中添加Aria2Rpc地址";
-                    }
                     break;
                 case LinkStatus.Success:
                     LinkStatusProgressBar.IsIndeterminate = false;
                     LinkStatusProgressBar.Visibility = Visibility.Collapsed;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#ff19be6b");
                     LinkStatusBorder.Background = myBrush;
-
+                    
 
                     break;
 
