@@ -199,7 +199,7 @@ namespace Aria2Fast
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
                     LinkStatusBorder.Background = myBrush;
 
-                    if (string.IsNullOrWhiteSpace(Aria2ApiManager.Instance.ConnectedRpc))
+                    if (string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.Aria2RpcHost))
                     {
                         Aria2RpcHostTextBlock.Text = "请在设置中添加Aria2Rpc地址";
                     }

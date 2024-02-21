@@ -32,13 +32,13 @@ jobs:
       - name: Echo tag
         run: echo The tag is ${{ github.event.inputs.tag }}
       - name: Clean
-        run: dotnet clean $env:GITHUB_WORKSPACE\WkyFast.sln --configuration Release && dotnet nuget locals all --clear
+        run: dotnet clean $env:GITHUB_WORKSPACE\Aria2Fast.sln --configuration Release && dotnet nuget locals all --clear
       - name: Restore dependencies
         run: dotnet restore
       - name: Set Version
-        run: powershell -Command "(gc $env:GITHUB_WORKSPACE\WkyFast\Utils\ActionVersion.cs) -replace '{VERSION}', '$env:GITHUB_REF_NAME' | Out-File $env:GITHUB_WORKSPACE\WkyFast\Utils\ActionVersion.cs"
+        run: powershell -Command "(gc $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs) -replace '{VERSION}', '$env:GITHUB_REF_NAME' | Out-File $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs"
       - name: Set Build
-        run: powershell -Command "(gc $env:GITHUB_WORKSPACE\WkyFast\Utils\ActionVersion.cs) -replace '{BUILD}', '$env:GITHUB_RUN_NUMBER' | Out-File $env:GITHUB_WORKSPACE\WkyFast\Utils\ActionVersion.cs"
+        run: powershell -Command "(gc $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs) -replace '{BUILD}', '$env:GITHUB_RUN_NUMBER' | Out-File $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs"
       - name: Build
         run: dotnet build --no-restore
       - name: Test
@@ -47,12 +47,12 @@ jobs:
         run:  dotnet publish -c Release -r win-x64 --self-contained=true
       - run: powershell curl https://github.com/aiqinxuancai/DotNetDllPathPatcherWPF/releases/download/v0.0.15/DotNetDllPathPatcherCMD.zip -o DotNetDllPathPatcherCMD.zip
       - run: powershell Expand-Archive -Path .\DotNetDllPathPatcherCMD.zip -DestinationPath .\DotNetDllPathPatcherCMD
-      - run: powershell .\DotNetDllPathPatcherCMD\publish\DotNetDllPathPatcherCMD.exe $env:GITHUB_WORKSPACE\WkyFast\bin\Release\net8.0-windows\win-x64\publish\WkyFast.exe
+      - run: powershell .\DotNetDllPathPatcherCMD\publish\DotNetDllPathPatcherCMD.exe $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net8.0-windows\win-x64\publish\Aria2Fast.exe
       - name: Compress
-        run: powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\WkyFast\bin\Release\net8.0-windows\win-x64\publish -DestinationPath .\WkyFast.zip
+        run: powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net8.0-windows\win-x64\publish -DestinationPath .\Aria2Fast.zip
       - name: Create a Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "WkyFast.zip"
+          artifacts: "Aria2Fast.zip"
           prerelease: ${{ steps.prerelease.outputs.status }}
           token: ${{ secrets.GITHUB_TOKEN }}
