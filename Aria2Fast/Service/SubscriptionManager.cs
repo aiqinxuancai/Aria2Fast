@@ -52,6 +52,8 @@ namespace Aria2Fast.Service
 
         private object _look = new object();
 
+        private object _lookForSave = new object();
+
         public SubscriptionManager()
         {
             SubscriptionModel = new ObservableCollection<SubscriptionModel>();
@@ -296,10 +298,9 @@ namespace Aria2Fast.Service
 
             for (int i = 0; i < copyList.Count; i++)
             {
-                lock (_look)
-                {
-                    CheckSubscriptionOne(copyList[i]);
-                }
+           
+                await CheckSubscriptionOne(copyList[i]);
+                
 
                 OnSubscriptionProgressChanged?.Invoke(i, copyList.Count);
             }
@@ -309,8 +310,10 @@ namespace Aria2Fast.Service
             Subscribing = false;
         }
 
-        public async void CheckSubscriptionOne(SubscriptionModel subscription)
+        public async Task CheckSubscriptionOne(SubscriptionModel subscription)
         {
+
+
             string url = subscription.Url;
 
             EasyLogManager.Logger.Info($"订阅地址：{url}");
@@ -369,7 +372,7 @@ namespace Aria2Fast.Service
             {
                 string subject = item.Title.Text;
                 string summary = item.Summary?.Text;
-                
+
 
                 if (CheckTitle(subscription, subject))
                 {
@@ -399,7 +402,9 @@ namespace Aria2Fast.Service
                                 EasyLogManager.Logger.Info($"添加下载{subject} {link.Uri} {savePath}");
 
                                 //支持由http开头的bt文件和magnet:?xt=urn:btih:开头的文件
-                                var aria2Result = Aria2ApiManager.Instance.DownloadBtFileUrl(downloadUrl, savePath).Result;
+                                var aria2Result = await Aria2ApiManager.Instance.DownloadBtFileUrl(downloadUrl, savePath);
+
+                                EasyLogManager.Logger.Info($"添加下载完毕");
 
                                 if (aria2Result.isSuccessed)
                                 {
@@ -464,31 +469,10 @@ namespace Aria2Fast.Service
                         }
 
                     }
-                       
+
                 }
-
-
-
-                //foreach (SyndicationElementExtension extension in item.ElementExtensions)
-                //{
-                //    XElement ele = extension.GetObject<XElement>();
-
-                //    Debug.WriteLine("节点名称:" + ele.Name);
-
-                //    foreach (XElement node in ele.Nodes())
-                //    {
-                //        Debug.WriteLine(node.Name.LocalName + " " + node.Value);
-                //        if (node.Name.LocalName == "link")
-                //        {
-
-                //        }
-                //    }
-
-                //}
-
             }
             Save();
-            
         }
 
         private static async Task<string> AutoEpisodeTitle(SubscriptionModel subscription, string subject, string savePath)
@@ -566,7 +550,7 @@ namespace Aria2Fast.Service
 
         public void Load()
         {
-            lock (_look)
+            lock (_lookForSave)
             {
 
                 LoadTrueName();
@@ -618,7 +602,7 @@ namespace Aria2Fast.Service
 
         public void Save()
         {
-            lock (_look)
+            lock (_lookForSave)
             {
                 Debug.WriteLine("保存订阅");
 
