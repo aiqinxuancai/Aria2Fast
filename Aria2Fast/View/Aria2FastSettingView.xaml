@@ -153,11 +153,11 @@
                                     Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIHost}" />
 
                                 <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
-                                    <ui:Hyperlink
+                                    <ui:HyperlinkButton
                                         x:Name="LinkAIKEY"
                                         Click="LinkAIKEY_Click"
                                         Content="https://aikey.one/" />
-                                    <ui:Hyperlink
+                                    <ui:HyperlinkButton
                                         x:Name="LinkAPI2D"
                                         Click="LinkAPI2D_Click"
                                         Content="https://api2d.com/" />

@@ -7,16 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Aria2Fast.Service;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
 
 namespace Aria2Fast.UI.Test
 {
@@ -88,7 +81,7 @@ namespace Aria2Fast.UI.Test
             InitializeComponent();
 
             //Loaded += (_, _) => RootNavigation.Navigate(typeof(DashboardPage));
-            GAHelper.Instance.Login();
+            //GAHelper.Instance.Login();
 
 
         }
@@ -130,6 +123,11 @@ namespace Aria2Fast.UI.Test
                     CloseButtonText = "Cancel",
                 }
             );
+        }
+
+        public Task<ContentDialogResult> ShowAsync(ContentDialog dialog, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -9,13 +9,9 @@
 
   <ItemGroup>
 	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-    <PackageReference Include="WPF-UI" Version="3.0.0-preview.13" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="WPF-UI" Version="3.0.0" />
 	  
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Aria2Fast\Aria2Fast.csproj" />
   </ItemGroup>
 
 </Project>

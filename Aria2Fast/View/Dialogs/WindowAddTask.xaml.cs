@@ -11,13 +11,14 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using Aria2Fast.Service;
 using Aria2Fast.Utils;
+using Wpf.Ui.Controls;
 
 namespace Aria2Fast.Dialogs
 {
     /// <summary>
     /// WindowAddTask.xaml 的交互逻辑
     /// </summary>
-    public partial class WindowAddTask : Window
+    public partial class WindowAddTask : FluentWindow
     {
         public WindowAddTask()
         {

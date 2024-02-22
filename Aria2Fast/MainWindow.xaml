@@ -1,4 +1,4 @@
-﻿<Window
+﻿<ui:FluentWindow
     x:Class="Aria2Fast.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -18,7 +18,6 @@
     Closing="Window_Closing"
     Icon="icon.ico"
     Loaded="MetroWindow_Loaded"
-    Style="{StaticResource UiWindow}"
     Unloaded="MetroWindow_Unloaded"
     WindowStartupLocation="CenterScreen"
     WindowStyle="SingleBorderWindow"
@@ -55,31 +54,19 @@
             Title="Aria2Fast"
             Grid.Row="0"
             Grid.ColumnSpan="2"
-            CloseClicked="TitleBar_CloseClicked"
-            Icon="icon.ico">
-            <!--<ui:TitleBar.Header>
-                <StackPanel
-                    Margin="0,0,12,0"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
-                    <ui:Button
-                        Margin="0,0,4,0"
-                        Padding="4,4"
-                        Appearance="Secondary"
-                        Icon="Wifi124" />
-                    <ui:Button
-                        Margin="0"
-                        Padding="4,4"
-                        Appearance="Secondary"
-                        Icon="Bluetooth24" />
-                </StackPanel>
-            </ui:TitleBar.Header>-->
+            CloseClicked="TitleBar_CloseClicked">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/icon.ico" />
+            </ui:TitleBar.Icon>
+
 
         </ui:TitleBar>
 
 
-        <Grid Grid.Row="1" Grid.Column="0">
+        <Grid
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2">
             <ProgressBar
                 x:Name="subscriptionProgressBar"
                 Width="40"
@@ -88,29 +75,21 @@
                 VerticalAlignment="Top"
                 Visibility="Hidden" />
 
-            <ui:NavigationStore Frame="{Binding ElementName=MainFrame}" SelectedPageIndex="0">
-                <ui:NavigationStore.Items>
-                    <ui:NavigationItem
-                        Cursor="Hand"
-                        Icon="TextBulletListSquare20"
-                        PageTag="home"
-                        PageType="{x:Type view:WkyTaskListView}">
+            <ui:NavigationView x:Name="RootNavigation" IsBackButtonVisible="Collapsed" OpenPaneLength="100">
+                <ui:NavigationView.MenuItems>
+
+                    <ui:NavigationViewItem TargetPageType="{x:Type view:WkyTaskListView}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="TextBulletListSquare20" />
+                        </ui:NavigationViewItem.Icon>
                         <Grid>
                             <TextBlock FontSize="12" Text="任务" />
                         </Grid>
-                    </ui:NavigationItem>
-                    <ui:NavigationItem
-                        Cursor="Hand"
-                        PageTag="subscription"
-                        PageType="{x:Type view:WkySubscriptionListView}">
-                        <ui:NavigationItem.Icon>
-
-                            <ui:SymbolRegular>
-                                AppFolder24
-                            </ui:SymbolRegular>
-
-
-                        </ui:NavigationItem.Icon>
+                    </ui:NavigationViewItem>
+                    <ui:NavigationViewItem TargetPageType="{x:Type view:WkySubscriptionListView}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="AppFolder24" />
+                        </ui:NavigationViewItem.Icon>
                         <Grid>
                             <TextBlock
                                 HorizontalAlignment="Center"
@@ -118,52 +97,43 @@
                                 Text="订阅" />
 
                         </Grid>
-                    </ui:NavigationItem>
+                    </ui:NavigationViewItem>
                     <!--<ui:NavigationItem Content="Mail" Icon="Mail24" />-->
-                </ui:NavigationStore.Items>
-                <ui:NavigationStore.Footer>
+                </ui:NavigationView.MenuItems>
+                <ui:NavigationView.FooterMenuItems>
                     <!--<ui:NavigationItem  Icon="Home24" Click="NavigationItem_Home_Click" >
                         <Grid>
                             <TextBlock Text="主页"></TextBlock>
                         </Grid>
                     </ui:NavigationItem>-->
-                    <ui:NavigationItem
-                        Cursor="Hand"
-                        Icon="Settings24"
-                        PageTag="settings"
-                        PageType="{x:Type view:Aria2FastSettingView}">
+                    <ui:NavigationViewItem Cursor="Hand" TargetPageType="{x:Type view:Aria2FastSettingView}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="Settings24" />
+                        </ui:NavigationViewItem.Icon>
                         <Grid>
                             <TextBlock FontSize="12" Text="设置" />
                         </Grid>
-                    </ui:NavigationItem>
-                </ui:NavigationStore.Footer>
-            </ui:NavigationStore>
+                    </ui:NavigationViewItem>
+                </ui:NavigationView.FooterMenuItems>
+            </ui:NavigationView>
         </Grid>
 
-
-        <Frame
-            x:Name="MainFrame"
-            Grid.Row="1"
-            Grid.Column="1"
-            Margin="0,0,0,0" />
-
-
-        <ui:NotifyIcon
+        <tray:NotifyIcon
             x:Name="MyNotifyIcon"
             Grid.Row="0"
             FocusOnLeftClick="True"
             Icon="icon.ico"
             MenuOnRightClick="True"
             TooltipText="Aria2Fast">
-            <ui:NotifyIcon.Menu>
+            <tray:NotifyIcon.Menu>
                 <ContextMenu>
                     <MenuItem
                         Name="TaskbarExitMenu"
                         Click="TaskbarExitMenu_Click"
                         Header="退出" />
                 </ContextMenu>
-            </ui:NotifyIcon.Menu>
-        </ui:NotifyIcon>
+            </tray:NotifyIcon.Menu>
+        </tray:NotifyIcon>
 
         <!--<tb:TaskbarIcon x:Name="MainNotifyIcon"
                     Visibility="Visible"
@@ -214,10 +184,8 @@
                                 x:Name="LinkStatusProgressBar"
                                 Width="{Binding ElementName=Aria2RpcHostTextBlock, Path=ActualWidth}"
                                 Height="4"
-                                VerticalAlignment="Bottom"
                                 BorderBrush="Transparent"
-                                BorderThickness="0"
-                                IsIndeterminate="True" />
+                                IsIndeterminate="True" VerticalAlignment="Bottom" />
 
                             <TextBlock
                                 x:Name="Aria2RpcHostTextBlock"
@@ -244,24 +212,13 @@
 
         </StackPanel>
 
-        <!--<Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1">
-            <view:WkyMainTabView  x:Name="WkyMainTabView"></view:WkyMainTabView>
-        </Grid>-->
-        <!--<Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1">
-            <view:WkyTaskListView  x:Name="WkyTaskListView"></view:WkyTaskListView>
-            <view:WkySubscriptionListView  x:Name="WkySubscriptionListView" Visibility="Hidden"></view:WkySubscriptionListView>
-        </Grid>-->
+        <Grid Grid.Row="0" Grid.RowSpan="4" Grid.ColumnSpan="2">
+            <ui:SnackbarPresenter Name="SnackbarPresenter" />
 
+            <ContentPresenter Name="DialogPresenter" />
+        </Grid>
 
-        <!--<dialogs:LoginDialog
-            x:Name="WkyLoginDialog"
-            Grid.Row="0"
-            Grid.RowSpan="2"
-            Grid.Column="0"
-            Grid.ColumnSpan="2"
-            Visibility="Collapsed" />-->
-
-        <ui:Dialog
+        <!--<ui:Dialog
             x:Name="RootDialog"
             Title="Dialog"
             Grid.Row="0"
@@ -282,7 +239,7 @@
             CloseButtonEnabled="True"
             Icon="Warning24"
             Message="Message"
-            Timeout="5000" />
+            Timeout="5000" />-->
 
     </Grid>
-</Window>
+</ui:FluentWindow>

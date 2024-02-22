@@ -11,6 +11,10 @@ using System.Windows.Media;
 using Aria2Fast.Service;
 using Aria2Fast.Utils;
 using TiktokenSharp;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Wpf.Ui;
 
 namespace Aria2Fast
 {
@@ -19,6 +23,39 @@ namespace Aria2Fast
     /// </summary>
     public partial class App : Application
     {
+        private static readonly IHost _host = Host.CreateDefaultBuilder()
+            .ConfigureAppConfiguration(c =>
+            {
+                c.SetBasePath(AppContext.BaseDirectory);
+            })
+            .ConfigureServices(
+                (context, services) =>
+                {
+                    // App Host
+                    //services.AddHostedService<ApplicationHostService>();
+
+                    // Main window container with navigation
+                    // services.AddSingleton<IWindow, MainWindow>();
+                    // services.AddSingleton<MainWindowViewModel>();
+                    services.AddSingleton<INavigationService, NavigationService>();
+                    services.AddSingleton<ISnackbarService, SnackbarService>();
+                    services.AddSingleton<IContentDialogService, ContentDialogService>();
+                    //services.AddSingleton<WindowsProviderService>();
+                }
+            )
+            .Build();
+
+        /// <summary>
+        /// Gets registered service.
+        /// </summary>
+        /// <typeparam name="T">Type of the service to get.</typeparam>
+        /// <returns>Instance of the service or <see langword="null"/>.</returns>
+        public static T? GetService<T>() where T : class
+        {
+            return _host.Services.GetService(typeof(T)) as T ?? null;
+        }
+
+
         static App()
         {
 

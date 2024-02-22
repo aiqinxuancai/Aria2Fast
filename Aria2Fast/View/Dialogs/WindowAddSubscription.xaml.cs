@@ -9,13 +9,14 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using Aria2Fast.Service;
 using Aria2Fast.Utils;
+using Wpf.Ui.Controls;
 
 namespace Aria2Fast.Dialogs
 {
     /// <summary>
     /// WindowAddTask.xaml 的交互逻辑
     /// </summary>
-    public partial class WindowAddSubscription : Window
+    public partial class WindowAddSubscription : FluentWindow
     {
         public WindowAddSubscription()
         {
@@ -127,7 +128,7 @@ namespace Aria2Fast.Dialogs
 
                         EasyLogManager.Logger.Info($"订阅已添加：{title} {url}");
 
-                        MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{title}", Wpf.Ui.Common.SymbolRegular.AddCircle24);
+                        MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{title}", SymbolRegular.AddCircle24);
                         //AppConfig.Instance.ConfigData.LastAddSubscriptionPath = TextBoxPath.Text;
                     });
 

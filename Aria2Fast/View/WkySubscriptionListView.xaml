@@ -29,7 +29,7 @@
         <Button
             x:Name="SubscriptionButton"
             Width="80"
-            Margin="10,0,0,0"
+            Margin="10,5,0,0"
             VerticalAlignment="Top"
             Click="SubscriptionButton_Click"
             Content="添加订阅" />

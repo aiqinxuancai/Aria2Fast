@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Wpf.Ui.Common;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
+
 
 namespace Aria2Fast
 {
@@ -16,38 +19,49 @@ namespace Aria2Fast
         private Action _messageBoxRight;
 
 
-        public void ShowMessageBox(string title, string message, Action leftClick, Action rightClick, string buttonLeftName = "Yes", string buttonRightName = "No")
+        public async void ShowMessageBox(string title, string message, Action leftClick, Action rightClick, string buttonLeftName = "Yes", string buttonRightName = "No")
         {
-            this.RootDialog.ButtonLeftName = buttonLeftName;
-            this.RootDialog.ButtonRightName = buttonRightName;
-            _messageBoxLeft = leftClick;
-            _messageBoxRight = rightClick;
-            this.RootDialog.ButtonLeftClick -= RootDialog_ButtonLeftClick;
-            this.RootDialog.ButtonRightClick -= RootDialog_ButtonRightClick;
-            this.RootDialog.ButtonLeftClick += RootDialog_ButtonLeftClick;
-            this.RootDialog.ButtonRightClick += RootDialog_ButtonRightClick;
-            this.RootDialog.Show(title, message);
-        }
+            var service = App.GetService<IContentDialogService>();
 
-        private void RootDialog_ButtonRightClick(object sender, RoutedEventArgs e)
-        {
-            _messageBoxRight();
-            this.RootDialog.Hide();
-        }
+            service.SetContentPresenter(DialogPresenter);
 
-        private void RootDialog_ButtonLeftClick(object sender, System.Windows.RoutedEventArgs e)
-        {
-            _messageBoxLeft();
-            this.RootDialog.Hide();
-        }
+            var result = await service.ShowSimpleDialogAsync(
+                new SimpleContentDialogCreateOptions()
+                {
+                    Title = title,
+                    Content = message,
+                    PrimaryButtonText = buttonLeftName,
+                    SecondaryButtonText = buttonRightName,
+                    CloseButtonText = "Cancel",
+                    
+                }
+            );
 
+            Action call = result switch
+            {
+                ContentDialogResult.Primary => leftClick,
+                ContentDialogResult.Secondary => rightClick,
+                _ => () => { }
+            };
+
+            call();
+        }
 
         /// <summary>
         /// 展示提示类
         /// </summary>
         public void ShowSnackbar(string title, string message, SymbolRegular icon = SymbolRegular.Info24)
         {
-            this.RootSnackbar.Show(title, message, icon);
+            SnackbarService snackbarService = new SnackbarService();
+            snackbarService.SetSnackbarPresenter(SnackbarPresenter);
+
+            snackbarService.Show(
+                title,
+                message,
+                ControlAppearance.Secondary,
+                new SymbolIcon(icon),
+                TimeSpan.FromSeconds(5)
+            );
         }
 
     }

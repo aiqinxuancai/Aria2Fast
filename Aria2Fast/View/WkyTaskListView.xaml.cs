@@ -39,6 +39,8 @@ namespace Aria2Fast.View
             this.ViewModel = viewModel;
             this.ViewModel = Aria2ApiManager.Instance.TaskList;
 
+            this.AddTaskButton.IsEnabled = Aria2ApiManager.Instance.Connected;
+
             Aria2ApiManager.Instance.EventReceived
                 .OfType<LoginResultEvent>()
                 .Subscribe(async r =>

@@ -25,17 +25,19 @@ using Aria2Fast.Utils;
 using Aria2Fast.View.Model;
 using Aria2Fast.Dialogs;
 using System.Threading;
-using Wpf.Ui.Mvvm.Contracts;
 using Wpf.Ui.Controls;
 using System.Reactive.Linq;
 using Aria2Fast.Service.Model;
+using Wpf.Ui.Appearance;
+using Wpf.Ui;
+using Aria2Fast.View;
 
 namespace Aria2Fast
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : INavigationWindow, IContentDialogService
     {
         public static MainWindow Instance { get; set; }
 
@@ -46,11 +48,13 @@ namespace Aria2Fast
         public MainWindow()
         {
             InitializeComponent();
-            Wpf.Ui.Appearance.Accent.ApplySystemAccent();
+            SystemThemeWatcher.Watch(this);
+
             Instance = this;
             IntPtr hWnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
             Win11Style.LoadWin11Style(hWnd);
             EasyLogManager.Logger.Info("主界面初始化");
+
         }
 
         ~MainWindow()
@@ -60,6 +64,10 @@ namespace Aria2Fast
 
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            ApplicationThemeManager.Apply(ApplicationTheme.Light);
+
+            RootNavigation.Navigate(typeof(WkyTaskListView));
+
             ActionVersion.CheckVersion();
             SubscriptionManager.Instance.OnSubscriptionProgressChanged += SubscriptionManager_OnSubscriptionProgressChanged;
             GAHelper.Instance.RequestPageView($"启动到主界面{ActionVersion.Version}");
@@ -189,19 +197,19 @@ namespace Aria2Fast
             {
                 case LinkStatus.Linking:
                     LinkStatusProgressBar.IsIndeterminate = true;
-                    LinkStatusProgressBar.Visibility = Visibility.Visible;
+                    //LinkStatusProgressBar.Visibility = Visibility.Visible;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#2db7f5");
                     LinkStatusBorder.Background = myBrush;
                     break;
                 case LinkStatus.Error:
                     LinkStatusProgressBar.IsIndeterminate = false;
-                    LinkStatusProgressBar.Visibility = Visibility.Collapsed;
+                    //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
                     LinkStatusBorder.Background = myBrush;
                     break;
                 case LinkStatus.Success:
                     LinkStatusProgressBar.IsIndeterminate = false;
-                    LinkStatusProgressBar.Visibility = Visibility.Collapsed;
+                    //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#ff19be6b");
                     LinkStatusBorder.Background = myBrush;
                     
@@ -212,5 +220,49 @@ namespace Aria2Fast
             
         }
 
+        public INavigationView GetNavigation()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Navigate(Type pageType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetServiceProvider(IServiceProvider serviceProvider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPageService(IPageService pageService)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ShowWindow()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CloseWindow()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetContentPresenter(ContentPresenter contentPresenter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ContentPresenter GetContentPresenter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ContentDialogResult> ShowAsync(ContentDialog dialog, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
