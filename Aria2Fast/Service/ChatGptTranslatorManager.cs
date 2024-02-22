@@ -18,16 +18,25 @@ namespace Aria2Fast.Service
     internal class ChatGPTTranslatorManager
     {
         const string kSystemMessage = """
-            请从我提供的内容中告诉我这个作品的名称，请返回如下JSON格式：
-            { "title": <string> }
-            请注意：
-            1.不要添加解释。
-            2.内容中可能包含多种语言的作品名称，通常可能会使用符号/进行分割，请返回第一种语言名称。
-            3.请避免将字幕组名称及字幕名称等识别为标题。
-            4.不要对作品名称进行删减或翻译以及字符的转换。
-            5.作品名称不会包含包含[]【】等符号。
-            以下为内容：
+            # 角色
+            你是一个精通提取文本的AI工程师，可以从复杂的文本中找到关键信息并返回。
 
+            ## 技能
+            - 识别用户提供的原始文本中的内容。
+            - 根据文本内容，提取并返回作品的名称。
+
+            ## 输出格式：
+            直接返回一个JSON格式的字符串，字段为"title"。返回的JSON示例如下：
+            ```
+             { "title": "<被提取的作品名称>" }
+            ```
+
+            ## 限制：
+            - 不增加额外的解释。
+            - 当文本中含有多种语言的作品名称时，通常以"/"符号进行分割，仅返回第一种语言的名称。
+            - 避免将字幕组名称及字幕名称等误识别为标题。
+            - 不对作品名称进行编辑、翻译或字符转换。
+            - 如果作品名称可能带有包含[]、【】等符号，这不是我们要提取的作品名称。
             """;
 
         static Dictionary<string, string> _cache = new Dictionary<string, string>();
@@ -43,33 +52,26 @@ namespace Aria2Fast.Service
 
             if (!string.IsNullOrEmpty(AppConfig.Instance.ConfigData.OpenAIHost))
             {
-                client.Settings.OpenAIAPIBaseUri = AppConfig.Instance.ConfigData.OpenAIHost;
+                client.Settings.APIURL = AppConfig.Instance.ConfigData.OpenAIHost;
             }
 
             if (client != null)
             {
                 try
                 {
-                    s = $"{kSystemMessage}{s}";
+                    s = $"{s}";
 
                     if (_cache.TryGetValue(s, out var r))
                     {
                         return r;
                     }
 
-                    var result = await client.SendMessage(s);
+                    var result = await client.SendMessage(s, systemPrompt: kSystemMessage);
 
                     if (!string.IsNullOrEmpty(result.Response))
                     {
                         JObject root = JObject.Parse(result.Response);
                         var title = (string)root["title"];
-
-                        //if (title.Contains("/"))
-                        //{
-                        //    title.Split("/");
-                        //}
-
-
                         _cache[s] = title;
                         return title;
                     }

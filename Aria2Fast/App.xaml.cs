@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Media;
 using Aria2Fast.Service;
 using Aria2Fast.Utils;
+using TiktokenSharp;
 
 namespace Aria2Fast
 {
@@ -20,7 +21,6 @@ namespace Aria2Fast
     {
         static App()
         {
-            //TimeHelper.SecondsToFormatString(99);
 
             TextOptions.TextFormattingModeProperty.OverrideMetadata(typeof(Window),
                 new FrameworkPropertyMetadata(TextFormattingMode.Display, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
