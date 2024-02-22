@@ -29,13 +29,13 @@
         <Button
             x:Name="SubscriptionButton"
             Width="80"
-            Margin="10,5,0,0"
+            Margin="10,8,0,0"
             VerticalAlignment="Top"
             Click="SubscriptionButton_Click"
             Content="添加订阅" />
         <DataGrid
             x:Name="MainDataGrid"
-            Margin="0,40,0,0"
+            Margin="0,45,0,0"
             AutoGenerateColumns="False"
             BorderBrush="Transparent"
             CanUserAddRows="False"
