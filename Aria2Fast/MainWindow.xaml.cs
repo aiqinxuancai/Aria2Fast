@@ -45,9 +45,34 @@ namespace Aria2Fast
 
         private bool _needExit = false;
 
+        public IList<object> NavigationItems { set; get; } = new ObservableCollection<object>()
+        {
+            new NavigationViewItem("任务", SymbolRegular.News24, typeof(WkyTaskListView))
+            {
+            },
+            new NavigationViewItem("订阅", SymbolRegular.News24, typeof(WkySubscriptionListView))
+            {
+                MenuItems = new object[]
+                {
+                    new NavigationViewItem("Mikan", typeof(AnimeListView)),
+                },
+            },
+        };
+
+
         public MainWindow()
         {
+            DataContext = this;
+
+
+
+
+
             InitializeComponent();
+
+
+            
+
             SystemThemeWatcher.Watch(this);
 
             Instance = this;
@@ -64,7 +89,20 @@ namespace Aria2Fast
 
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            foreach (NavigationViewItem item in NavigationItems)
+            {
+
+                var mainBorder = item.Template.FindName("MainBorder", item) as Border;
+                if (mainBorder != null)
+                {
+                    mainBorder.MinWidth = 200; // 或您想要的任意数值
+                }
+
+            }
+
             ApplicationThemeManager.Apply(ApplicationTheme.Light);
+
+            //RootNavigation.MenuItemsSource = _menuItems;
 
             RootNavigation.Navigate(typeof(WkyTaskListView));
 
@@ -97,6 +135,11 @@ namespace Aria2Fast
 
             //开始连接
             Aria2ApiManager.Instance.Init();
+
+            MikanManager.Instance.MikanStart();
+
+
+
         }
 
         private void SubscriptionManager_OnSubscriptionProgressChanged(int now, int max)

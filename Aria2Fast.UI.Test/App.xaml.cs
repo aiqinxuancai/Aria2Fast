@@ -18,6 +18,12 @@ namespace Aria2Fast.UI.Test
     public partial class App : Application
     {
 
+        App()
+        {
+            
+        }
+
+
         private static readonly IHost _host = Host.CreateDefaultBuilder()
         .ConfigureAppConfiguration(c =>
         {

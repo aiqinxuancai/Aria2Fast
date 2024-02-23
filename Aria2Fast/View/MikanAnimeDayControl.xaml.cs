@@ -13,18 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-
 namespace Aria2Fast.View
 {
     /// <summary>
-    /// AnimeListView.xaml 的交互逻辑
+    /// MikanAnimeDayControl.xaml 的交互逻辑
     /// </summary>
-    public partial class AnimeListView : Page
+    public partial class MikanAnimeDayControl : UserControl
     {
-        public AnimeListView()
+        public MikanAnimeDayControl()
         {
             InitializeComponent();
-
         }
     }
 }

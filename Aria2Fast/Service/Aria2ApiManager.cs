@@ -280,7 +280,7 @@ namespace Aria2Fast.Service
                         a.Status == KARIA2_STATUS_COMPLETE);
 
 
-                        EasyLogManager.Logger.Info($"下载完成 {r.Task.Data.Name} {r.Task.Data.Path}");
+                        EasyLogManager.Logger.Info($"下载完成 {task.SubscriptionName}");
                         if (AppConfig.Instance.ConfigData.PushDeerOpen)
                         {
                             PushDeer.SendPushDeer($"[{task.SubscriptionName}]下载完成");

@@ -58,7 +58,7 @@ namespace Aria2Fast
 
         static App()
         {
-
+            var a = MikanManager.Instance;
             TextOptions.TextFormattingModeProperty.OverrideMetadata(typeof(Window),
                 new FrameworkPropertyMetadata(TextFormattingMode.Display, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
         }

@@ -15,6 +15,8 @@
     Title="Aria2Fast"
     Width="1020"
     Height="680"
+    d:DataContext="{d:DesignInstance local:MainWindow,
+                                     IsDesignTimeCreatable=False}"
     Closing="Window_Closing"
     Icon="icon.ico"
     Loaded="MetroWindow_Loaded"
@@ -75,9 +77,15 @@
                 VerticalAlignment="Top"
                 Visibility="Hidden" />
 
-            <ui:NavigationView x:Name="RootNavigation" IsBackButtonVisible="Collapsed" OpenPaneLength="100">
-                <ui:NavigationView.MenuItems>
+            <ui:NavigationView
+                x:Name="RootNavigation"
+                IsBackButtonVisible="Collapsed"
+                MenuItemsSource="{Binding NavigationItems, Mode=OneWay}"
+                OpenPaneLength="300"
+                Transition="FadeInWithSlide">
 
+
+                <!--<ui:NavigationView.MenuItems>
                     <ui:NavigationViewItem TargetPageType="{x:Type view:WkyTaskListView}">
                         <ui:NavigationViewItem.Icon>
                             <ui:SymbolIcon Symbol="TextBulletListSquare20" />
@@ -90,6 +98,14 @@
                         <ui:NavigationViewItem.Icon>
                             <ui:SymbolIcon Symbol="AppFolder24" />
                         </ui:NavigationViewItem.Icon>
+
+                        <ui:NavigationViewItem.MenuItems>
+                            <ui:NavigationViewItem
+                               Content="Mikan"
+                               TargetPageTag="Mikan"
+                               TargetPageType="{x:Type view:PageNull}" />
+                        </ui:NavigationViewItem.MenuItems>
+
                         <Grid>
                             <TextBlock
                                 HorizontalAlignment="Center"
@@ -98,21 +114,18 @@
 
                         </Grid>
                     </ui:NavigationViewItem>
-                    <!--<ui:NavigationItem Content="Mail" Icon="Mail24" />-->
-                </ui:NavigationView.MenuItems>
+
+                </ui:NavigationView.MenuItems>-->
+
                 <ui:NavigationView.FooterMenuItems>
-                    <!--<ui:NavigationItem  Icon="Home24" Click="NavigationItem_Home_Click" >
-                        <Grid>
-                            <TextBlock Text="主页"></TextBlock>
-                        </Grid>
-                    </ui:NavigationItem>-->
-                    <ui:NavigationViewItem Cursor="Hand" TargetPageType="{x:Type view:Aria2FastSettingView}">
+                    <ui:NavigationViewItem TargetPageType="{x:Type view:Aria2FastSettingView}">
                         <ui:NavigationViewItem.Icon>
                             <ui:SymbolIcon Symbol="Settings24" />
                         </ui:NavigationViewItem.Icon>
                         <Grid>
                             <TextBlock FontSize="12" Text="设置" />
                         </Grid>
+
                     </ui:NavigationViewItem>
                 </ui:NavigationView.FooterMenuItems>
             </ui:NavigationView>
@@ -184,8 +197,9 @@
                                 x:Name="LinkStatusProgressBar"
                                 Width="{Binding ElementName=Aria2RpcHostTextBlock, Path=ActualWidth}"
                                 Height="4"
+                                VerticalAlignment="Bottom"
                                 BorderBrush="Transparent"
-                                IsIndeterminate="True" VerticalAlignment="Bottom" />
+                                IsIndeterminate="True" />
 
                             <TextBlock
                                 x:Name="Aria2RpcHostTextBlock"
@@ -212,7 +226,10 @@
 
         </StackPanel>
 
-        <Grid Grid.Row="0" Grid.RowSpan="4" Grid.ColumnSpan="2">
+        <Grid
+            Grid.Row="0"
+            Grid.RowSpan="4"
+            Grid.ColumnSpan="2">
             <ui:SnackbarPresenter Name="SnackbarPresenter" />
 
             <ContentPresenter Name="DialogPresenter" />
