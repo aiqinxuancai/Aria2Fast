@@ -81,7 +81,7 @@
                 x:Name="RootNavigation"
                 IsBackButtonVisible="Collapsed"
                 MenuItemsSource="{Binding NavigationItems, Mode=OneWay}"
-                OpenPaneLength="300"
+                OpenPaneLength="200"
                 Transition="FadeInWithSlide">
 
 
