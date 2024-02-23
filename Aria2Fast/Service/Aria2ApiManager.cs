@@ -15,6 +15,7 @@ using static Org.BouncyCastle.Math.EC.ECCurve;
 using Flurl.Http;
 using System.Linq;
 using System.Timers;
+using Aria2Fast.Utils;
 
 
 namespace Aria2Fast.Service
@@ -268,7 +269,28 @@ namespace Aria2Fast.Service
             var tasks = await _client.TellAllAsync();
 
             lock (_lockForUpdateTask)
-            {
+            {                
+                //检查是否有下载完成的数据
+                if (tasks != null && tasks.Count() > 0)
+                {
+                    foreach (var task in TaskList)
+                    {
+                        var clearTask = tasks.Any(a => a.Gid == task.Data.Gid &&
+                        task.Data.Status == KARIA2_STATUS_ACTIVE &&
+                        a.Status == KARIA2_STATUS_COMPLETE);
+
+
+                        EasyLogManager.Logger.Info($"下载完成 {r.Task.Data.Name} {r.Task.Data.Path}");
+                        if (AppConfig.Instance.ConfigData.PushDeerOpen)
+                        {
+                            PushDeer.SendPushDeer($"[{task.SubscriptionName}]下载完成");
+                        }
+
+                        _eventReceivedSubject.OnNext(new DownloadSuccessEvent(task.SubscriptionName));
+                    }
+                }
+
+
                 MainWindow.Instance.Dispatcher.Invoke(() =>
                 {
                     //TODO 更顺滑的更新任务
@@ -297,6 +319,9 @@ namespace Aria2Fast.Service
             
             return tasks.Count() > 0;
         }
+
+
+
         public async Task<bool> DeleteFile(string gid)
         {
             try

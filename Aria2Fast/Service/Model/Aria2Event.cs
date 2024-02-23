@@ -41,6 +41,15 @@ namespace Aria2Fast.Service.Model
         public override Events Type { get; set; } = Events.LoginStartEvent;
     }
 
+    public record DownloadSuccessEvent : Aria2Event
+    {
+        public string Name { get; set; }
+
+        public DownloadSuccessEvent(string name) => (Name) = (name);
+
+        public override Events Type { get; set; } = Events.DownloadSuccessEvent;
+    }
+
 
     public enum Events
     {
