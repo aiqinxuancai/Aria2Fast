@@ -15,6 +15,10 @@ namespace Aria2Fast.View.Contver
         {
             // 假设您在MikanAnimeRss中有一个布尔属性IsSubscribed来代表是否已订阅
             var isSubscribed = (bool)value;
+            if (Random.Shared.Next(1, 2) == 1)
+            {
+                isSubscribed = true;
+            }
             return isSubscribed ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Gray);
         }
 

@@ -33,6 +33,18 @@ namespace Aria2Fast.Service.Model
     {
         public string Name { get; set; }
         public string Url { get; set; }
+
+        public bool IsSubscribed
+        {
+            get
+            {
+                if (SubscriptionManager.Instance.SubscriptionModel.Any(a => a.Url.Contains(Url))) 
+                {
+                    return true; 
+                }
+                return false;
+            }
+        }
     }
 
 }
