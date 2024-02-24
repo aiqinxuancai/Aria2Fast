@@ -13,29 +13,35 @@
         <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
     </UserControl.Resources>
     <Grid>
-        <StackPanel>
+        <StackPanel >
             <TextBlock FontSize="24" Text="{Binding Title}" />
-            <ListView ItemsSource="{Binding Anime}">
+            <ListView ItemsSource="{Binding Anime}" 
+                      x:Name="MyListView" 
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
                             <Image MaxHeight="50" Source="{Binding ImageFull}" />
                             <StackPanel Orientation="Vertical">
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Name}" FontWeight="Bold" Margin="3,0,0,0" />
-                                <ItemsControl ItemsSource="{Binding Rss}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,0,0,0">
-                                                <TextBlock Margin="5,2,5,2" Text="{Binding Name}"  Foreground="White"/>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                
+                                    <ItemsControl ItemsSource="{Binding Rss}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                
+                                                    <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                                 
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,0,0,0">
+                                                    <TextBlock Margin="5,2,5,2" Text="{Binding Name}"  Foreground="White"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                
                             </StackPanel>
                         </StackPanel>
                     </DataTemplate>

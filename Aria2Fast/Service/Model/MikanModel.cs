@@ -32,7 +32,7 @@ namespace Aria2Fast.Service.Model
         {
             get
             {
-                return $"{MikanManager.kMikanIndex}{Url}" ;
+                return $"{MikanManager.kMikanIndex}{Image}" ;
             }
         }
     }
