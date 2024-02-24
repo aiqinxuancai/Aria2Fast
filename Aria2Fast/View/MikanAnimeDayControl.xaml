@@ -17,7 +17,7 @@
             <TextBlock FontSize="24" Text="{Binding Title}" />
             <ListView ItemsSource="{Binding Anime}" 
                       x:Name="MyListView" 
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" SizeChanged="MyListView_SizeChanged">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
@@ -28,8 +28,8 @@
                                     <ItemsControl ItemsSource="{Binding Rss}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                
-                                                    <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+
+                                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" Width="{Binding ListViewWidth, Mode=OneWay}"/>
                                                  
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>

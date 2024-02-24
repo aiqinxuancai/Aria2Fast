@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Aria2Fast.Service.Model;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,11 +20,20 @@ namespace Aria2Fast.View
     /// <summary>
     /// MikanAnimeDayControl.xaml 的交互逻辑
     /// </summary>
-    public partial class MikanAnimeDayControl : UserControl
+    public partial class MikanAnimeDayControl : UserControl, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
+        public double ListViewWidth { get; set; }
+
         public MikanAnimeDayControl()
         {
+            //DataContext = this;
             InitializeComponent();
+        }
+
+        private void MyListView_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ListViewWidth = e.NewSize.Width;
         }
     }
 }
