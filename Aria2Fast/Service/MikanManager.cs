@@ -75,7 +75,7 @@ namespace Aria2Fast.Service
 
                             var animeHtml = await pageUrl.GetStringAsync();
 
-                            var animeRss = AnimePage(animeHtml);
+                            var animeRss = AnimePage2(animeHtml);
 
 
                             List<MikanAnimeRss> rssList = JsonConvert.DeserializeObject<List<MikanAnimeRss>>(animeRss);
@@ -191,20 +191,71 @@ namespace Aria2Fast.Service
             foreach (var div in divs)
             {
                 var name = div.SelectSingleNode(".//a[1]").InnerText.Trim();
-
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    //TODO
+                }
                 name = HtmlEntity.DeEntitize(name);
-
                 var relativeUrl = div.SelectSingleNode(".//a[contains(@class, 'mikan-rss')]").GetAttributeValue("href", string.Empty).Trim();
                 var absoluteUrl = $"{relativeUrl}";
+                subgroupInfoList.Add(new { name = name, url = absoluteUrl });
+            }
+            return JsonConvert.SerializeObject(subgroupInfoList, Formatting.Indented);
+        }
+
+        public string AnimePage2(string htmlContent)
+        {
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(htmlContent);
+
+            var divs = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'subgroup-text')]");
+            var subgroupInfoList = new List<object>();
+
+            foreach (var div in divs)
+            {
+                var subgroupNames = new List<string>();
+
+                // 检查是否有超链接
+                var anchors = div.SelectNodes(".//a[contains(@class, 'material-dropdown-menu__link')]");
+                if (anchors != null)
+                {
+                    foreach (var anchor in anchors)
+                    {
+                        subgroupNames.Add(HtmlEntity.DeEntitize(anchor.InnerText.Trim()));
+                    }
+                }
+                else
+                {
+                    // 检查是否有直接作为文本的字幕组名称
+                    var textNode = div.SelectSingleNode(".//text()[normalize-space(.)]");
+                    if (textNode != null)
+                    {
+                        subgroupNames.Add(HtmlEntity.DeEntitize(textNode.InnerText.Trim()));
+                    }
+                }
+
+                // 将所有找到的名称用 '/' 连接为一个字符串
+                var name = string.Join(" / ", subgroupNames);
+
+                var relativeUrlNode = div.SelectSingleNode(".//a[contains(@class, 'mikan-rss')]");
+                if (relativeUrlNode == null)
+                {
+                    continue; // 如果没有找到rss链接节点则继续下一个循环
+                }
+                var relativeUrl = relativeUrlNode.GetAttributeValue("href", string.Empty).Trim();
+                var absoluteUrl = $"{relativeUrl}";
+
+                // 如果没有找到任何名字，可能需要特殊处理
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    //TODO: 特殊处理如设置默认值或跳过
+                    continue;
+                }
 
                 subgroupInfoList.Add(new { name = name, url = absoluteUrl });
             }
 
             return JsonConvert.SerializeObject(subgroupInfoList, Formatting.Indented);
         }
-
-
-        
-
     }
 }

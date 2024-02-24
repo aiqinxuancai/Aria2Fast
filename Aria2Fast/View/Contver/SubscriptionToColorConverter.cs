@@ -23,7 +23,10 @@ namespace Aria2Fast.View.Contver
             //{
             //    isSubscribed = false;
             //}
-            return isSubscribed ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Gray);
+            var green = (SolidColorBrush)new BrushConverter().ConvertFromString("#19be6b");
+            var gray = (SolidColorBrush)new BrushConverter().ConvertFromString("#808695");
+
+            return isSubscribed ? green : gray;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -275,14 +275,19 @@ namespace Aria2Fast.Service
                 {
                     foreach (var task in TaskList)
                     {
-                        var clearTask = tasks.Any(a => a.Gid == task.Data.Gid &&
-                        task.Data.Status == KARIA2_STATUS_ACTIVE &&
-                        a.Status == KARIA2_STATUS_COMPLETE);
-
-
-                        EasyLogManager.Logger.Info($"下载完成 {task.SubscriptionName}");
-                        if (AppConfig.Instance.ConfigData.PushDeerOpen)
+                        var clearTask = tasks.Any(a =>
                         {
+                            return a.Gid == task.Data.Gid &&
+                                task.Data.Status != KARIA2_STATUS_COMPLETE &&
+                                a.Status == KARIA2_STATUS_COMPLETE;
+                        }
+                        );
+
+
+                        
+                        if (clearTask && AppConfig.Instance.ConfigData.PushDeerOpen)
+                        {
+                            EasyLogManager.Logger.Info($"下载完成 {task.SubscriptionName}");
                             PushDeer.SendPushDeer($"[{task.SubscriptionName}]下载完成");
                         }
 
