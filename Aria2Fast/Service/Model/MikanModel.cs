@@ -27,6 +27,14 @@ namespace Aria2Fast.Service.Model
         public string Image { get; set; }
 
         public List<MikanAnimeRss> Rss { get; set; }
+
+        public string ImageFull
+        {
+            get
+            {
+                return $"{MikanManager.kMikanIndex}{Url}" ;
+            }
+        }
     }
 
     public class MikanAnimeRss

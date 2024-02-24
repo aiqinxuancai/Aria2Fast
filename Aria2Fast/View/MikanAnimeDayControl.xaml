@@ -19,7 +19,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
-                            <Image MaxHeight="50" Source="{Binding Image}" />
+                            <Image MaxHeight="50" Source="{Binding ImageFull}" />
                             <StackPanel Orientation="Vertical">
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Name}" FontWeight="Bold" Margin="3,0,0,0" />
                                 <ItemsControl ItemsSource="{Binding Rss}">
