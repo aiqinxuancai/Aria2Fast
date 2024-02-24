@@ -18,10 +18,10 @@
             <ListView ItemsSource="{Binding Anime}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
                             <Image MaxHeight="50" Source="{Binding Image}" />
                             <StackPanel Orientation="Vertical">
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" FontWeight="Bold" />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" FontWeight="Bold" Margin="3,0,0,0" />
                                 <ItemsControl ItemsSource="{Binding Rss}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -30,8 +30,8 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}">
-                                                <TextBlock Margin="5" Text="{Binding Name}" />
+                                            <Border ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,0,0,0">
+                                                <TextBlock Margin="5,2,5,2" Text="{Binding Name}"  Foreground="White"/>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

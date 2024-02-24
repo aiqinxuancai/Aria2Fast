@@ -47,10 +47,10 @@ namespace Aria2Fast
 
         public IList<object> NavigationItems { set; get; } = new ObservableCollection<object>()
         {
-            new NavigationViewItem("任务", SymbolRegular.News24, typeof(WkyTaskListView))
+            new NavigationViewItem("任务", SymbolRegular.TextBulletListSquare20, typeof(WkyTaskListView))
             {
             },
-            new NavigationViewItem("订阅", SymbolRegular.News24, typeof(WkySubscriptionListView))
+            new NavigationViewItem("订阅", SymbolRegular.AppFolder24, typeof(WkySubscriptionListView))
             {
                 MenuItems = new object[]
                 {
@@ -136,7 +136,7 @@ namespace Aria2Fast
             //开始连接
             Aria2ApiManager.Instance.Init();
 
-            MikanManager.Instance.MikanStart();
+            MikanManager.Instance.MikanStart(false);
 
 
 
