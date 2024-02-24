@@ -11,13 +11,19 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
+        <contver:WidthMinusConverter x:Key="WidthMinusConverter"/>
     </UserControl.Resources>
+
     <Grid>
-        <StackPanel >
-            <TextBlock FontSize="24" Text="{Binding Title}" />
-            <ListView ItemsSource="{Binding Anime}" 
+        <Grid >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" FontSize="24" Text="{Binding Title}" />
+            <ListView Grid.Row="1" ItemsSource="{Binding Anime}" 
                       x:Name="MyListView" 
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" SizeChanged="MyListView_SizeChanged">
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
@@ -28,14 +34,16 @@
                                     <ItemsControl ItemsSource="{Binding Rss}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-
-                                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" Width="{Binding ListViewWidth, Mode=OneWay}"/>
-                                                 
-                                            </ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"
+                                           MaxWidth="{Binding ActualWidth,
+                                                      RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AnimeListView}},
+                                                      Converter={StaticResource WidthMinusConverter},
+                                                      ConverterParameter=100}"></WrapPanel>
+                                        </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,0,0,0">
+                                                <Border ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,2,0,0">
                                                     <TextBlock Margin="5,2,5,2" Text="{Binding Name}"  Foreground="White"/>
                                                 </Border>
                                             </DataTemplate>
@@ -47,6 +55,6 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-        </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

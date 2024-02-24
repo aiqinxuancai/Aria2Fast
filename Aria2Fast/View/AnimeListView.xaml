@@ -24,6 +24,9 @@
     </Page.DataContext>
 
     <Grid>
-        <ListView HorizontalContentAlignment="Stretch" ItemsSource="{Binding Master.AnimeDays}" />
+        
+        <ListView HorizontalContentAlignment="Stretch" ItemsSource="{Binding Master.AnimeDays}">
+
+        </ListView>
     </Grid>
 </Page>

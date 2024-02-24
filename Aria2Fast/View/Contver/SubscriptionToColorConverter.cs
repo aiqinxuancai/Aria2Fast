@@ -24,9 +24,26 @@ namespace Aria2Fast.View.Contver
             //    isSubscribed = false;
             //}
             var green = (SolidColorBrush)new BrushConverter().ConvertFromString("#19be6b");
-            var gray = (SolidColorBrush)new BrushConverter().ConvertFromString("#808695");
+            var gray = (SolidColorBrush)new BrushConverter().ConvertFromString("#88808695");
 
             return isSubscribed ? green : gray;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class WidthMinusConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double width && parameter is string deduction)
+            {
+                return width - double.Parse(deduction);
+            }
+            return value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

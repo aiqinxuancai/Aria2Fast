@@ -31,9 +31,7 @@ namespace Aria2Fast.View
             InitializeComponent();
         }
 
-        private void MyListView_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            ListViewWidth = e.NewSize.Width;
-        }
+        
+
     }
 }
