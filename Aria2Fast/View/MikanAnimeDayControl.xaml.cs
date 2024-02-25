@@ -25,6 +25,7 @@ namespace Aria2Fast.View
         public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
         public double ListViewWidth { get; set; }
 
+
         public MikanAnimeDayControl()
         {
             //DataContext = this;
