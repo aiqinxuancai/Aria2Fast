@@ -43,7 +43,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                            <Border MouseDown="RssBorder_OnClick" ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,2,0,0">
+                                            <Border MouseDown="Border_MouseLeftButtonDown" ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,2,0,0">
                                                     <TextBlock Margin="5,2,5,2" Text="{Binding Name}"  Foreground="White"/>
                                                 </Border>
                                             </DataTemplate>

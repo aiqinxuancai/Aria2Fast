@@ -15,7 +15,7 @@
     <Page.Resources>
         <!--  数据模板定义，引用MikanAnimeDayControl  -->
         <DataTemplate DataType="{x:Type models:MikanAnimeDay}">
-            <local:MikanAnimeDayControl />
+            <local:MikanAnimeDayControl RssBorderClicked="MikanAnimeDayControl_RssBorderClicked" />
         </DataTemplate>
     </Page.Resources>
 

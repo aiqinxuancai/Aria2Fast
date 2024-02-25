@@ -26,5 +26,11 @@ namespace Aria2Fast.View
             InitializeComponent();
 
         }
+
+        private void MikanAnimeDayControl_RssBorderClicked(object sender, RssBorderClickedEventArgs e)
+        {
+            var clickedRssItem = e.ClickedItem;
+
+        }
     }
 }

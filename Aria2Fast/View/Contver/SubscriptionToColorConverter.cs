@@ -11,13 +11,13 @@ namespace Aria2Fast.View.Contver
 {
     public class SubscriptionToColorConverter : IValueConverter
     {
+        private static SolidColorBrush _green = (SolidColorBrush)new BrushConverter().ConvertFromString("#19be6b");
+        private static SolidColorBrush _gray = (SolidColorBrush)new BrushConverter().ConvertFromString("#88808695");
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var isSubscribed = (bool)value;
-            var green = (SolidColorBrush)new BrushConverter().ConvertFromString("#19be6b");
-            var gray = (SolidColorBrush)new BrushConverter().ConvertFromString("#88808695");
-
-            return isSubscribed ? green : gray;
+            return isSubscribed ? _green : _gray;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
