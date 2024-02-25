@@ -54,22 +54,35 @@
         <StackPanel Grid.Row="2" Grid.RowSpan="1">
             <Border Margin="10,0,10,6" CornerRadius="4">
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
                     <ui:TextBox
                         x:Name="RegexTextBox"
-                        Margin="0,0,68,0"
+                        Grid.Column="0"
                         VerticalAlignment="Center"
                         AllowDrop="True"
                         Background="Transparent"
                         BorderBrush="#00CCCCCC"
+                        Cursor="Hand"
                         PlaceholderText="包含关键字"
                         Text="" />
-
                     <CheckBox
                         x:Name="RegexCheckBox"
-                        Margin="0,0,5,0"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
+                        Grid.Column="1"
+                        MinWidth="50"
+                        HorizontalAlignment="Center"
                         Content="正则" />
+
+                    <Button
+                        x:Name="TestMatchButton"
+                        Grid.Column="2"
+                        Width="80"
+                        Click="TestMatchButton_Click"
+                        Content="测试匹配" />
+
                 </Grid>
 
             </Border>

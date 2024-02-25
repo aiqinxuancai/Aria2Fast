@@ -135,6 +135,53 @@ namespace Aria2Fast.Service
         }
 
 
+        public static bool CheckTitle(string matchStr, bool matchIsRegex, string title) 
+        {
+            //检查是否符合过滤方法
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(matchStr))
+                {
+                    if (matchIsRegex)
+                    {
+                        Regex regex = new Regex(matchStr);
+                        if (!regex.IsMatch(title))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //检查是否包含文本
+                        var strList = matchStr.Split("|");
+                        var count = 0;
+                        foreach (var str in strList)
+                        {
+                            if (title.Contains(str))
+                            {
+                                count++;
+                            }
+                        }
+                        if (count == 0)
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex.ToString());
+                return true;
+            }
+
+
+            return true;
+        }
+
+
         /// <summary>
         /// 是否可以下载
         /// </summary>
@@ -227,10 +274,10 @@ namespace Aria2Fast.Service
         //}
 
         /// <summary>
-        /// 通过网络获取订阅地址的Title
+        /// 通过网络获取订阅地址的Model
         /// </summary>
         /// <param name="url"></param>
-        public string GetSubscriptionTitle(string url)
+        public SubscriptionInfoModel GetSubscriptionInfo(string url)
         {
             try
             {
@@ -264,7 +311,18 @@ namespace Aria2Fast.Service
                         reader.Close();
                     }
                     EasyLogManager.Logger.Info($"获取订阅标题：{feed.Title.Text}");
-                    return feed.Title.Text;
+
+                    SubscriptionInfoModel model = new SubscriptionInfoModel();
+
+
+                    foreach (SyndicationItem item in feed.Items)
+                    {
+                        string subject = item.Title.Text;
+                        model.SubRssTitles.Add(subject);
+                    }
+                    model.SubscriptionName = feed.Title.Text;
+
+                    return model;
 
                 }
                 catch (Exception e)
@@ -279,7 +337,7 @@ namespace Aria2Fast.Service
                 EasyLogManager.Logger.Error($"获取订阅标题失败");
                 
             }
-            return "";
+            return null;
         }
 
         /// <summary>

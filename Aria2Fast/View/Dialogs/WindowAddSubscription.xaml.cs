@@ -19,6 +19,8 @@ namespace Aria2Fast.Dialogs
     public partial class WindowAddSubscription : FluentWindow
     {
 
+        private string _groupNamePath;
+
         public static void Show(Window owner, string url = "", string title = "")
         {
             WindowAddSubscription dialog = new WindowAddSubscription(url, title);
@@ -34,8 +36,12 @@ namespace Aria2Fast.Dialogs
             Win11Style.LoadWin11Style(hWnd);
             LoadDefaultPathSelected();
 
+            _groupNamePath = title;
+
             UrlTextBox.Text = url;
             TextBoxRssPath.Text = title;
+
+
         }
 
 
@@ -149,17 +155,30 @@ namespace Aria2Fast.Dialogs
 
         private async void UrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (string.IsNullOrEmpty(UrlTextBox.Text) )
+            {
+                _groupNamePath = string.Empty;
+                return;
+            }
+
             try
             {
                 CancelButton.IsEnabled = false;
                 ConfirmButton.IsEnabled = false;
                 var url = UrlTextBox.Text;
-                string title = await Task.Run(async () => 
+                var rssModel = await Task.Run(async () => 
                 {
-                    return SubscriptionManager.Instance.GetSubscriptionTitle(url);
+                    var model = SubscriptionManager.Instance.GetSubscriptionInfo(url);
+                    return model;
                 });
 
-                TextBoxRssPath.Text = title;
+                if (string.IsNullOrEmpty(_groupNamePath)) 
+                {
+                    TextBoxRssPath.Text = rssModel.SubscriptionName;
+                }
+
+                //TODO 
+                
             }
             catch (Exception ex)
             {
@@ -171,6 +190,47 @@ namespace Aria2Fast.Dialogs
                 ConfirmButton.IsEnabled = true;
             }
 
+        }
+
+        private async void TestMatchButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                TestMatchButton.IsEnabled = false;
+                RegexCheckBox.IsEnabled = false;
+                RegexTextBox.IsEnabled = false;
+
+                var url = UrlTextBox.Text;
+                var rssModel = await Task.Run(async () =>
+                {
+                    var model = SubscriptionManager.Instance.GetSubscriptionInfo(url);
+                    return model;
+                });
+
+                //根据内容匹配
+
+                foreach (var item in rssModel.SubRssTitles)
+                {
+                    var titleIsMatch = SubscriptionManager.CheckTitle(RegexTextBox.Text, (bool)RegexCheckBox.IsChecked, item);
+                    if (titleIsMatch)
+                    {
+                        //TODO 加入数组？加入文本
+                    }
+                }
+                
+                //TODO弹出提示？
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                TestMatchButton.IsEnabled = true;
+                RegexCheckBox.IsEnabled = true;
+                RegexTextBox.IsEnabled = true;
+            }
         }
     }
 }

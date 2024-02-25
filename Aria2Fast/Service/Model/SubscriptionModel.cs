@@ -155,4 +155,15 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
             },
         };
     }
+
+
+    /// <summary>
+    /// Info
+    /// </summary>
+    public partial class SubscriptionInfoModel : BaseNotificationModel
+    {
+        public string SubscriptionName { get; set; }
+
+        public List<string> SubRssTitles { get; set; } = new List<string>();
+    }
 }

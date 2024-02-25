@@ -71,12 +71,11 @@ namespace Aria2Fast.Service
                     {
                         try
                         {
-                            var pageUrl = $"{kMikanIndex}{anime.Url}";
+                            var pageUrl = $"{anime.Url}";
 
                             var animeHtml = await pageUrl.GetStringAsync();
 
-                            var animeRss = AnimePage2(animeHtml);
-
+                            var animeRss = AnimePage(animeHtml);
 
                             List<MikanAnimeRss> rssList = JsonConvert.DeserializeObject<List<MikanAnimeRss>>(animeRss);
 
@@ -156,7 +155,7 @@ namespace Aria2Fast.Service
                         animeList.Add(new
                         {
                             name = name,
-                            url = url,
+                            url = $"{kMikanIndex}{url}",
                             image = imageAbsUrl,
                         });
                     }
@@ -175,35 +174,8 @@ namespace Aria2Fast.Service
             return JsonConvert.SerializeObject(weekList, Formatting.Indented);
         }
 
-        /// <summary>
-        /// 获取某个动漫页面的所有字幕组的订阅URL，返回json文本
-        /// </summary>
-        /// <param name="htmlContent"></param>
-        /// <returns></returns>
+
         public string AnimePage(string htmlContent)
-        {
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(htmlContent);
-
-            var divs = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'subgroup-text')]");
-            var subgroupInfoList = new List<object>();
-
-            foreach (var div in divs)
-            {
-                var name = div.SelectSingleNode(".//a[1]").InnerText.Trim();
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    //TODO
-                }
-                name = HtmlEntity.DeEntitize(name);
-                var relativeUrl = div.SelectSingleNode(".//a[contains(@class, 'mikan-rss')]").GetAttributeValue("href", string.Empty).Trim();
-                var absoluteUrl = $"{relativeUrl}";
-                subgroupInfoList.Add(new { name = name, url = absoluteUrl });
-            }
-            return JsonConvert.SerializeObject(subgroupInfoList, Formatting.Indented);
-        }
-
-        public string AnimePage2(string htmlContent)
         {
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(htmlContent);
@@ -235,7 +207,7 @@ namespace Aria2Fast.Service
                 }
 
                 // 将所有找到的名称用 '/' 连接为一个字符串
-                var name = string.Join(" / ", subgroupNames);
+                var name = string.Join("/", subgroupNames);
 
                 var relativeUrlNode = div.SelectSingleNode(".//a[contains(@class, 'mikan-rss')]");
                 if (relativeUrlNode == null)
@@ -252,7 +224,7 @@ namespace Aria2Fast.Service
                     continue;
                 }
 
-                subgroupInfoList.Add(new { name = name, url = absoluteUrl });
+                subgroupInfoList.Add(new { name = name, url = $"{kMikanIndex}{absoluteUrl}" });
             }
 
             return JsonConvert.SerializeObject(subgroupInfoList, Formatting.Indented);

@@ -49,12 +49,18 @@ namespace Aria2Fast
         {
             new NavigationViewItem("任务", SymbolRegular.TextBulletListSquare20, typeof(WkyTaskListView))
             {
+                NavigationCacheMode = NavigationCacheMode.Required,
             },
             new NavigationViewItem("订阅", SymbolRegular.AppFolder24, typeof(WkySubscriptionListView))
             {
+                NavigationCacheMode = NavigationCacheMode.Required,
                 MenuItems = new object[]
                 {
-                    new NavigationViewItem("Mikan", typeof(AnimeListView)),
+
+                    new NavigationViewItem("Mikan", typeof(AnimeListView))
+                    {
+                        NavigationCacheMode = NavigationCacheMode.Required,
+                    },
                 },
             },
         };
@@ -64,15 +70,7 @@ namespace Aria2Fast
         {
             DataContext = this;
 
-
-
-
-
             InitializeComponent();
-
-
-            
-
             SystemThemeWatcher.Watch(this);
 
             Instance = this;

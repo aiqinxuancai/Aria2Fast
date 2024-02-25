@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Aria2Fast.Service.Model
 {
-    public class MikanAnimeDayMaster
+    public class MikanAnimeDayMaster : BaseNotificationModel
     {
         public List<MikanAnimeDay> AnimeDays { get; set; }
     }
@@ -14,13 +14,13 @@ namespace Aria2Fast.Service.Model
     /// <summary>
     /// 主节点 使用数组形式List<MikanAnimeDay>
     /// </summary>
-    public class MikanAnimeDay
+    public class MikanAnimeDay : BaseNotificationModel
     {
         public string Title { get; set; }
         public List<MikanAnime> Anime { get; set; }
     }
 
-    public class MikanAnime
+    public class MikanAnime : BaseNotificationModel
     {
         public string Name { get; set; }
         public string Url { get; set; }
@@ -37,7 +37,7 @@ namespace Aria2Fast.Service.Model
         }
     }
 
-    public class MikanAnimeRss
+    public class MikanAnimeRss : BaseNotificationModel
     {
         public string Name { get; set; }
         public string Url { get; set; }
