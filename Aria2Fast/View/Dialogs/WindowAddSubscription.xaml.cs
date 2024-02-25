@@ -18,6 +18,7 @@ namespace Aria2Fast.Dialogs
     /// </summary>
     public partial class WindowAddSubscription : FluentWindow
     {
+
         public WindowAddSubscription()
         {
             InitializeComponent();
@@ -108,12 +109,14 @@ namespace Aria2Fast.Dialogs
                         //return;
                         EasyLogManager.Logger.Error(ex);
                     }
-                    
-                    string title = SubscriptionManager.Instance.GetSubscriptionTitle(url);
+
+                   
 
                     this.Dispatcher.Invoke(() =>
                     {
-                        if (string.IsNullOrEmpty(title))
+                        string title = TextBoxRssPath.Text;
+
+                        if (string.IsNullOrWhiteSpace(title))
                         {
                             path = TextBoxPath.Text;
                         }
@@ -122,14 +125,10 @@ namespace Aria2Fast.Dialogs
                             path = TextBoxPath.Text + (TextBoxPath.Text.EndsWith("/") ? "" : "/") + title;
                         }
 
-
-
                         SubscriptionManager.Instance.Add(url, path, regex, regexEnable, autoDir: autoDir);
-
                         EasyLogManager.Logger.Info($"订阅已添加：{title} {url}");
 
                         MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{title}", SymbolRegular.AddCircle24);
-                        //AppConfig.Instance.ConfigData.LastAddSubscriptionPath = TextBoxPath.Text;
                     });
 
                 });
@@ -159,5 +158,30 @@ namespace Aria2Fast.Dialogs
             AppConfig.Instance.Save();
         }
 
+        private async void UrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                CancelButton.IsEnabled = false;
+                ConfirmButton.IsEnabled = false;
+                var url = UrlTextBox.Text;
+                string title = await Task.Run(async () => 
+                {
+                    return SubscriptionManager.Instance.GetSubscriptionTitle(url);
+                });
+
+                TextBoxRssPath.Text = title;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                CancelButton.IsEnabled = true;
+                ConfirmButton.IsEnabled = true;
+            }
+
+        }
     }
 }

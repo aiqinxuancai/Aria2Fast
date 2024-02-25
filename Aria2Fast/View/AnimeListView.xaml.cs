@@ -30,7 +30,12 @@ namespace Aria2Fast.View
         private void MikanAnimeDayControl_RssBorderClicked(object sender, RssBorderClickedEventArgs e)
         {
             var clickedRssItem = e.ClickedItem;
+            var animeItem = e.ParentFeed;
 
+
+            if (clickedRssItem != null) {
+                //启动一个订阅画面
+            }
         }
     }
 }
