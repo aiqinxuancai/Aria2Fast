@@ -19,20 +19,25 @@ namespace Aria2Fast.Dialogs
     public partial class WindowAddSubscription : FluentWindow
     {
 
-        public WindowAddSubscription()
+        public static void Show(Window owner, string url = "", string title = "")
+        {
+            WindowAddSubscription dialog = new WindowAddSubscription(url, title);
+            dialog.Owner = owner;
+            dialog.ShowDialog();
+        }
+
+
+        public WindowAddSubscription(string url, string title)
         {
             InitializeComponent();
             IntPtr hWnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
             Win11Style.LoadWin11Style(hWnd);
             LoadDefaultPathSelected();
+
+            UrlTextBox.Text = url;
+            TextBoxRssPath.Text = title;
         }
 
-        public static void Show(Window owner)
-        {
-            WindowAddSubscription dialog = new WindowAddSubscription();
-            dialog.Owner = owner;
-            dialog.ShowDialog();
-        }
 
         private void LoadDefaultPathSelected()
         {
@@ -58,16 +63,6 @@ namespace Aria2Fast.Dialogs
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
-            //if (string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.LastAddSubscriptionPath))
-            //{
-            //    TextBoxPath.Text = "/onecloud/tddownload";
-            //}
-            //else
-            //{
-            //    //TODO
-            //    TextBoxPath.Text = AppConfig.Instance.ConfigData.LastAddSubscriptionPath;
-            //}
-
         }
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
@@ -79,7 +74,6 @@ namespace Aria2Fast.Dialogs
             }
 
             ConfirmButton.IsEnabled = false;
-            //TODO 支持选择设备和磁盘？？
             try
             {
                 await Task.Run(() => {
@@ -104,9 +98,6 @@ namespace Aria2Fast.Dialogs
                     } 
                     catch (Exception ex)
                     {
-                        //progressView.CloseAsync();
-                        //this.ShowMessageAsync("Url不合法", ex.ToString());
-                        //return;
                         EasyLogManager.Logger.Error(ex);
                     }
 
@@ -132,8 +123,6 @@ namespace Aria2Fast.Dialogs
                     });
 
                 });
-
-                //await progressView.CloseAsync();
 
                 this.Close();
             }

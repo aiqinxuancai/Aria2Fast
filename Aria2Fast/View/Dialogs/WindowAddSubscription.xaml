@@ -47,7 +47,8 @@
                 BorderBrush="#00CCCCCC"
                 PlaceholderText="订阅地址"
                 Text=""
-                TextWrapping="Wrap" TextChanged="UrlTextBox_TextChanged" />
+                TextChanged="UrlTextBox_TextChanged"
+                TextWrapping="Wrap" />
         </Border>
 
         <StackPanel Grid.Row="2" Grid.RowSpan="1">
@@ -127,7 +128,7 @@
                             Margin="8,0,0,0"
                             FontSize="12"
                             Foreground="#99000000"
-                            Text="需要先在设置中填写OpenAIKey才可使用" />
+                            Text="注：需要先在设置中填写OpenAIKey才可使用" />
                     </StackPanel>
                     <ui:ToggleSwitch
                         x:Name="AutoDirSwitch"

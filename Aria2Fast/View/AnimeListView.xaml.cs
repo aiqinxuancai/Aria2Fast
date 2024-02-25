@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aria2Fast.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,8 @@ namespace Aria2Fast.View
 
 
             if (clickedRssItem != null) {
-                //启动一个订阅画面
+                //TODO 启动一个订阅画面
+                WindowAddSubscription.Show(MainWindow.Instance, clickedRssItem.Url, animeItem.Name);
             }
         }
     }
