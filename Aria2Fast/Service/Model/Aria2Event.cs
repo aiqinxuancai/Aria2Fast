@@ -50,6 +50,10 @@ namespace Aria2Fast.Service.Model
         public override Events Type { get; set; } = Events.DownloadSuccessEvent;
     }
 
+    public record MikanListLoaded : Aria2Event
+    {
+        public override Events Type { get; set; } = Events.MikanListLoaded;
+    }
 
     public enum Events
     {
@@ -75,5 +79,14 @@ namespace Aria2Fast.Service.Model
         [Description("DownloadSuccessEvent")]
         [EnumMember(Value = "DownloadSuccessEvent")]
         DownloadSuccessEvent,
+
+
+
+        /// <summary>
+        /// Mikan加载完毕
+        /// </summary>
+        [Description("MikanListLoaded")]
+        [EnumMember(Value = "MikanListLoaded")]
+        MikanListLoaded,
     }
 }

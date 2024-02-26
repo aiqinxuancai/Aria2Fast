@@ -9,13 +9,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Aria2Fast.Service
 {
-    public class MikanManager : INotifyPropertyChanged
+    public class MikanManager : BaseNotificationModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -34,6 +36,10 @@ namespace Aria2Fast.Service
         public static MikanManager Instance => instance;
 
         private MikanAnimeDayMaster master = new MikanAnimeDayMaster();
+
+        public IObservable<Aria2Event> EventReceived => _eventReceivedSubject.AsObservable();
+        private readonly Subject<Aria2Event> _eventReceivedSubject = new();
+
         public MikanAnimeDayMaster Master
         {
             get => master;
@@ -47,71 +53,75 @@ namespace Aria2Fast.Service
             }
         }
 
+        public bool IsLoading { set; get; }
+
         // 构造函数私有化确保唯一性
         private MikanManager() { }
 
         public async Task MikanStart(bool force)
         {
-            if (force || !File.Exists(kMikanCacheFile))
+            try
             {
-                var indexHtml = await kMikanIndex.GetStringAsync();
-                var indexJson = IndexPageExtractWeeklyAnimeJson(indexHtml);
-                Debug.WriteLine(indexJson);
-
-                //循环将
-                List<MikanAnimeDay> weekList = JsonConvert.DeserializeObject<List<MikanAnimeDay>>(indexJson);
-
-                Master.AnimeDays = weekList;
-
-                Debug.WriteLine(indexJson);
-
-                foreach (var item in weekList)
+                IsLoading = true;
+                
+                if (force || !File.Exists(kMikanCacheFile))
                 {
-                    foreach (var anime in item.Anime)
+                    var indexHtml = await kMikanIndex.GetStringAsync();
+                    var indexJson = IndexPageExtractWeeklyAnimeJson(indexHtml);
+                    Debug.WriteLine(indexJson);
+
+                    //循环将
+                    List<MikanAnimeDay> weekList = JsonConvert.DeserializeObject<List<MikanAnimeDay>>(indexJson);
+
+                    Master.AnimeDays = weekList;
+
+                    Debug.WriteLine(indexJson);
+
+                    foreach (var item in weekList)
                     {
-                        try
+                        foreach (var anime in item.Anime)
                         {
-                            var pageUrl = $"{anime.Url}";
-
-                            var animeHtml = await pageUrl.GetStringAsync();
-
-                            var animeRss = AnimePage(animeHtml);
-
-                            List<MikanAnimeRss> rssList = JsonConvert.DeserializeObject<List<MikanAnimeRss>>(animeRss);
-
-                            anime.Rss = rssList;
-                            Debug.WriteLine(animeRss);
-
+                            try
+                            {
+                                var pageUrl = $"{anime.Url}";
+                                var animeHtml = await pageUrl.GetStringAsync();
+                                var animeRss = AnimePage(animeHtml);
+                                List<MikanAnimeRss> rssList = JsonConvert.DeserializeObject<List<MikanAnimeRss>>(animeRss);
+                                anime.Rss = rssList;
+                                Debug.WriteLine(animeRss);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine(ex);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine(ex);
+                    }
 
-
-                        }
-
-
+                    File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));
+                }
+                else if (File.Exists(kMikanCacheFile))
+                {
+                    //读取缓存
+                    List<MikanAnimeDay> weekList = JsonConvert.DeserializeObject<List<MikanAnimeDay>>(File.ReadAllText(kMikanCacheFile));
+                    Master.AnimeDays = weekList;
+                }
+                else
+                {
+                    if (force == false)
+                    {
+                        await MikanStart(true);
                     }
                 }
-
-
-                File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));
-                
-
-            } 
-            else if (File.Exists(kMikanCacheFile))
-            {
-                //读取缓存
-                List<MikanAnimeDay> weekList = JsonConvert.DeserializeObject<List<MikanAnimeDay>>(File.ReadAllText(kMikanCacheFile));
-                Master.AnimeDays = weekList;
             }
-            else
-            {
-                if (force == false)
-                {
-                    await MikanStart(true);
-                }
+            catch (Exception ex) { 
+            
             }
+            finally
+            {
+                IsLoading = false;
+                _eventReceivedSubject.OnNext(new MikanListLoaded());
+            }
+            
 
         }
 

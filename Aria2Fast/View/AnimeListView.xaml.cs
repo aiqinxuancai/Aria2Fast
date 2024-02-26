@@ -1,7 +1,10 @@
 ﻿using Aria2Fast.Dialogs;
+using Aria2Fast.Service;
+using Aria2Fast.Service.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,6 +29,14 @@ namespace Aria2Fast.View
         {
             InitializeComponent();
 
+            //IsLoading
+            MikanManager.Instance.EventReceived
+                .OfType<MikanListLoaded>()
+                .Subscribe(async r =>
+                {
+                    //刷新订阅？
+                    this.DataContext = MikanManager.Instance;
+                });
         }
 
         private void MikanAnimeDayControl_RssBorderClicked(object sender, RssBorderClickedEventArgs e)

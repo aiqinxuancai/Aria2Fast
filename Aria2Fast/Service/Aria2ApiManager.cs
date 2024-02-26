@@ -44,13 +44,15 @@ namespace Aria2Fast.Service
 
 
         public IObservable<Aria2Event> EventReceived => _eventReceivedSubject.AsObservable();
+        private readonly Subject<Aria2Event> _eventReceivedSubject = new();
+
 
         public bool Connected;
         public string ConnectedRpc;
         private Timer _debounceTimer;
         private readonly object _locker = new object();
 
-        private readonly Subject<Aria2Event> _eventReceivedSubject = new();
+
 
 
         private static object _lockForUpdateTask = new object();
