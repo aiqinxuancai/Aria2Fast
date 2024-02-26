@@ -290,7 +290,8 @@ namespace Aria2Fast.View
 
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
-            WindowAddTask.Show(Application.Current.MainWindow);
+            MainWindow.Instance.RootNavigation.Navigate(typeof(AddTaskView), null);
+            //WindowAddTask.Show(Application.Current.MainWindow);
         }
 
         private void MainDataGrid_ContextMenuOpening(object sender, ContextMenuEventArgs e)
