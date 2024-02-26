@@ -29,6 +29,8 @@ namespace Aria2Fast.View
         {
             InitializeComponent();
 
+            GetListButton.IsEnabled = !MikanManager.Instance.IsLoading;
+
             //IsLoading
             MikanManager.Instance.EventReceived
                 .OfType<MikanListLoaded>()
@@ -36,6 +38,7 @@ namespace Aria2Fast.View
                 {
                     //刷新订阅？
                     this.DataContext = MikanManager.Instance;
+                    GetListButton.IsEnabled = true;
                 });
         }
 
@@ -53,7 +56,12 @@ namespace Aria2Fast.View
                 MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), data);
             }
         }
-  
 
+        private async void GetListButton_Click(object sender, RoutedEventArgs e)
+        {
+            GetListButton.IsEnabled = false;
+            await MikanManager.Instance.MikanStart(true);
+
+        }
     }
 }

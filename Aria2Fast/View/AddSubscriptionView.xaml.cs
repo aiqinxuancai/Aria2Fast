@@ -1,5 +1,6 @@
 ﻿using Aria2Fast.Dialogs;
 using Aria2Fast.Service;
+using Aria2Fast.Service.Model.SubscriptionModel;
 using Aria2Fast.Utils;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,8 @@ namespace Aria2Fast.View
         {
             InitializeComponent();
             LoadDefaultPathSelected();
+            LoadDefaultFilterList();
+
         }
 
         private void Page_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -40,6 +43,20 @@ namespace Aria2Fast.View
 
                 UrlTextBox.Text = ((ValueTuple<string, string>)DataContext).Item1;
                 TextBoxRssPath.Text = ((ValueTuple<string, string>)DataContext).Item2;
+            }
+        }
+
+        private void LoadDefaultFilterList()
+        {
+            SubscriptionFilterItemsControl.ItemsSource = AppConfig.Instance.ConfigData.AddSubscriptionFilterList;
+
+            if (AppConfig.Instance.ConfigData.AddSubscriptionFilterList.Count == 0)
+            {
+                SubscriptionFilterItemsControl.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                SubscriptionFilterItemsControl.Visibility = Visibility.Visible;
             }
         }
 
@@ -119,6 +136,24 @@ namespace Aria2Fast.View
                         EasyLogManager.Logger.Info($"订阅已添加：{title} {url}");
 
                         MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{title}", SymbolRegular.AddCircle24);
+
+                        if (!string.IsNullOrWhiteSpace(RegexTextBox.Text))
+                        {
+                            var list = AppConfig.Instance.ConfigData.AddSubscriptionFilterList;
+                            if (list.Count > 10)
+                            {
+                                list.RemoveAt(list.Count - 1);
+                            }
+                            AppConfig.Instance.ConfigData.AddSubscriptionFilterList.Add(
+                                new SubscriptionFilterModel()
+                                {
+                                    Filter = RegexTextBox.Text,
+                                    IsFilterRegex = (bool)RegexCheckBox.IsChecked
+                                }
+
+                            );
+                        }
+                        
                     });
 
                 });
@@ -172,8 +207,6 @@ namespace Aria2Fast.View
                     TextBoxRssPath.Text = rssModel.SubscriptionName;
                 }
 
-                //TODO 
-
             }
             catch (Exception ex)
             {
@@ -196,9 +229,6 @@ namespace Aria2Fast.View
                 RegexTextBox.IsEnabled = false;
 
                 var url = UrlTextBox.Text;
-
-
-
                 var rssModel = await Task.Run(async () =>
                 {
                     var model = SubscriptionManager.Instance.GetSubscriptionInfo(url);
@@ -221,14 +251,7 @@ namespace Aria2Fast.View
                         list.Add(item);
                     }
                 }
-
-
-                //TestResultListBox.ItemsSource = list;
-                //TestResultListBox.Visibility = Visibility.Visible;
-                
-
                 MainWindow.Instance.ShowMessageBox("匹配结果",string.Join("\n", list), null, null, null, null);
-                //TODO弹出提示？
 
             }
             catch (Exception ex)
@@ -243,6 +266,15 @@ namespace Aria2Fast.View
             }
         }
 
-
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var obj = sender as Border;
+            if (obj != null)
+            {
+                var model = obj.DataContext as SubscriptionFilterModel;
+                this.RegexTextBox.Text = model.Filter;
+                this.RegexCheckBox.IsChecked = model.IsFilterRegex;
+            }
+        }
     }
 }

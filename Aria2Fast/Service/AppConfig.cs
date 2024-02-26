@@ -11,6 +11,7 @@ using PropertyChanged;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Aria2Fast.Service.Model.SubscriptionModel;
 
 namespace Aria2Fast.Service
 {
@@ -37,6 +38,11 @@ namespace Aria2Fast.Service
         /// 【分区路径->存储路径】
         /// </summary>
         public Dictionary<string, string> AddSubscriptionSavePathDict { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// 常用过滤器名称（不区分RPC了）
+        /// </summary>
+        public List<SubscriptionFilterModel> AddSubscriptionFilterList { get; set; } = new List<SubscriptionFilterModel>();
 
         //OSS相关设置
 
@@ -163,13 +169,22 @@ namespace Aria2Fast.Service
                 Debug.WriteLine(ex);
                 return false;
             }
+            finally
+            {
+                if (ConfigData.AddSubscriptionFilterList.Count == 0)
+                {
+                    ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简体"});
+                    ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简中" });
+                    ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简繁" });
+                    ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简日" });
+                }
+            }
         }
 
         private void AppConfigData_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Aria2Rpc" || e.PropertyName == "Aria2Token")
             {
-                //UpdateRPC
                 Aria2ApiManager.Instance.UpdateRpc();
             }
 

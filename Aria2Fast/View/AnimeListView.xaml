@@ -33,6 +33,7 @@
             Width="80"
             Margin="10,8,0,0"
             VerticalAlignment="Top"
+            Click="GetListButton_Click"
             Content="刷新"
             IsEnabled="{Binding IsLoading}" />
 

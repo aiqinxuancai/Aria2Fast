@@ -86,6 +86,29 @@
                     </Grid>
 
                 </Border>
+
+                <ItemsControl x:Name="SubscriptionFilterItemsControl" Margin="0,2,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Margin="3,2,0,0"
+                                Background="#88808695"
+                                ClipToBounds="True"
+                                CornerRadius="4"
+                                MouseDown="Border_MouseLeftButtonDown">
+                                <TextBlock
+                                    Margin="5,2,5,2"
+                                    Foreground="White"
+                                    Text="{Binding Filter}" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
 
 
