@@ -11,45 +11,61 @@
     mc:Ignorable="d">
     <UserControl.Resources>
         <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
-        <contver:WidthMinusConverter x:Key="WidthMinusConverter"/>
+        <contver:WidthMinusConverter x:Key="WidthMinusConverter" />
     </UserControl.Resources>
 
     <Grid>
-        <Grid >
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" FontSize="24" Text="{Binding Title}" />
-            <ListView Grid.Row="1" ItemsSource="{Binding Anime}" 
-                      x:Name="MyListView" 
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <TextBlock
+                Grid.Row="0"
+                FontSize="24"
+                Text="{Binding Title}" />
+            <ListView
+                x:Name="MyListView"
+                Grid.Row="1"
+                ItemsSource="{Binding Anime}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
-                            <Image MaxHeight="50" Source="{Binding ImageFull}" />
+                        <StackPanel Margin="4,0,0,0" Orientation="Horizontal">
+                            <Image
+                                MaxHeight="50"
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                Source="{Binding ImageFull, IsAsync=True}" />
                             <StackPanel Orientation="Vertical">
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" FontWeight="Bold" Margin="3,0,0,0" />
-                                
-                                    <ItemsControl ItemsSource="{Binding Rss}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal"
-                                           MaxWidth="{Binding ActualWidth,
-                                                      RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AnimeListView}},
-                                                      Converter={StaticResource WidthMinusConverter},
-                                                      ConverterParameter=100}"></WrapPanel>
+                                <TextBlock
+                                    Margin="3,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontWeight="Bold"
+                                    Text="{Binding Name}" />
+
+                                <ItemsControl ItemsSource="{Binding Rss}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AnimeListView}}, Converter={StaticResource WidthMinusConverter}, ConverterParameter=100}" Orientation="Horizontal" />
                                         </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                            <Border MouseDown="Border_MouseLeftButtonDown" ClipToBounds="True" CornerRadius="4" Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}" Margin="3,2,0,0">
-                                                    <TextBlock Margin="5,2,5,2" Text="{Binding Name}"  Foreground="White"/>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                                Margin="3,2,0,0"
+                                                Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}"
+                                                ClipToBounds="True"
+                                                CornerRadius="4"
+                                                MouseDown="Border_MouseLeftButtonDown">
+                                                <TextBlock
+                                                    Margin="5,2,5,2"
+                                                    Foreground="White"
+                                                    Text="{Binding Name}" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
                             </StackPanel>
                         </StackPanel>
                     </DataTemplate>

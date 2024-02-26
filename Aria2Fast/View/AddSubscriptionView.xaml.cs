@@ -1,4 +1,6 @@
-﻿
+﻿using Aria2Fast.Dialogs;
+using Aria2Fast.Service;
+using Aria2Fast.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,47 +8,40 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Interop;
-using Aria2Fast.Service;
-using Aria2Fast.Utils;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using Wpf.Ui.Controls;
 
-namespace Aria2Fast.Dialogs
+namespace Aria2Fast.View
 {
     /// <summary>
-    /// WindowAddTask.xaml 的交互逻辑
+    /// AddSubscriptionView.xaml 的交互逻辑
     /// </summary>
-    public partial class WindowAddSubscription : FluentWindow
+    public partial class AddSubscriptionView : Page
     {
-
         private string _groupNamePath;
-
-        public static void Show(Window owner, string url = "", string title = "")
-        {
-            WindowAddSubscription dialog = new WindowAddSubscription(url, title);
-            dialog.Owner = owner;
-            dialog.ShowDialog();
-
-
-
-        }
-
-
-        public WindowAddSubscription(string url, string title)
+        public AddSubscriptionView()
         {
             InitializeComponent();
-            IntPtr hWnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
-            Win11Style.LoadWin11Style(hWnd);
             LoadDefaultPathSelected();
-
-            _groupNamePath = title;
-
-            UrlTextBox.Text = url;
-            TextBoxRssPath.Text = title;
-
-
         }
 
+        private void Page_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue != null)
+            {
+                _groupNamePath = ((ValueTuple<string, string>)DataContext).Item2;
+
+                UrlTextBox.Text = ((ValueTuple<string, string>)DataContext).Item1;
+                TextBoxRssPath.Text = ((ValueTuple<string, string>)DataContext).Item2;
+            }
+        }
 
         private void LoadDefaultPathSelected()
         {
@@ -68,11 +63,6 @@ namespace Aria2Fast.Dialogs
 
         }
 
-
-        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
@@ -104,13 +94,13 @@ namespace Aria2Fast.Dialogs
                     try
                     {
                         Uri uri = new Uri(url);
-                    } 
+                    }
                     catch (Exception ex)
                     {
                         EasyLogManager.Logger.Error(ex);
                     }
 
-                   
+
 
                     this.Dispatcher.Invoke(() =>
                     {
@@ -133,7 +123,8 @@ namespace Aria2Fast.Dialogs
 
                 });
 
-                this.Close();
+                //TODO this.Close();
+                MainWindow.Instance.RootNavigation.GoBack();
             }
             catch (Exception ex)
             {
@@ -145,7 +136,8 @@ namespace Aria2Fast.Dialogs
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            //TODO this.Close();
+            MainWindow.Instance.RootNavigation.GoBack();
         }
 
 
@@ -158,7 +150,7 @@ namespace Aria2Fast.Dialogs
 
         private async void UrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (string.IsNullOrEmpty(UrlTextBox.Text) )
+            if (string.IsNullOrEmpty(UrlTextBox.Text))
             {
                 _groupNamePath = string.Empty;
                 return;
@@ -169,19 +161,19 @@ namespace Aria2Fast.Dialogs
                 CancelButton.IsEnabled = false;
                 ConfirmButton.IsEnabled = false;
                 var url = UrlTextBox.Text;
-                var rssModel = await Task.Run(async () => 
+                var rssModel = await Task.Run(async () =>
                 {
                     var model = SubscriptionManager.Instance.GetSubscriptionInfo(url);
                     return model;
                 });
 
-                if (string.IsNullOrEmpty(_groupNamePath)) 
+                if (string.IsNullOrEmpty(_groupNamePath))
                 {
                     TextBoxRssPath.Text = rssModel.SubscriptionName;
                 }
 
                 //TODO 
-                
+
             }
             catch (Exception ex)
             {
@@ -204,11 +196,19 @@ namespace Aria2Fast.Dialogs
                 RegexTextBox.IsEnabled = false;
 
                 var url = UrlTextBox.Text;
+
+
+
                 var rssModel = await Task.Run(async () =>
                 {
                     var model = SubscriptionManager.Instance.GetSubscriptionInfo(url);
                     return model;
                 });
+
+                if (rssModel == null)
+                {
+                    return;
+                }
 
                 //根据内容匹配
                 List<string> list = new List<string>();
@@ -223,11 +223,11 @@ namespace Aria2Fast.Dialogs
                 }
 
 
-                TestResultListBox.ItemsSource = list;
-                TestResultListBox.Visibility = Visibility.Visible;
-                this.Height = 440 + 120 + 30;
+                //TestResultListBox.ItemsSource = list;
+                //TestResultListBox.Visibility = Visibility.Visible;
+                
 
-                //MainWindow.Instance.ShowMessageBox("匹配结果", result, null, null, null, null);
+                MainWindow.Instance.ShowMessageBox("匹配结果",string.Join("\n", list), null, null, null, null);
                 //TODO弹出提示？
 
             }
@@ -242,5 +242,7 @@ namespace Aria2Fast.Dialogs
                 RegexTextBox.IsEnabled = true;
             }
         }
+
+
     }
 }

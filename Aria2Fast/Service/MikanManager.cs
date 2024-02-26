@@ -207,7 +207,7 @@ namespace Aria2Fast.Service
                 }
 
                 // 将所有找到的名称用 '/' 连接为一个字符串
-                var name = string.Join("/", subgroupNames);
+                var name = string.Join("-", subgroupNames);
 
                 var relativeUrlNode = div.SelectSingleNode(".//a[contains(@class, 'mikan-rss')]");
                 if (relativeUrlNode == null)

@@ -1,25 +1,23 @@
-﻿<ui:FluentWindow
-    x:Class="Aria2Fast.Dialogs.WindowAddSubscription"
+﻿<Page
+    x:Class="Aria2Fast.View.AddSubscriptionView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:Aria2Fast.Dialogs"
+    xmlns:local="clr-namespace:Aria2Fast.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Title="添加订阅"
-    Width="550"
-    Height="440"
-    AllowDrop="True"
-    Loaded="MetroWindow_Loaded"
-    WindowStartupLocation="CenterOwner"
-    mc:Ignorable="d">
-    <Window.Resources>
+    Title="AddSubscriptionView"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d" DataContextChanged="Page_DataContextChanged">
+
+    <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Style/AQButton.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-    </Window.Resources>
+    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -28,10 +26,11 @@
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar
-            Title="添加订阅"
+        <TextBlock
             Grid.Row="0"
-            Grid.ColumnSpan="2" />
+            Margin="10,10,10,0"
+            FontSize="16"
+            Text="添加订阅" />
 
         <Border
             Grid.Row="1"
@@ -87,11 +86,6 @@
                     </Grid>
 
                 </Border>
-                <ListView
-                    x:Name="TestResultListBox"
-                    Height="100"
-                    MaxHeight="120"
-                    Visibility="Collapsed" FontSize="10" />
             </StackPanel>
 
 
@@ -184,4 +178,4 @@
         </Border>
 
     </Grid>
-</ui:FluentWindow>
+</Page>

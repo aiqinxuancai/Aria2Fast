@@ -16,59 +16,9 @@ namespace Aria2Fast.UI.Test
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : INavigationWindow, IContentDialogService
+    public partial class MainWindow : FluentWindow
     {
-        public MainWindowViewModel ViewModel { get; }
-
-        public INavigationView GetNavigation()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Navigate(Type pageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetServiceProvider(IServiceProvider serviceProvider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetPageService(IPageService pageService)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ShowWindow()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CloseWindow()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetContentPresenter(ContentPresenter contentPresenter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ContentPresenter GetContentPresenter()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ContentDialogResult> ShowAlertAsync(string title, string message, string closeButtonText, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ContentDialogResult> ShowSimpleDialogAsync(SimpleContentDialogCreateOptions options, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+      
 
         public MainWindow()
         {
@@ -136,9 +86,5 @@ namespace Aria2Fast.UI.Test
             );
         }
 
-        public Task<ContentDialogResult> ShowAsync(ContentDialog dialog, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

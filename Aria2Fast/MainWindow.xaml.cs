@@ -51,12 +51,15 @@ namespace Aria2Fast
             {
                 NavigationCacheMode = NavigationCacheMode.Required,
             },
-            new NavigationViewItem("订阅", SymbolRegular.AppFolder24, typeof(WkySubscriptionListView))
+            new NavigationViewItem("我的订阅", SymbolRegular.AppFolder24, typeof(WkySubscriptionListView))
+            {
+                NavigationCacheMode = NavigationCacheMode.Required,
+            },
+            new NavigationViewItem("订阅源", SymbolRegular.StarAdd24, null)
             {
                 NavigationCacheMode = NavigationCacheMode.Required,
                 MenuItems = new object[]
                 {
-
                     new NavigationViewItem("Mikan", typeof(AnimeListView))
                     {
                         NavigationCacheMode = NavigationCacheMode.Required,
@@ -69,11 +72,11 @@ namespace Aria2Fast
         public MainWindow()
         {
             DataContext = this;
-
+           
             InitializeComponent();
             SystemThemeWatcher.Watch(this);
-
             Instance = this;
+
             IntPtr hWnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
             Win11Style.LoadWin11Style(hWnd);
             EasyLogManager.Logger.Info("主界面初始化");

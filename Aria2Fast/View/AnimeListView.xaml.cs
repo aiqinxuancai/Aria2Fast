@@ -35,9 +35,14 @@ namespace Aria2Fast.View
 
 
             if (clickedRssItem != null) {
-                //TODO 启动一个订阅画面
-                WindowAddSubscription.Show(MainWindow.Instance, clickedRssItem.Url, animeItem.Name);
+                //启动一个订阅画面
+                //WindowAddSubscription.Show(MainWindow.Instance, clickedRssItem.Url, animeItem.Name);
+
+                var data = (clickedRssItem.Url, animeItem.Name);
+                MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), data);
             }
         }
+  
+
     }
 }

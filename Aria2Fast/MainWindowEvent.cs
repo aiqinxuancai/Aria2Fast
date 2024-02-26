@@ -19,22 +19,31 @@ namespace Aria2Fast
         private Action _messageBoxRight;
 
 
-        public async void ShowMessageBox(string title, string message, Action leftClick, Action rightClick, string buttonLeftName = "Yes", string buttonRightName = "No")
+        public async void ShowMessageBox(string title, string message, Action leftClick, Action rightClick, string buttonLeftName = "Yes", string buttonRightName = "No", string buttonCancelName = "Cancel")
         {
             var service = App.GetService<IContentDialogService>();
 
             service.SetContentPresenter(DialogPresenter);
 
+
+            var opt = new SimpleContentDialogCreateOptions()
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = buttonCancelName 
+            };
+
+            if (!string.IsNullOrWhiteSpace(buttonLeftName))
+            {
+                opt.PrimaryButtonText = buttonLeftName;
+            }
+            if (!string.IsNullOrWhiteSpace(buttonRightName))
+            {
+                opt.SecondaryButtonText = buttonRightName;
+            }
+
             var result = await service.ShowSimpleDialogAsync(
-                new SimpleContentDialogCreateOptions()
-                {
-                    Title = title,
-                    Content = message,
-                    PrimaryButtonText = buttonLeftName,
-                    SecondaryButtonText = buttonRightName,
-                    CloseButtonText = "Cancel",
-                    
-                }
+                opt
             );
 
             Action call = result switch

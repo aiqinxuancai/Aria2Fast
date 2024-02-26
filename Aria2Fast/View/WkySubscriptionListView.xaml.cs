@@ -37,14 +37,10 @@ namespace Aria2Fast.View
         {
             InitializeComponent();
 
-
             //主动刷新？
             this.ViewModel = viewModel;
             this.ViewModel = SubscriptionManager.Instance.SubscriptionModel; //订阅列表绑定
             this.SubscriptionButton.IsEnabled = Aria2ApiManager.Instance.Connected;
-
-
-            //
 
             Aria2ApiManager.Instance.EventReceived
                 .OfType<LoginResultEvent>()
@@ -162,7 +158,10 @@ namespace Aria2Fast.View
 
         private void SubscriptionButton_Click(object sender, RoutedEventArgs e)
         {
-            WindowAddSubscription.Show(Application.Current.MainWindow);
+            //WindowAddSubscription.Show(Application.Current.MainWindow);
+
+
+            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), null);
 
         }
     }
