@@ -20,10 +20,7 @@
                 CornerRadius="6">
                 <StackPanel>
                     <TextBlock FontWeight="Bold" Text="{Binding Name}" />
-                    <TextBlock
-                        FontStyle="Italic"
-                        Foreground="Gray"
-                        Text="{Binding UpdateTime}" />
+                    <TextBlock Foreground="Gray" Text="{Binding UpdateTime}" />
                     <TextBlock Text="{Binding Episode}" />
                 </StackPanel>
             </Border>
@@ -43,7 +40,7 @@
                         Height="200"
                         RenderOptions.BitmapScalingMode="HighQuality"
                         Source="{Binding ImageCache}"
-                        Stretch="UniformToFill">
+                        Stretch="UniformToFill" HorizontalAlignment="Left">
                         <Image.Clip>
                             <RectangleGeometry
                                 RadiusX="6"
@@ -60,9 +57,8 @@
                     TextTrimming="CharacterEllipsis" />
             </StackPanel>
 
-            <ItemsControl ItemTemplate="{StaticResource ItemTemplate}" ItemsSource="{Binding YourItemsSource}">
+            <ItemsControl ItemTemplate="{StaticResource ItemTemplate}" ItemsSource="{Binding Rss}">
                 <ItemsControl.ItemsPanel>
-                    <!--  使用WrapPanel实现流式布局  -->
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>

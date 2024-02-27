@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -150,10 +151,47 @@ namespace Aria2Fast.Service.Model
         public List<MikanAnimeRssItem> Items { get; set; }
 
         //TODO 当前集数
-        public string Items { get; set; }
+        public string Episode
+        {
+            get 
+            {
+                var item = Items.FirstOrDefault();
+                if (item != null)
+                {
+                    return ExtractEpisodeNumber(item.Title);
+                }
+                return string.Empty;
+
+            }
+        }
+        public static string ExtractEpisodeNumber(string title)
+        {
+            // 正则表达式找出集数, 例如: [01], - 02, 第03集
+            Regex episodeRegex = new Regex(@"\[\d{2}\]|-\s*\d{2}|\d{2}", RegexOptions.Compiled);
+
+            Match match = episodeRegex.Match(title);
+            if (match.Success)
+            {
+                // 清除不需要的字符并返回结果
+                return Regex.Replace(match.Value, @"[\[\]\-\s第集]", "");
+            }
+
+            return "";
+        }
 
         //TODO 最后更新时间
-        public List<MikanAnimeRssItem> Items { get; set; }
+        public string UpdateTime
+        {
+            get
+            {
+                var item = Items.FirstOrDefault();
+                if (item != null)
+                {
+                    return item.Updated;
+                }
+                return string.Empty;
+            }
+        }
 
         public bool IsSubscribed
         {
