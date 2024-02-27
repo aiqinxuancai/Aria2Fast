@@ -19,7 +19,7 @@ namespace Aria2Fast
         private Action _messageBoxRight;
 
 
-        public async void ShowMessageBox(string title, string message, Action leftClick, Action rightClick, string buttonLeftName = "Yes", string buttonRightName = "No", string buttonCancelName = "Cancel")
+        public async Task ShowMessageBox(string title, string message, Action leftClick, Action rightClick, string buttonLeftName = "Yes", string buttonRightName = "No", string buttonCancelName = "Cancel")
         {
             var service = App.GetService<IContentDialogService>();
 

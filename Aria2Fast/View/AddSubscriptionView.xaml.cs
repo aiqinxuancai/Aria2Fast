@@ -92,6 +92,22 @@ namespace Aria2Fast.View
             ConfirmButton.IsEnabled = false;
             try
             {
+                var list = await GetMatchTitle();
+
+                if (list.Count == 0)
+                {
+                    //TODO 无法获取订阅；
+                    await MainWindow.Instance.ShowMessageBox("错误", "无法获取订阅内容", null, null, null, null, "确定");
+                    return;
+                }
+
+                bool isContinue = false;
+                await MainWindow.Instance.ShowMessageBox("将会订阅以下内容，请确认", string.Join("\n", list),  () => { isContinue = true; }, null, "确定", null, "取消");
+
+                if (!isContinue)
+                {
+                    return;
+                }
                 await Task.Run(() => {
                     string url = string.Empty;
                     string regex = string.Empty;
@@ -165,8 +181,12 @@ namespace Aria2Fast.View
             {
                 //await this.ShowMessageAsync("添加异常，请重试", ex.ToString());
                 EasyLogManager.Logger.Error(ex);
+            } 
+            finally
+            {
+                ConfirmButton.IsEnabled = true;
             }
-            ConfirmButton.IsEnabled = true;
+            
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -228,30 +248,10 @@ namespace Aria2Fast.View
                 RegexCheckBox.IsEnabled = false;
                 RegexTextBox.IsEnabled = false;
 
-                var url = UrlTextBox.Text;
-                var rssModel = await Task.Run(async () =>
-                {
-                    var model = SubscriptionManager.Instance.GetSubscriptionInfo(url);
-                    return model;
-                });
+                var list = await GetMatchTitle();
 
-                if (rssModel == null)
-                {
-                    return;
-                }
 
-                //根据内容匹配
-                List<string> list = new List<string>();
-                foreach (var item in rssModel.SubRssTitles)
-                {
-                    var titleIsMatch = SubscriptionManager.CheckTitle(RegexTextBox.Text, (bool)RegexCheckBox.IsChecked, item);
-                    if (titleIsMatch)
-                    {
-                        //TODO 加入数组？加入文本
-                        list.Add(item);
-                    }
-                }
-                MainWindow.Instance.ShowMessageBox("匹配结果",string.Join("\n", list), null, null, null, null);
+                MainWindow.Instance.ShowMessageBox($"匹配结果[{list.Count}]",string.Join("\n", list), null, null, null, null);
 
             }
             catch (Exception ex)
@@ -265,6 +265,35 @@ namespace Aria2Fast.View
                 RegexTextBox.IsEnabled = true;
             }
         }
+
+        private async Task<List<string>> GetMatchTitle()
+        {
+            var url = UrlTextBox.Text;
+            var rssModel = await Task.Run(async () =>
+            {
+                var model = SubscriptionManager.Instance.GetSubscriptionInfo(url);
+                return model;
+            });
+
+            if (rssModel == null)
+            {
+                return new List<string>();
+            }
+
+            //根据内容匹配
+            List<string> list = new List<string>();
+            foreach (var item in rssModel.SubRssTitles)
+            {
+                var titleIsMatch = SubscriptionManager.CheckTitle(RegexTextBox.Text, (bool)RegexCheckBox.IsChecked, item);
+                if (titleIsMatch)
+                {
+                    //TODO 加入数组？加入文本
+                    list.Add(item);
+                }
+            }
+            return list;
+        }
+
 
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
