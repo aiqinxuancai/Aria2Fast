@@ -26,7 +26,7 @@ namespace Aria2Fast.Service
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public const string kMikanIndex = "https://mikanani.me";
+        public const string kMikanIndex = "https://mikanime.tv";
 
         public const string kMikanCacheFile = "MikanCache.json";
 
@@ -54,6 +54,9 @@ namespace Aria2Fast.Service
         }
 
         public bool IsLoading { set; get; }
+
+
+        public string SearchText { set; get; }
 
         // 构造函数私有化确保唯一性
         private MikanManager() { }
@@ -160,6 +163,9 @@ namespace Aria2Fast.Service
                     var imageRelUrl = imageNode?.GetAttributeValue("data-src", string.Empty);
                     var imageAbsUrl = imageRelUrl;
 
+                    imageAbsUrl = imageAbsUrl.Replace("width=400", "width=460");
+                    imageAbsUrl = imageAbsUrl.Replace("height=400", "width=640");
+
                     if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(imageAbsUrl))
                     {
                         animeList.Add(new
@@ -234,10 +240,61 @@ namespace Aria2Fast.Service
                     continue;
                 }
 
-                subgroupInfoList.Add(new { name = name, url = $"{kMikanIndex}{absoluteUrl}" });
+                List<object> items = GetRssItems(div);
+
+                subgroupInfoList.Add(new
+                {
+                    name = name,
+                    url = $"{kMikanIndex}{absoluteUrl}",
+                    items = items
+                });
             }
 
             return JsonConvert.SerializeObject(subgroupInfoList, Formatting.Indented);
+        }
+
+        private static List<object> GetRssItems(HtmlNode div)
+        {
+            try
+            {
+                var items = new List<object>();
+                var table = div.SelectSingleNode("following-sibling::table[1]"); // 获取当前 div 下方的第一个 table
+                if (table != null)
+                {
+                    // 仅获取所有的 tr，不特定 tbody
+                    var rows = table.SelectNodes(".//tr[not(ancestor::thead)]"); // 获取所有不属于 thead 祖先的 tr 元素
+                    if (rows != null)
+                    {
+                        // 从索引1开始遍历，跳过表头行
+                        for (int i = 0; i < rows.Count; i++)
+                        {
+                            var row = rows[i];
+                            // 下面的代码与您原来的保持一致
+                            var title = HtmlEntity.DeEntitize(row.SelectSingleNode(".//td[1]").InnerText.Trim());
+                            var size = HtmlEntity.DeEntitize(row.SelectSingleNode(".//td[2]").InnerText.Trim());
+                            var updated = HtmlEntity.DeEntitize(row.SelectSingleNode(".//td[3]").InnerText.Trim());
+                            var downloadLink = row.SelectSingleNode(".//td[4]/a").GetAttributeValue("href", string.Empty).Trim();
+                            var magnetLink = row.SelectSingleNode(".//td[1]/a[@class='js-magnet magnet-link']").GetAttributeValue("data-clipboard-text", string.Empty).Trim();
+
+                            items.Add(new
+                            {
+                                title = title,
+                                size = size,
+                                updated = updated,
+                                downloadLink = $"{downloadLink}",
+                                magnetLink = $"{magnetLink}"
+                            });
+                        }
+                    }
+                }
+
+                return items;
+            } 
+            catch { 
+            
+                return new List<object>();
+            }
+
         }
     }
 }

@@ -28,32 +28,37 @@
     </Page.DataContext>
 
     <Grid>
-        <Button
-            x:Name="GetListButton"
-            Width="80"
+        <StackPanel
             Margin="10,8,0,0"
+            HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Click="GetListButton_Click"
-            Content="刷新"
-            IsEnabled="{Binding IsLoading}" />
+            Cursor="IBeam"
+            Orientation="Horizontal">
+
+            <ui:TextBox
+                x:Name="SearchTextBox"
+                Width="140"
+                PlaceholderText="搜索"
+                TextChanged="SearchTextBox_TextChanged" />
+
+
+            <Button
+                x:Name="GetListButton"
+                Width="80"
+                Margin="10,0,0,0"
+                Click="GetListButton_Click"
+                Content="刷新列表"
+                Cursor="IBeam"
+                IsEnabled="{Binding IsLoading}" />
+        </StackPanel>
+
 
         <ListView
             Margin="0,45,0,0"
             HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
             ItemsSource="{Binding Master.AnimeDays}"
             VirtualizingStackPanel.IsVirtualizing="True"
             VirtualizingStackPanel.VirtualizationMode="Recycling" />
-
-        <!--<Grid Visibility="{Binding !IsLoading, Converter={StaticResource BoolVisibilityConverter}}">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <ui:ProgressRing IsIndeterminate="True" />
-                <TextBlock
-                    Margin="0,5,0,0"
-                    HorizontalAlignment="Center"
-                    Text="正在加载列表" />
-            </StackPanel>
-
-        </Grid>-->
-
     </Grid>
 </Page>

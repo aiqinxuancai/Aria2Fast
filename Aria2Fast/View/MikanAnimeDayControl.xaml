@@ -6,8 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Aria2Fast.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    
     mc:Ignorable="d">
     <UserControl.Resources>
         <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
@@ -24,26 +26,57 @@
                 Grid.Row="0"
                 FontSize="24"
                 Text="{Binding Title}" />
-            <ListView
+            <ItemsControl
                 x:Name="MyListView"
                 Grid.Row="1"
                 ItemsSource="{Binding Anime}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListView.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel
+                            MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AnimeListView}}, Converter={StaticResource WidthMinusConverter}, ConverterParameter=20}"
+                            IsItemsHost="True"
+                            Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Margin="4,0,0,0" Orientation="Horizontal">
-                            <Image
-                                MaxHeight="50"
-                                RenderOptions.BitmapScalingMode="HighQuality"
-                                Source="{Binding ImageFull, IsAsync=True}" />
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="3,0,0,0"
-                                    VerticalAlignment="Center"
-                                    FontWeight="Bold"
-                                    Text="{Binding Name}" />
+                        <StackPanel
+                            Visibility="{Binding ShowStatus}"
+                            x:Name="MainAnimeCell"
+                            Margin="8,8,0,0"
+                            MouseLeftButtonUp="MainAnimeCell_MouseLeftButtonUp"
+                            Orientation="Vertical">
 
-                                <ItemsControl ItemsSource="{Binding Rss}">
+                            <Border Background="#05000000" CornerRadius="6">
+
+
+                                <Image
+                                    Width="140"
+                                    Height="200"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    Source="{Binding ImageCache}"
+                                    Stretch="UniformToFill">
+                                    <Image.Clip>
+                                        <RectangleGeometry
+                                            RadiusX="6"
+                                            RadiusY="6"
+                                            Rect="0,0,140,200" />
+                                    </Image.Clip>
+                                </Image>
+                            </Border>
+
+                            <TextBlock
+                                Width="140"
+                                Margin="3,5,0,0"
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="{Binding Name}"
+                                TextTrimming="CharacterEllipsis" />
+
+                            <StackPanel Orientation="Vertical">
+
+                                <!--<ItemsControl ItemsSource="{Binding Rss}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AnimeListView}}, Converter={StaticResource WidthMinusConverter}, ConverterParameter=100}" Orientation="Horizontal" />
@@ -56,7 +89,7 @@
                                                 Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}"
                                                 ClipToBounds="True"
                                                 CornerRadius="4"
-                                                MouseDown="Border_MouseLeftButtonDown">
+                                                MouseUp="Border_MouseLeftButtonUp">
                                                 <TextBlock
                                                     Margin="5,2,5,2"
                                                     Foreground="White"
@@ -64,13 +97,13 @@
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                </ItemsControl>-->
 
                             </StackPanel>
                         </StackPanel>
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
     </Grid>
 </UserControl>

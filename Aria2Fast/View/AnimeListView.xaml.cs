@@ -42,7 +42,7 @@ namespace Aria2Fast.View
                 });
         }
 
-        private void MikanAnimeDayControl_RssBorderClicked(object sender, RssBorderClickedEventArgs e)
+        private async void MikanAnimeDayControl_RssBorderClicked(object sender, RssBorderClickedEventArgs e)
         {
             var clickedRssItem = e.ClickedItem;
             var animeItem = e.ParentFeed;
@@ -54,14 +54,29 @@ namespace Aria2Fast.View
 
                 var data = (clickedRssItem.Url, animeItem.Name);
                 MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), data);
+            } 
+            else if (animeItem != null)
+            {
+                //await Task.Delay(50);
+                //TestN.IsOpen = true;
             }
+            
         }
 
         private async void GetListButton_Click(object sender, RoutedEventArgs e)
         {
             GetListButton.IsEnabled = false;
+
             await MikanManager.Instance.MikanStart(true);
 
+        }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            //SearchTextBox
+            MikanManager.Instance.SearchText = SearchTextBox.Text;
+            this.DataContext = null;
+            this.DataContext = MikanManager.Instance;
         }
     }
 }

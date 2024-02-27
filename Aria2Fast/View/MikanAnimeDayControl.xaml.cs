@@ -43,6 +43,12 @@ namespace Aria2Fast.View
         typeof(EventHandler<RssBorderClickedEventArgs>),
         typeof(MikanAnimeDayControl));
 
+        public MikanAnimeDayControl()
+        {
+            //DataContext = this;
+            InitializeComponent();
+        }
+
         public event EventHandler<RssBorderClickedEventArgs> RssBorderClicked
         {
             add { AddHandler(RssBorderClickedEvent, value); }
@@ -56,7 +62,7 @@ namespace Aria2Fast.View
             RaiseEvent(args);
         }
 
-        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Border rssBorder = sender as Border;
             if (rssBorder == null) return;
@@ -86,13 +92,12 @@ namespace Aria2Fast.View
 
 
 
-        public MikanAnimeDayControl()
+        private void MainAnimeCell_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            //DataContext = this;
-            InitializeComponent();
+            StackPanel obj = sender as StackPanel;
+            if (obj == null) return;
+
+            OnRssBorderClicked(null, obj.DataContext as MikanAnime);
         }
-
-        
-
     }
 }

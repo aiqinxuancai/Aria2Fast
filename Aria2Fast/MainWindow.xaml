@@ -13,7 +13,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:view="clr-namespace:Aria2Fast.View"
     Title="Aria2Fast"
-    Width="1020"
+    Width="1200"
     Height="680"
     d:DataContext="{d:DesignInstance local:MainWindow,
                                      IsDesignTimeCreatable=False}"
