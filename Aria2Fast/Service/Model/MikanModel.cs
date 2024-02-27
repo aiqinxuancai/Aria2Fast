@@ -30,6 +30,23 @@ namespace Aria2Fast.Service.Model
         public string Url { get; set; }
         public string Image { get; set; }
 
+        public List<MikanAnimeRss> Rss { get; set; }
+
+
+        //当前集数
+
+
+        public string ImageFull
+        {
+            get
+            {
+                return $"{MikanManager.kMikanIndex}{Image}";
+            }
+        }
+
+        /// <summary>
+        /// 和搜索联动的代码
+        /// </summary>
         public Visibility ShowStatus
         {
             get
@@ -47,8 +64,6 @@ namespace Aria2Fast.Service.Model
                 return Visibility.Collapsed;
             }
         }
-
-
 
         public BitmapImage ImageCache
         {
@@ -124,18 +139,7 @@ namespace Aria2Fast.Service.Model
             return img;
         }
 
-        public List<MikanAnimeRss> Rss { get; set; }
 
-
-
-
-        public string ImageFull
-        {
-            get
-            {
-                return $"{MikanManager.kMikanIndex}{Image}" ;
-            }
-        }
     }
 
     public class MikanAnimeRss : BaseNotificationModel
@@ -143,6 +147,12 @@ namespace Aria2Fast.Service.Model
         public string Name { get; set; }
         public string Url { get; set; }
 
+        public List<MikanAnimeRssItem> Items { get; set; }
+
+        //TODO 当前集数
+        public string Items { get; set; }
+
+        //TODO 最后更新时间
         public List<MikanAnimeRssItem> Items { get; set; }
 
         public bool IsSubscribed

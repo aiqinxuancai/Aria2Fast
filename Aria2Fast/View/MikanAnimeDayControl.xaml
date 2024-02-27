@@ -9,7 +9,6 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    
     mc:Ignorable="d">
     <UserControl.Resources>
         <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
@@ -42,15 +41,13 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel
-                            Visibility="{Binding ShowStatus}"
                             x:Name="MainAnimeCell"
                             Margin="8,8,0,0"
                             MouseLeftButtonUp="MainAnimeCell_MouseLeftButtonUp"
-                            Orientation="Vertical">
+                            Orientation="Vertical"
+                            Visibility="{Binding ShowStatus}">
 
                             <Border Background="#05000000" CornerRadius="6">
-
-
                                 <Image
                                     Width="140"
                                     Height="200"

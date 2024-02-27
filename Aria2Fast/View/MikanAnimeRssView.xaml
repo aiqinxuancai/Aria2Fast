@@ -11,5 +11,67 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
 
-    <Grid />
+    <Page.Resources>
+        <DataTemplate x:Key="ItemTemplate">
+            <Border
+                Margin="5"
+                Padding="10"
+                Background="#EEE"
+                CornerRadius="6">
+                <StackPanel>
+                    <TextBlock FontWeight="Bold" Text="{Binding Name}" />
+                    <TextBlock
+                        FontStyle="Italic"
+                        Foreground="Gray"
+                        Text="{Binding UpdateTime}" />
+                    <TextBlock Text="{Binding Episode}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid>
+        <StackPanel
+            Margin="10,10,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+
+            <StackPanel>
+                <Border CornerRadius="6">
+                    <Image
+                        Width="140"
+                        Height="200"
+                        RenderOptions.BitmapScalingMode="HighQuality"
+                        Source="{Binding ImageCache}"
+                        Stretch="UniformToFill">
+                        <Image.Clip>
+                            <RectangleGeometry
+                                RadiusX="6"
+                                RadiusY="6"
+                                Rect="0,0,140,200" />
+                        </Image.Clip>
+                    </Image>
+                </Border>
+
+                <TextBlock
+                    Margin="0,5,0,0"
+                    FontWeight="Bold"
+                    Text="{Binding Name}"
+                    TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+
+            <ItemsControl ItemTemplate="{StaticResource ItemTemplate}" ItemsSource="{Binding YourItemsSource}">
+                <ItemsControl.ItemsPanel>
+                    <!--  使用WrapPanel实现流式布局  -->
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+        </StackPanel>
+
+
+
+    </Grid>
 </Page>

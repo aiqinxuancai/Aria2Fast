@@ -32,15 +32,13 @@
             Margin="10,8,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Cursor="IBeam"
             Orientation="Horizontal">
 
             <ui:TextBox
                 x:Name="SearchTextBox"
-                Width="140"
+                Width="180"
                 PlaceholderText="搜索"
                 TextChanged="SearchTextBox_TextChanged" />
-
 
             <Button
                 x:Name="GetListButton"
@@ -48,7 +46,6 @@
                 Margin="10,0,0,0"
                 Click="GetListButton_Click"
                 Content="刷新列表"
-                Cursor="IBeam"
                 IsEnabled="{Binding IsLoading}" />
         </StackPanel>
 

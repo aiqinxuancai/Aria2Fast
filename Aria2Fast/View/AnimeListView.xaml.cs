@@ -59,6 +59,8 @@ namespace Aria2Fast.View
             {
                 //await Task.Delay(50);
                 //TestN.IsOpen = true;
+                MainWindow.Instance.RootNavigation.Navigate(typeof(MikanAnimeRssView), animeItem);
+                
             }
             
         }
