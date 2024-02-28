@@ -240,19 +240,19 @@ namespace Aria2Fast
             switch (status)
             {
                 case LinkStatus.Linking:
-                    LinkStatusProgressBar.IsIndeterminate = true;
+                    //LinkStatusProgressBar.IsIndeterminate = true;
                     //LinkStatusProgressBar.Visibility = Visibility.Visible;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#2db7f5");
                     LinkStatusBorder.Background = myBrush;
                     break;
                 case LinkStatus.Error:
-                    LinkStatusProgressBar.IsIndeterminate = false;
+                    //LinkStatusProgressBar.IsIndeterminate = false;
                     //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
                     LinkStatusBorder.Background = myBrush;
                     break;
                 case LinkStatus.Success:
-                    LinkStatusProgressBar.IsIndeterminate = false;
+                    //LinkStatusProgressBar.IsIndeterminate = false;
                     //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
                     myBrush.Color = (Color)ColorConverter.ConvertFromString("#ff19be6b");
                     LinkStatusBorder.Background = myBrush;

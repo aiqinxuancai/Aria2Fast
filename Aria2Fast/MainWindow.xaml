@@ -193,18 +193,18 @@
                         UseLayoutRounding="False">
                         <Grid>
 
-                            <ProgressBar
+                            <!--<ProgressBar
                                 x:Name="LinkStatusProgressBar"
-                                Width="{Binding ElementName=Aria2RpcHostTextBlock, Path=ActualWidth}"
                                 Height="4"
                                 VerticalAlignment="Bottom"
                                 BorderBrush="Transparent"
-                                IsIndeterminate="True" />
+                                IsIndeterminate="True" />-->
 
                             <TextBlock
                                 x:Name="Aria2RpcHostTextBlock"
                                 Margin="5,0,5,0"
                                 VerticalAlignment="Center"
+                                FontSize="12"
                                 Foreground="White"
                                 Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2RpcHost, Converter={StaticResource Aria2HostEmptyStringConverter}}" />
 
