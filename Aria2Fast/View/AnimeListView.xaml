@@ -50,12 +50,13 @@
         </StackPanel>
 
 
-        <ListView
+        <ItemsControl
             Margin="0,45,0,0"
             HorizontalContentAlignment="Stretch"
             VerticalContentAlignment="Stretch"
-            ItemsSource="{Binding Master.AnimeDays}"
-            VirtualizingStackPanel.IsVirtualizing="True"
-            VirtualizingStackPanel.VirtualizationMode="Recycling" />
+            ItemsSource="{Binding Master.AnimeDays}" />
+        
+        
+        
     </Grid>
 </Page>

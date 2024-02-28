@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
@@ -150,6 +151,22 @@ namespace Aria2Fast.Service.Model
 
         public List<MikanAnimeRssItem> Items { get; set; }
 
+        public string ShowEpisode
+        {
+            get
+            {
+                var text = "";
+                var episode = Episode;
+                if (!string.IsNullOrEmpty(episode))
+                {
+                    text += $"最新集数 {episode}";
+                }
+
+                return text;
+                // text += $" 总{Items.Count}";
+            }
+        }
+
         //TODO 当前集数
         public string Episode
         {
@@ -167,7 +184,7 @@ namespace Aria2Fast.Service.Model
         public static string ExtractEpisodeNumber(string title)
         {
             // 正则表达式找出集数, 例如: [01], - 02, 第03集
-            Regex episodeRegex = new Regex(@"\[\d{2}\]|-\s*\d{2}|\d{2}", RegexOptions.Compiled);
+            Regex episodeRegex = new Regex(@"\[\d{1,3}\]|-\s*\d{1,3}", RegexOptions.Compiled);
 
             Match match = episodeRegex.Match(title);
             if (match.Success)
@@ -187,9 +204,54 @@ namespace Aria2Fast.Service.Model
                 var item = Items.FirstOrDefault();
                 if (item != null)
                 {
-                    return item.Updated;
+
+                    string result = FormatTimeAgo(item.Updated, +8);
+
+                    return result;
                 }
                 return string.Empty;
+            }
+        }
+
+
+        
+
+        public static string FormatTimeAgo(string timeText, int timeZoneOffset)
+        {
+            try
+            {
+                // 解析时间字符串
+                DateTime inputTime = DateTime.ParseExact(timeText, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture);
+
+                // 考虑时区转换到UTC
+                inputTime = inputTime.AddHours(-timeZoneOffset);
+
+                // 获取当前的UTC时间
+                DateTime utcNow = DateTime.UtcNow;
+
+                // 计算差值
+                TimeSpan difference = utcNow - inputTime;
+
+                if (difference.TotalDays >= 1)
+                {
+                    return timeText;
+                }
+                else if (difference.TotalHours >= 1)
+                {
+                    return $"{Math.Floor(difference.TotalHours)}小时前";
+                }
+                else if (difference.TotalMinutes >= 1)
+                {
+                    return $"{Math.Floor(difference.TotalMinutes)}分钟前";
+                }
+                else
+                {
+                    return "刚刚";
+                }
+            }
+            catch (FormatException)
+            {
+                return "";
             }
         }
 

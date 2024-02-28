@@ -23,11 +23,13 @@
             </Grid.RowDefinitions>
             <TextBlock
                 Grid.Row="0"
+                Margin="10,20,0,0"
                 FontSize="24"
                 Text="{Binding Title}" />
             <ItemsControl
                 x:Name="MyListView"
                 Grid.Row="1"
+                Margin="-8,0,0,0"
                 ItemsSource="{Binding Anime}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl.ItemsPanel>

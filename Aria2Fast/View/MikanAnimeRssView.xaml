@@ -11,36 +11,21 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <DataTemplate x:Key="ItemTemplate">
-            <Border
-                Margin="5"
-                Padding="10"
-                Background="#EEE"
-                CornerRadius="6">
-                <StackPanel>
-                    <TextBlock FontWeight="Bold" Text="{Binding Name}" />
-                    <TextBlock Foreground="Gray" Text="{Binding UpdateTime}" />
-                    <TextBlock Text="{Binding Episode}" />
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-    </Page.Resources>
-
     <Grid>
         <StackPanel
             Margin="10,10,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top">
 
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                 <Border CornerRadius="6">
                     <Image
                         Width="140"
                         Height="200"
+                        HorizontalAlignment="Left"
                         RenderOptions.BitmapScalingMode="HighQuality"
                         Source="{Binding ImageCache}"
-                        Stretch="UniformToFill" HorizontalAlignment="Left">
+                        Stretch="UniformToFill">
                         <Image.Clip>
                             <RectangleGeometry
                                 RadiusX="6"
@@ -51,18 +36,40 @@
                 </Border>
 
                 <TextBlock
-                    Margin="0,5,0,0"
+                    Margin="10,0,0,0"
+                    FontSize="16"
                     FontWeight="Bold"
                     Text="{Binding Name}"
                     TextTrimming="CharacterEllipsis" />
             </StackPanel>
 
-            <ItemsControl ItemTemplate="{StaticResource ItemTemplate}" ItemsSource="{Binding Rss}">
+            <ItemsControl Margin="-5,5,0,0" ItemsSource="{Binding Rss}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Margin="5"
+                            Padding="10"
+                            Background="#EEE"
+                            CornerRadius="6"
+                            MouseLeftButtonUp="Border_MouseLeftButtonUp">
+                            <StackPanel>
+                                <TextBlock FontWeight="Bold" Text="{Binding Name}" />
+                                <TextBlock Foreground="Gray" Text="{Binding UpdateTime}" />
+                                <StackPanel Orientation="Horizontal">
+
+                                    <TextBlock Text="{Binding ShowEpisode}" />
+                                </StackPanel>
+
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
             </ItemsControl>
 
         </StackPanel>

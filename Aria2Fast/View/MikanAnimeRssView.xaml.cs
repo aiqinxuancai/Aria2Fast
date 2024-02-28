@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aria2Fast.Service.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,21 @@ namespace Aria2Fast.View
         public MikanAnimeRssView()
         {
             InitializeComponent();
+        }
+
+        private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var b = sender as Border;
+
+            MikanAnime mikanAnime = ((MikanAnime)DataContext);
+
+            MikanAnimeRss mikanAnimeRss = (MikanAnimeRss)b.DataContext;
+
+            
+
+
+            //弹出订阅页面？
+            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Aria2Fast.Dialogs;
 using Aria2Fast.Service;
+using Aria2Fast.Service.Model;
 using Aria2Fast.Service.Model.SubscriptionModel;
 using Aria2Fast.Utils;
 using System;
@@ -175,6 +176,8 @@ namespace Aria2Fast.View
                 });
 
                 //TODO this.Close();
+
+                //MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name));
                 MainWindow.Instance.RootNavigation.GoBack();
             }
             catch (Exception ex)
