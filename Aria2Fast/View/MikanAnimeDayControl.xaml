@@ -114,7 +114,7 @@
                                         VerticalAlignment="Bottom"
                                         Background="#AD88C6"
                                         CornerRadius="8"
-                                        Opacity="0.8"
+                                        Opacity="0.9"
                                         Visibility="{Binding NewEpisode, Converter={StaticResource IntVisibilityConverter}}">
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                             <TextBlock
