@@ -11,8 +11,8 @@
     Title="Aria2FastSetting"
     d:DesignHeight="800"
     d:DesignWidth="800"
-    
-    mc:Ignorable="d" ScrollViewer.CanContentScroll="False">
+    ScrollViewer.CanContentScroll="False"
+    mc:Ignorable="d">
 
     <Grid>
         <ScrollViewer>
@@ -49,21 +49,30 @@
                     <StackPanel>
                         <ui:Card x:Name="AccountCardAction">
                             <StackPanel>
-                                <TextBlock Text="Aria2Rpc" />
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    Margin="0,5,0,0"
-                                    PlaceholderText="Aria2 PRC"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2Rpc}" />
-                                <TextBlock
-                                    Margin="0,10,0,0"
-                                    Cursor="IBeam"
-                                    Text="Aria2RpcToken" />
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    Margin="0,5,0,0"
-                                    PlaceholderText="Token"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2Token}" />
+                                <Grid>
+                                    <StackPanel>
+                                        <RadioButton Content="使用Aria2本机下载" />
+                                        <RadioButton Content="使用Aria2RPC接口下载" />
+                                    </StackPanel>
+                                </Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Aria2Rpc" />
+                                    <ui:TextBox
+                                        MinWidth="400"
+                                        Margin="0,5,0,0"
+                                        PlaceholderText="Aria2 PRC"
+                                        Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2Rpc}" />
+                                    <TextBlock
+                                        Margin="0,10,0,0"
+                                        Cursor="IBeam"
+                                        Text="Aria2RpcToken" />
+                                    <ui:TextBox
+                                        MinWidth="400"
+                                        Margin="0,5,0,0"
+                                        PlaceholderText="Token"
+                                        Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2Token}" />
+                                </StackPanel>
+
                             </StackPanel>
                         </ui:Card>
                     </StackPanel>
