@@ -1,4 +1,5 @@
 ﻿using Aria2Fast.Service.Model;
+using Aria2Fast.Utils;
 using Flurl.Http;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
@@ -77,6 +78,7 @@ namespace Aria2Fast.Service
                     List<MikanAnimeDay> weekList = JsonConvert.DeserializeObject<List<MikanAnimeDay>>(indexJson);
 
                     Master.AnimeDays = weekList;
+                    ImageCacheUtils.PreloadImageCache();
 
                     Debug.WriteLine(indexJson);
 
@@ -107,6 +109,8 @@ namespace Aria2Fast.Service
                     //读取缓存
                     List<MikanAnimeDay> weekList = JsonConvert.DeserializeObject<List<MikanAnimeDay>>(File.ReadAllText(kMikanCacheFile));
                     Master.AnimeDays = weekList;
+
+                    ImageCacheUtils.PreloadImageCache();
                 }
                 else
                 {

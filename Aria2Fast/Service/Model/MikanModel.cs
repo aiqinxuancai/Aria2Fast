@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aria2Fast.Utils;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -45,6 +46,39 @@ namespace Aria2Fast.Service.Model
             }
         }
 
+        public int UpdateTodayRssCount
+        {
+            get
+            {
+                if (Rss == null)
+                {
+                    return 0;
+                }
+                return Rss!.Count(a => a.IsUpdateToday);
+            }
+        }
+
+        /// <summary>
+        /// 最新一集的剧集是？
+        /// </summary>
+        public int NewEpisode
+        {
+            get
+            {
+                if (Rss == null)
+                {
+                    return 0;
+                }
+                return Rss!.Max(a =>
+                {
+                    return a.Episode;
+                }
+                );
+            }
+        }
+
+
+
         /// <summary>
         /// 和搜索联动的代码
         /// </summary>
@@ -70,76 +104,9 @@ namespace Aria2Fast.Service.Model
         {
             get
             {
-                return GetImageWithLocalCache(new Uri(ImageFull));
+                return ImageCacheUtils.GetImageWithLocalCache(new Uri(ImageFull));
             }
         }
-
-        public static BitmapImage GetImageWithLocalCache(Uri uri)
-        {
-            var fileName = Path.GetFileName(uri.LocalPath);
-
-            var dirPath = Path.Combine(AppContext.BaseDirectory, "ImageCached");
-            if (!Directory.Exists(dirPath))
-            {
-                Directory.CreateDirectory(dirPath);
-            }
-            var localFilePath = Path.Combine(dirPath, fileName);
-
-            BitmapImage img = new BitmapImage();
-            img.BeginInit();
-
-            // Check if the image is cached locally first
-            if (File.Exists(localFilePath))
-            {
-                // Use the local cache file
-                img.UriSource = new Uri(localFilePath);
-            }
-            else
-            {
-                // Download the image from the internet
-                img.UriSource = uri;
-
-                // Save the image to the local cache once it's downloaded
-                img.DownloadCompleted += (s, e) =>
-                {
-                    JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create((BitmapImage)s));
-                    using (var fileStream = new FileStream(localFilePath, FileMode.Create))
-                    {
-                        encoder.Save(fileStream);
-                    }
-                };
-            }
-            img.CacheOption = BitmapCacheOption.OnLoad;
-            img.EndInit();
-
-            return img;
-        }
-
-        public BitmapImage GetImageFromCache(Uri uri)
-        {
-            BitmapImage img = null;
-
-            MemoryCache cache = MemoryCache.Default;
-            string cacheKey = uri.AbsoluteUri;
-
-            if (cache.Contains(cacheKey))
-            {
-                img = (BitmapImage)cache.Get(cacheKey);
-            }
-            else
-            {
-                img = new BitmapImage(uri);
-                img.CacheOption = BitmapCacheOption.OnLoad;
-                img.DownloadCompleted += (s, e) =>
-                {
-                    cache.Set(cacheKey, img, new CacheItemPolicy());
-                };
-            }
-
-            return img;
-        }
-
 
     }
 
@@ -148,7 +115,25 @@ namespace Aria2Fast.Service.Model
         public string Name { get; set; }
         public string Url { get; set; }
 
-        public List<MikanAnimeRssItem> Items { get; set; }
+        private List<MikanAnimeRssItem> _items { get; set; }
+
+
+        public List<MikanAnimeRssItem> Items
+        {
+            get => _items;
+            set
+            {
+                _items = value;
+                var item = Items.FirstOrDefault();
+                if (item != null)
+                {
+                    if (int.TryParse(MatchUtils.ExtractEpisodeNumber(item.Title), out int e))
+                    {
+                        _episode = e;
+                    }
+                }
+            }
+        }
 
         public string ShowEpisode
         {
@@ -156,9 +141,9 @@ namespace Aria2Fast.Service.Model
             {
                 var text = "";
                 var episode = Episode;
-                if (!string.IsNullOrEmpty(episode))
+                if (episode != 0)
                 {
-                    text += $"最新集数 {episode}";
+                    text += $"最新集 {episode}";
                 }
 
                 return text;
@@ -166,33 +151,18 @@ namespace Aria2Fast.Service.Model
             }
         }
 
+
+        private int _episode = 0;
+
         //TODO 当前集数
-        public string Episode
+        public int Episode
         {
             get 
             {
-                var item = Items.FirstOrDefault();
-                if (item != null)
-                {
-                    return ExtractEpisodeNumber(item.Title);
-                }
-                return string.Empty;
-
+                return _episode;
             }
         }
-        public static string ExtractEpisodeNumber(string title)
-        {
-            //[01], - 02, 第03集
-            Regex episodeRegex = new Regex(@"\[\d{1,3}\]|-\s*\d{1,3}|第\d{1,4}集", RegexOptions.Compiled);
 
-            Match match = episodeRegex.Match(title);
-            if (match.Success)
-            {
-                return Regex.Replace(match.Value, @"[\[\]\-\s第集]", "");
-            }
-
-            return "";
-        }
 
         //TODO 最后更新时间
         public string UpdateTime
@@ -203,7 +173,7 @@ namespace Aria2Fast.Service.Model
                 if (item != null)
                 {
 
-                    string result = FormatTimeAgo(item.Updated, +8);
+                    string result = TimeHelper.FormatTimeAgo(item.Updated, +8);
 
                     return result;
                 }
@@ -211,47 +181,19 @@ namespace Aria2Fast.Service.Model
             }
         }
 
-
-        
-
-        public static string FormatTimeAgo(string timeText, int timeZoneOffset)
+        public bool IsUpdateToday
         {
-            try
+            get
             {
-                // 解析时间字符串
-                DateTime inputTime = DateTime.ParseExact(timeText, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture);
-
-                // 考虑时区转换到UTC
-                inputTime = inputTime.AddHours(-timeZoneOffset);
-
-                // 获取当前的UTC时间
-                DateTime utcNow = DateTime.UtcNow;
-
-                // 计算差值
-                TimeSpan difference = utcNow - inputTime;
-
-                if (difference.TotalDays >= 1)
+                var item = Items.FirstOrDefault();
+                if (item != null)
                 {
-                    return timeText;
+                    return TimeHelper.IsUpdateToday(item.Updated, +8); ;
                 }
-                else if (difference.TotalHours >= 1)
-                {
-                    return $"{Math.Floor(difference.TotalHours)}小时前";
-                }
-                else if (difference.TotalMinutes >= 1)
-                {
-                    return $"{Math.Floor(difference.TotalMinutes)}分钟前";
-                }
-                else
-                {
-                    return "刚刚";
-                }
-            }
-            catch (FormatException)
-            {
-                return "";
+                return false;
             }
         }
+
 
         public bool IsSubscribed
         {

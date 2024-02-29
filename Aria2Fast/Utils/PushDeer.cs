@@ -12,15 +12,15 @@ namespace Aria2Fast.Utils
     internal class PushDeer
     {
 
-        public static async Task SendPushDeer(string msg = "")
+        public static async Task SendPushDeer(string text, string desp = "")
         {
 
-            if (string.IsNullOrEmpty(msg) || string.IsNullOrEmpty(AppConfig.Instance.ConfigData.PushDeerKey))
+            if (string.IsNullOrEmpty(AppConfig.Instance.ConfigData.PushDeerKey))
             {
                 return;
             }
 
-            Debug.WriteLine($"SendPushDeer {msg}");
+            Debug.WriteLine($"SendPushDeer {text}");
 
 
             HttpClient client = new HttpClient();
@@ -32,8 +32,8 @@ namespace Aria2Fast.Utils
                 var postData = new FormUrlEncodedContent(new Dictionary<string, string>()
                     {
                         {"pushkey" , AppConfig.Instance.ConfigData.PushDeerKey },
-                        {"text" , title },
-                        {"desp" , msg },
+                        {"text" , text },
+                        {"desp" , desp },
                     });
 
                 var ret = await client.PostAsync(url, postData);
