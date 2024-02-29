@@ -34,11 +34,10 @@ namespace Aria2Fast.View
 
             MikanAnimeRss mikanAnimeRss = (MikanAnimeRss)b.DataContext;
 
-            
-
-
+            //MainWindow.Instance.RootNavigation.NavigateWithHierarchy(typeof(MikanAnimeRssView), animeItem);
             //弹出订阅页面？
-            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name));
+            //MainWindow.Instance.RootNavigation.IsBackButtonVisible = Wpf.Ui.Controls.NavigationViewBackButtonVisible.Visible;
+            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name, mikanAnime));
         }
     }
 }

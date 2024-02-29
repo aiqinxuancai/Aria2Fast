@@ -28,6 +28,8 @@ namespace Aria2Fast.View
     public partial class AddSubscriptionView : Page
     {
         private string _groupNamePath;
+        private MikanAnime _anime;
+
         public AddSubscriptionView()
         {
             InitializeComponent();
@@ -40,10 +42,12 @@ namespace Aria2Fast.View
         {
             if (e.NewValue != null)
             {
-                _groupNamePath = ((ValueTuple<string, string>)DataContext).Item2;
+                var obj = ((ValueTuple<string, string, MikanAnime>)DataContext);
 
-                UrlTextBox.Text = ((ValueTuple<string, string>)DataContext).Item1;
-                TextBoxRssPath.Text = ((ValueTuple<string, string>)DataContext).Item2;
+                _groupNamePath = obj.Item2;
+                UrlTextBox.Text = obj.Item1;
+                TextBoxRssPath.Text = obj.Item2;
+                _anime = obj.Item3;
             }
         }
 
@@ -176,9 +180,10 @@ namespace Aria2Fast.View
                 });
 
                 //TODO this.Close();
+                Back();
 
-                //MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name));
-                MainWindow.Instance.RootNavigation.GoBack();
+
+
             }
             catch (Exception ex)
             {
@@ -192,10 +197,21 @@ namespace Aria2Fast.View
             
         }
 
+        private void Back()
+        {
+            if (_anime != null)
+            {
+                MainWindow.Instance.RootNavigation.Navigate(typeof(MikanAnimeRssView), _anime);
+            }
+            else
+            {
+                MainWindow.Instance.RootNavigation.GoBack();
+            }
+        }
+
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            //TODO this.Close();
-            MainWindow.Instance.RootNavigation.GoBack();
+            Back();
         }
 
 

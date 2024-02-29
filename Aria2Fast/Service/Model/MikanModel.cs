@@ -34,8 +34,7 @@ namespace Aria2Fast.Service.Model
 
         public List<MikanAnimeRss> Rss { get; set; }
 
-
-        //当前集数
+        //TODO 返回最新的集数int，寻找24小时内更新的字幕组获取集数，并且最新更新时间大于24小时的其他
 
 
         public string ImageFull
@@ -273,6 +272,7 @@ namespace Aria2Fast.Service.Model
 
         public string Size { get; set; }
 
+        //时间格式 “2024/02/29 18:00” 时区是+8
         public string Updated { get; set; }
 
         public string DownloadLink { get; set; }

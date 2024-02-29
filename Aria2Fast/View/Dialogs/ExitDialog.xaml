@@ -27,8 +27,10 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Orientation="Horizontal">
-            <Button Margin="0,0,15,0" Content="取消" />
+            <CheckBox Content="记住选择"></CheckBox>
             <Button Margin="0,0,15,0" Content="确定" />
+            <Button Margin="0,0,15,0" Content="取消" />
+
         </StackPanel>
     </Grid>
 </Window>

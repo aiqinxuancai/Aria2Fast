@@ -60,7 +60,7 @@ namespace Aria2Fast.View
                 //await Task.Delay(50);
                 //TestN.IsOpen = true;
                 MainWindow.Instance.RootNavigation.Navigate(typeof(MikanAnimeRssView), animeItem);
-
+                //MainWindow.Instance.RootNavigation.
                 //在使用NavigationView的Navigate方法时，如果传递的View的高度大于NavigationView的区域时，
 
 
