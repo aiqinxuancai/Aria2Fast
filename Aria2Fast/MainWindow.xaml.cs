@@ -148,19 +148,19 @@ namespace Aria2Fast
 
             this.Dispatcher.Invoke(new Action(() =>
             {
-                if (max > 0 && now != max)
-                {
-                    //进程中
-                    this.subscriptionProgressBar.Visibility = Visibility.Visible;
-                    this.subscriptionProgressBar.Value = now;
-                    this.subscriptionProgressBar.Maximum = max;
-                }
-                else
-                {
-                    this.subscriptionProgressBar.Visibility = Visibility.Hidden;
-                    this.subscriptionProgressBar.Value = 0;
-                    this.subscriptionProgressBar.Maximum = 1;
-                }
+                //if (max > 0 && now != max)
+                //{
+                //    //进程中
+                //    this.subscriptionProgressBar.Visibility = Visibility.Visible;
+                //    this.subscriptionProgressBar.Value = now;
+                //    this.subscriptionProgressBar.Maximum = max;
+                //}
+                //else
+                //{
+                //    this.subscriptionProgressBar.Visibility = Visibility.Hidden;
+                //    this.subscriptionProgressBar.Value = 0;
+                //    this.subscriptionProgressBar.Maximum = 1;
+                //}
 
 
             }));
@@ -254,7 +254,7 @@ namespace Aria2Fast
                 case LinkStatus.Success:
                     //LinkStatusProgressBar.IsIndeterminate = false;
                     //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
-                    myBrush.Color = (Color)ColorConverter.ConvertFromString("#ff19be6b");
+                    myBrush.Color = (Color)ColorConverter.ConvertFromString("#65B741");
                     LinkStatusBorder.Background = myBrush;
                     
 

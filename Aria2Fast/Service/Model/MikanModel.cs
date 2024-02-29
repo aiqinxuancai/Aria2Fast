@@ -183,13 +183,12 @@ namespace Aria2Fast.Service.Model
         }
         public static string ExtractEpisodeNumber(string title)
         {
-            // 正则表达式找出集数, 例如: [01], - 02, 第03集
-            Regex episodeRegex = new Regex(@"\[\d{1,3}\]|-\s*\d{1,3}", RegexOptions.Compiled);
+            //[01], - 02, 第03集
+            Regex episodeRegex = new Regex(@"\[\d{1,3}\]|-\s*\d{1,3}|第\d{1,4}集", RegexOptions.Compiled);
 
             Match match = episodeRegex.Match(title);
             if (match.Success)
             {
-                // 清除不需要的字符并返回结果
                 return Regex.Replace(match.Value, @"[\[\]\-\s第集]", "");
             }
 

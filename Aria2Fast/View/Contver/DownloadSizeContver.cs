@@ -89,7 +89,7 @@ namespace Aria2Fast.View.Contver
                 Aria2ApiManager.KARIA2_STATUS_WAITING => (Color)ColorConverter.ConvertFromString("#2d8cf0"),//"等待中", //蓝色
                 Aria2ApiManager.KARIA2_STATUS_PAUSED => (Color)ColorConverter.ConvertFromString("#ff9900"),//"已暂停", //橙色
                 Aria2ApiManager.KARIA2_STATUS_ERROR => (Color)ColorConverter.ConvertFromString("#ed4014"),//"缺少资源", //红色
-                Aria2ApiManager.KARIA2_STATUS_COMPLETE => (Color)ColorConverter.ConvertFromString("#19be6b"), //已完成 //绿色
+                Aria2ApiManager.KARIA2_STATUS_COMPLETE => (Color)ColorConverter.ConvertFromString("#65B741"), //已完成 //绿色
                 //Aria2ApiManager.KARIA2_STATUS_REMOVED => "removed",
 
                 _ => (Color)ColorConverter.ConvertFromString("#f8f8f9"), //value, //灰色

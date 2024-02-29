@@ -180,7 +180,7 @@
                                                 MinWidth="40"
                                                 Margin="5,0,0,0"
                                                 HorizontalAlignment="Center"
-                                                Background="#19BE6B"
+                                                Background="#65B741"
                                                 CornerRadius="4"
                                                 ToolTip="已添加任务数/匹配任务数">
                                                 <StackPanel

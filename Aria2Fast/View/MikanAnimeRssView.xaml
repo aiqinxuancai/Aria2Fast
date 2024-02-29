@@ -2,6 +2,7 @@
     x:Class="Aria2Fast.View.MikanAnimeRssView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:contver="clr-namespace:Aria2Fast.View.Contver"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Aria2Fast.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -10,6 +11,13 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
+    <Page.Resources>
+        <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
+        <contver:WidthMinusConverter x:Key="WidthMinusConverter" />
+        <contver:SubscriptionToColorConverterWithTitle x:Key="SubscriptionToColorConverterWithTitle" />
+        <contver:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
+
+    </Page.Resources>
 
     <Grid>
         <StackPanel
@@ -54,15 +62,34 @@
                         <Border
                             Margin="5"
                             Padding="10"
-                            Background="#EEE"
+                            Background="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverter}}"
                             CornerRadius="6"
                             MouseLeftButtonUp="Border_MouseLeftButtonUp">
                             <StackPanel>
-                                <TextBlock FontWeight="Bold" Text="{Binding Name}" />
-                                <TextBlock Foreground="Gray" Text="{Binding UpdateTime}" />
                                 <StackPanel Orientation="Horizontal">
 
-                                    <TextBlock Text="{Binding ShowEpisode}" />
+                                    <TextBlock
+                                        FontWeight="Bold"
+                                        Foreground="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverterWithTitle}}"
+                                        Text="{Binding Name}" />
+                                    <ui:SymbolIcon
+                                        Margin="5,0,0,0"
+                                        Filled="True"
+                                        Foreground="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverterWithTitle}}"
+                                        Symbol="Star16"
+                                        Visibility="{Binding IsSubscribed, Converter={StaticResource BoolVisibilityConverter}}" />
+                                </StackPanel>
+
+                                <TextBlock
+                                    Foreground="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverterWithTitle}}"
+                                    Opacity="0.7"
+                                    Text="{Binding UpdateTime}" />
+                                <StackPanel Orientation="Horizontal">
+
+                                    <TextBlock
+                                        Foreground="{Binding IsSubscribed, Converter={StaticResource SubscriptionToColorConverterWithTitle}}"
+                                        Opacity="0.7"
+                                        Text="{Binding ShowEpisode}" />
                                 </StackPanel>
 
                             </StackPanel>

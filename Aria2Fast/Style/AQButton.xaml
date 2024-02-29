@@ -308,10 +308,10 @@
 
 
     <!--  Green  -->
-    <Color x:Key="AQColorBackgroundGreenNormal">#FF19be6b</Color>
-    <Color x:Key="AQColorBackgroundGreenPressed">#C819be6b</Color>
-    <Color x:Key="AQColorBackgroundGreenMouseOver">#DC19be6b</Color>
-    <Color x:Key="AQColorBackgroundGreenEnabled">#6619be6b</Color>
+    <Color x:Key="AQColorBackgroundGreenNormal">#FF65B741</Color>
+    <Color x:Key="AQColorBackgroundGreenPressed">#C865B741</Color>
+    <Color x:Key="AQColorBackgroundGreenMouseOver">#DC65B741</Color>
+    <Color x:Key="AQColorBackgroundGreenEnabled">#6665B741</Color>
 
     <SolidColorBrush x:Key="AQBackgroundGreenNormal" Color="{StaticResource AQColorBackgroundGreenNormal}" />
     <SolidColorBrush x:Key="AQBackgroundGreenPressed" Color="{StaticResource AQColorBackgroundGreenPressed}" />
