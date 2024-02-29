@@ -57,13 +57,13 @@ namespace Aria2Fast.Utils
         /// <returns></returns>
         public static BitmapImage GetImageWithLocalCache(Uri uri)
         {
-            MemoryCache cache = MemoryCache.Default;
+            //MemoryCache cache = MemoryCache.Default;
             var fileName = Path.GetFileName(uri.LocalPath);
-            if (cache.Contains(fileName))
-            {
-                var bmp = (BitmapImage)cache.Get(fileName);
-                return bmp;
-            }
+            //if (cache.Contains(fileName))
+            //{
+            //    var bmp = (BitmapImage)cache.Get(fileName);
+            //    return bmp;
+            //}
 
             var dirPath = Path.Combine(AppContext.BaseDirectory, "ImageCached");
             if (!Directory.Exists(dirPath))

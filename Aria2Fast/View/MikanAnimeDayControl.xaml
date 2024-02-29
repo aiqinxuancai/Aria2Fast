@@ -59,7 +59,7 @@
                                         Height="200"
                                         Opacity="0"
                                         RenderOptions.BitmapScalingMode="HighQuality"
-                                        Source="{Binding ImageCache, IsAsync=True}"
+                                        Source="{Binding ImageCache}"
                                         Stretch="UniformToFill">
                                         <Image.Clip>
                                             <RectangleGeometry
