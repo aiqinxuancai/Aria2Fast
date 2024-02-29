@@ -154,7 +154,8 @@ namespace Aria2Fast.Service
 
             if (url.StartsWith("http"))
             {
-                if (AppConfig.Instance.ConfigData.SubscriptionProxyOpen && !string.IsNullOrEmpty(AppConfig.Instance.ConfigData.SubscriptionProxy))
+                if (AppConfig.Instance.ConfigData.SubscriptionProxyOpen && 
+                    !string.IsNullOrEmpty(AppConfig.Instance.ConfigData.SubscriptionProxy))
                 {
                     var proxyUrl = AppConfig.Instance.ConfigData.SubscriptionProxy;
                     var proxy = new WebProxy(proxyUrl);
@@ -285,11 +286,12 @@ namespace Aria2Fast.Service
                         }
                         );
 
-
-                        
-                        if (clearTask && AppConfig.Instance.ConfigData.PushDeerOpen)
+                        if (clearTask)
                         {
                             EasyLogManager.Logger.Info($"下载完成 {task.SubscriptionName}");
+                        }
+                        if (clearTask && AppConfig.Instance.ConfigData.PushDeerOpen)
+                        {
                             PushDeer.SendPushDeer($"[{task.SubscriptionName}]下载完成");
                         }
 

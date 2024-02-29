@@ -50,19 +50,36 @@
                             Visibility="{Binding ShowStatus}">
 
                             <Border Background="#05000000" CornerRadius="6">
-                                <Image
-                                    Width="140"
-                                    Height="200"
-                                    RenderOptions.BitmapScalingMode="HighQuality"
-                                    Source="{Binding ImageCache}"
-                                    Stretch="UniformToFill">
-                                    <Image.Clip>
-                                        <RectangleGeometry
-                                            RadiusX="6"
-                                            RadiusY="6"
-                                            Rect="0,0,140,200" />
-                                    </Image.Clip>
-                                </Image>
+                                <Grid>
+                                    <Image
+                                        Width="140"
+                                        Height="200"
+                                        RenderOptions.BitmapScalingMode="HighQuality"
+                                        Source="{Binding ImageCache}"
+                                        Stretch="UniformToFill">
+                                        <Image.Clip>
+                                            <RectangleGeometry
+                                                RadiusX="6"
+                                                RadiusY="6"
+                                                Rect="0,0,140,200" />
+                                        </Image.Clip>
+                                    </Image>
+                                    <Border
+                                        Height="18"
+                                        Margin="0,5,5,0"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="#EE4266"
+                                        CornerRadius="8">
+                                        <TextBlock
+                                            Margin="5,0,5,0"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Foreground="White"
+                                            Text="111" />
+                                    </Border>
+                                </Grid>
+
                             </Border>
 
                             <TextBlock

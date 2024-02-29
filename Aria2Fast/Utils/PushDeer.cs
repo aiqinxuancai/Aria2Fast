@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,7 +12,7 @@ namespace Aria2Fast.Utils
     internal class PushDeer
     {
 
-        public static async Task SendPushDeer(string title, string msg = "")
+        public static async Task SendPushDeer(string msg = "")
         {
 
             if (string.IsNullOrEmpty(msg) || string.IsNullOrEmpty(AppConfig.Instance.ConfigData.PushDeerKey))
@@ -19,7 +20,7 @@ namespace Aria2Fast.Utils
                 return;
             }
 
-            Console.WriteLine($"SendPushDeer {msg}");
+            Debug.WriteLine($"SendPushDeer {msg}");
 
 
             HttpClient client = new HttpClient();
