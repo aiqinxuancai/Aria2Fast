@@ -104,7 +104,7 @@ namespace Aria2Fast.Service
         {
             //key=ARIA2FAST
             //port=6809
-            StopLocalAria2();
+            //StopLocalAria2();
 
             var aria2Path = Path.Combine(AppContext.BaseDirectory, "Aria2");
             var aria2File = Path.Combine(aria2Path, "aria2c.exe");
@@ -145,23 +145,52 @@ namespace Aria2Fast.Service
                 AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = dir;
                 AppConfig.Instance.Save();
 
-                //启动进程
-                ProcessStartInfo startInfo = new ProcessStartInfo
+                if (!IsLocalAria2Runing())
                 {
-                    FileName = $"{aria2File}", // 可执行文件名
-                    Arguments = $"--conf-path={aria2Conf}", // 命令行参数
-                    WorkingDirectory = aria2Path,
-                    CreateNoWindow = true, // 不创建新窗口
-                    UseShellExecute = false, 
-                    RedirectStandardOutput = true, // 重定向标准输出
-                    RedirectStandardError = true // 重定向标准错误
-                };
-                _aria2Process = Process.Start(startInfo);
+                    //本地的Aria2已经在运行了，这里不再启动
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = $"{aria2File}",
+                        Arguments = $"--conf-path={aria2Conf}",
+                        WorkingDirectory = aria2Path,
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    };
+                    _aria2Process = Process.Start(startInfo);
+                }
+                //启动进程
+
             }
             else
             {
                 //错误
             }
+        }
+
+        public bool IsLocalAria2Runing()
+        {
+            foreach (var process in Process.GetProcessesByName("aria2c"))
+            {
+                try
+                {
+                    var aria2Path = Path.Combine(AppContext.BaseDirectory, "Aria2");
+                    var aria2File = Path.Combine(aria2Path, "aria2c.exe");
+                    var path = process.MainModule.FileName;
+                    if (aria2File == path)
+                    {
+                        return true;
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Could not terminate process {process.Id}: {ex.Message}");
+                }
+            }
+            return false;
         }
 
         public void StopLocalAria2()
@@ -217,7 +246,7 @@ namespace Aria2Fast.Service
             } 
             else
             {
-                StopLocalAria2();
+                //StopLocalAria2();
             }
         }
         
