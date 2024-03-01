@@ -49,7 +49,7 @@ namespace Aria2Fast.Service
 
 
         public bool Connected;
-        public string ConnectedRpc;
+        public string LastChangeRpc;
         private Timer _debounceTimer;
         private readonly object _locker = new object();
 
@@ -528,13 +528,12 @@ namespace Aria2Fast.Service
 
         internal async Task<bool> UpdateRpc()
         {
+            var rpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
+            var token = AppConfig.Instance.ConfigData.Aria2TokenAuto;
+
             try
             {
                 _eventReceivedSubject.OnNext(new LoginStartEvent());
-                
-                var rpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
-                var token = AppConfig.Instance.ConfigData.Aria2TokenAuto;
-
                 _client = new Aria2NetClient(rpc, token);
 
                 var result = await _client.GetGlobalOptionAsync();
@@ -542,7 +541,7 @@ namespace Aria2Fast.Service
                 if (result.Count > 0)
                 {
                     Connected = true;
-                    ConnectedRpc = rpc;
+                    LastChangeRpc = rpc;
                     _eventReceivedSubject.OnNext(new LoginResultEvent(true));
                     UpdateTask();
                     return true;
@@ -550,7 +549,7 @@ namespace Aria2Fast.Service
                 else
                 {
                     Connected = false;
-                    ConnectedRpc = "";
+                    LastChangeRpc = rpc;
                     _eventReceivedSubject.OnNext(new LoginResultEvent(false));
 
                     return false;
@@ -561,7 +560,7 @@ namespace Aria2Fast.Service
             {
                 Debug.WriteLine(ex.ToString());
                 Connected = false;
-                ConnectedRpc = "";
+                LastChangeRpc = rpc;
                 _eventReceivedSubject.OnNext(new LoginResultEvent(false));
             }
             return false;

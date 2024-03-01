@@ -613,7 +613,7 @@ namespace Aria2Fast.Service
 
                 LoadTrueName();
 
-                var rpc = Aria2ApiManager.Instance.ConnectedRpc;
+                var rpc = Aria2ApiManager.Instance.LastChangeRpc;
                 var uri = new Uri(rpc);
 
                 string fileName = @$"Subscription_{uri.Host}.json";
@@ -666,7 +666,7 @@ namespace Aria2Fast.Service
 
                 try
                 {
-                    var rpc = Aria2ApiManager.Instance.ConnectedRpc;
+                    var rpc = Aria2ApiManager.Instance.LastChangeRpc;
                     var uri = new Uri(rpc);
                     string fileName = @$"Subscription_{uri.Host}.json";
                     var content = JsonConvert.SerializeObject(SubscriptionModel);
