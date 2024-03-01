@@ -157,7 +157,7 @@ namespace Aria2Fast.Service
 
         public AppConfigData ConfigData { set; get; } = new AppConfigData();
 
-        private string _configPath = AppContext.BaseDirectory + @"Config.json";
+        private string _configPath = Path.Combine(Directory.GetCurrentDirectory(), @"Config.json");
 
         private object _lock = new object();
 

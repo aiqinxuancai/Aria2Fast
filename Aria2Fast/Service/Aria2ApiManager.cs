@@ -106,9 +106,15 @@ namespace Aria2Fast.Service
             //port=6809
             //StopLocalAria2();
 
-            var aria2Path = Path.Combine(AppContext.BaseDirectory, "Aria2");
+            var aria2Path = Path.Combine(Directory.GetCurrentDirectory(), "Aria2");
             var aria2File = Path.Combine(aria2Path, "aria2c.exe");
             var aria2Conf = Path.Combine(aria2Path, "aria2.conf");
+
+            EasyLogManager.Logger.Info(aria2Path);
+            EasyLogManager.Logger.Info(aria2File);
+            EasyLogManager.Logger.Info(aria2Conf);
+
+
             if (File.Exists(aria2File))
             {
                 if (!File.Exists(aria2Conf))
@@ -145,8 +151,13 @@ namespace Aria2Fast.Service
                 AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = dir;
                 AppConfig.Instance.Save();
 
+
+                EasyLogManager.Logger.Info($"本地Aria2：{rpc}");
+                EasyLogManager.Logger.Info($"本地Aria2下载路径：{dir}");
+
                 if (!IsLocalAria2Runing())
                 {
+                    EasyLogManager.Logger.Info($"启动Aria2：{aria2File}");
                     //本地的Aria2已经在运行了，这里不再启动
                     ProcessStartInfo startInfo = new ProcessStartInfo
                     {
@@ -159,6 +170,10 @@ namespace Aria2Fast.Service
                         RedirectStandardError = true
                     };
                     _aria2Process = Process.Start(startInfo);
+                } 
+                else
+                {
+                    EasyLogManager.Logger.Info($"Aria2已启动：{aria2File}");
                 }
                 //启动进程
 
@@ -166,6 +181,7 @@ namespace Aria2Fast.Service
             else
             {
                 //错误
+                EasyLogManager.Logger.Error("本地Aria2");
             }
         }
 
@@ -175,7 +191,7 @@ namespace Aria2Fast.Service
             {
                 try
                 {
-                    var aria2Path = Path.Combine(AppContext.BaseDirectory, "Aria2");
+                    var aria2Path = Path.Combine(Directory.GetCurrentDirectory(), "Aria2");
                     var aria2File = Path.Combine(aria2Path, "aria2c.exe");
                     var path = process.MainModule.FileName;
                     if (aria2File == path)
@@ -187,55 +203,14 @@ namespace Aria2Fast.Service
                 }
                 catch (Exception ex)
                 {
+                    EasyLogManager.Logger.Error(ex);
                     Debug.WriteLine($"Could not terminate process {process.Id}: {ex.Message}");
                 }
             }
             return false;
         }
 
-        public void StopLocalAria2()
-        {
-            foreach (var process in Process.GetProcessesByName("aria2c"))
-            {
-                try
-                {
-                    var aria2Path = Path.Combine(AppContext.BaseDirectory, "Aria2");
-                    var aria2File = Path.Combine(aria2Path, "aria2c.exe");
-                    var path = process.MainModule.FileName;
-                    if (aria2File == path)
-                    {
-                        Debug.WriteLine($"Process {process.Id} {path} has been terminated.");
-                        process.Kill();
-                        process.WaitForExit();
-                    }
-                    
-
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Could not terminate process {process.Id}: {ex.Message}");
-                }
-            }
-
-            if (_aria2Process != null)
-            {
-                try
-                {
-                    _aria2Process.Kill();
-                    _aria2Process = null;
-
-                }
-                catch 
-                {
-                
-                }
-                finally
-                {
-
-                }
-
-            }
-        }
+        
 
 
         public void UpdateLocalAria2()
@@ -271,15 +246,9 @@ namespace Aria2Fast.Service
                     {
 
                     }
-                    if (AppConfig.Instance.ConfigData.Aria2UseLocal)
-                    {
-                        await Task.Delay(2000);
-                    }
-                    else
-                    {
-                        await Task.Delay(5000);
-                    }
-                    
+
+                    await Task.Delay(5000);
+
 
                 }
             });

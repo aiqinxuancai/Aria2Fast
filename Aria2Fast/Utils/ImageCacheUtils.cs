@@ -16,7 +16,7 @@ namespace Aria2Fast.Utils
 
         public static async Task PreloadImageCache()
         {
-            var dirPath = Path.Combine(AppContext.BaseDirectory, "ImageCached");
+            var dirPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageCached");
             var files = Directory.GetFiles(dirPath);
             MemoryCache cache = MemoryCache.Default;
 
@@ -65,7 +65,7 @@ namespace Aria2Fast.Utils
             //    return bmp;
             //}
 
-            var dirPath = Path.Combine(AppContext.BaseDirectory, "ImageCached");
+            var dirPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageCached");
             if (!Directory.Exists(dirPath))
             {
                 Directory.CreateDirectory(dirPath);
