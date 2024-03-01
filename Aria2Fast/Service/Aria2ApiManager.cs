@@ -114,11 +114,12 @@ namespace Aria2Fast.Service
             EasyLogManager.Logger.Info(aria2File);
             EasyLogManager.Logger.Info(aria2Conf);
 
-
+            var firstRun = false;
             if (File.Exists(aria2File))
             {
                 if (!File.Exists(aria2Conf))
                 {
+                    firstRun = true;
                     //写出配置
                     PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.aria2.conf", aria2Conf);
                     PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.dht.dat", Path.Combine(aria2Path, "dht.dat"));
@@ -146,11 +147,13 @@ namespace Aria2Fast.Service
                 var rpc = $"http://127.0.0.1:{port}/jsonrpc";
                 AppConfig.Instance.ConfigData.Aria2RpcLocal = rpc;
                 AppConfig.Instance.ConfigData.Aria2TokenLocal = secret;
-                AppConfig.Instance.ConfigData.Aria2LocalSavePath = dir;
 
-                AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = dir;
-                AppConfig.Instance.Save();
-
+                if (firstRun)
+                {
+                    AppConfig.Instance.ConfigData.Aria2LocalSavePath = dir;
+                    AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = dir;
+                    AppConfig.Instance.Save();
+                }
 
                 EasyLogManager.Logger.Info($"本地Aria2：{rpc}");
                 EasyLogManager.Logger.Info($"本地Aria2下载路径：{dir}");
@@ -166,8 +169,7 @@ namespace Aria2Fast.Service
                         WorkingDirectory = aria2Path,
                         CreateNoWindow = true,
                         UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true
+   
                     };
                     _aria2Process = Process.Start(startInfo);
                 } 

@@ -69,21 +69,13 @@ namespace Aria2Fast.View
         {
             try
             {
-                if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+                if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
                 {
-                    this.TextBoxPath.Text = AppConfig.Instance.ConfigData.Aria2LocalSavePath;
-                    this.TextBoxPath.IsEnabled = false;
+                    this.TextBoxPath.Text = path;
                 }
                 else
                 {
-                    if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
-                    {
-                        this.TextBoxPath.Text = path;
-                    }
-                    else
-                    {
-                        this.TextBoxPath.Text = "/downloads";
-                    }
+                    this.TextBoxPath.Text = "/downloads";
                 }
             }
             catch (Exception ex)
@@ -96,6 +88,16 @@ namespace Aria2Fast.View
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
+            if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+            {
+                //检查本地目录存在
+                if (!PathHelper.LocalPathCheckAndCreate(TextBoxPath.Text))
+                {
+                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {TextBoxPath.Text} 无法使用");
+                    return;
+                }
+            }
+
             ConfirmButton.IsEnabled = false;
             try
             {

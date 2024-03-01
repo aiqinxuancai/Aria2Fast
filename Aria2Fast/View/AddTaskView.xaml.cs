@@ -1,4 +1,5 @@
 ﻿using Aria2Fast.Service;
+using Aria2Fast.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,21 +33,13 @@ namespace Aria2Fast.View
             try
             {
 
-                if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+                if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
                 {
-                    this.TextBoxPath.Text = AppConfig.Instance.ConfigData.Aria2LocalSavePath;
-                    this.TextBoxPath.IsEnabled = false;
-                } 
+                    this.TextBoxPath.Text = path;
+                }
                 else
                 {
-                    if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
-                    {
-                        this.TextBoxPath.Text = path;
-                    }
-                    else
-                    {
-                        this.TextBoxPath.Text = "/downloads";
-                    }
+                    this.TextBoxPath.Text = "/downloads";
                 }
 
             }
@@ -59,6 +52,16 @@ namespace Aria2Fast.View
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
+
+            if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+            {
+                //检查本地目录存在
+                if (!PathHelper.LocalPathCheckAndCreate(TextBoxPath.Text))
+                {
+                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {TextBoxPath.Text} 无法使用");
+                    return;
+                }
+            }
 
             ConfirmButton.IsEnabled = false;
             //TODO 支持选择设备和磁盘？？
@@ -117,10 +120,14 @@ namespace Aria2Fast.View
 
         private async void UrlTextBox_Drop(object sender, DragEventArgs e)
         {
-            if (!TextBoxPath.Text.StartsWith("/"))
+            if (AppConfig.Instance.ConfigData.Aria2UseLocal)
             {
-                MainWindow.Instance.ShowSnackbar("添加失败", $"路径需要用/开头");
-                return;
+                //检查本地目录存在
+                if (!PathHelper.LocalPathCheckAndCreate(TextBoxPath.Text))
+                {
+                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {TextBoxPath.Text} 无法使用");
+                    return;
+                }
             }
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop))

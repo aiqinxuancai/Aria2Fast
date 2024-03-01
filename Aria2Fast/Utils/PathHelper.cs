@@ -23,6 +23,25 @@ namespace Aria2Fast.Utils
             return input;
         }
 
+        public static bool LocalPathCheckAndCreate(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                return true;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(path);
+                return true;
+            }
+            catch (Exception e)
+            {
+
+            }
+            return false;
+        }
+
         public static void WriteResourceToFile(string resourceName, string outputFilePath)
         {
             // 获取调用者的程序集, 你可能需要根据实际情况获取其他程序集
