@@ -63,14 +63,8 @@ namespace Aria2Fast.Service
                 .OfType<LoginResultEvent>()
                 .Subscribe(async r =>
                 {
-                    if (r.IsSuccess)
-                    {
-                        Restart();
-                    }
-                    else
-                    {
-                        //this.AddTaskButton.IsEnabled = false;
-                    }
+                    //成功不成功都重载
+                    Restart();
                 });
         }
 
