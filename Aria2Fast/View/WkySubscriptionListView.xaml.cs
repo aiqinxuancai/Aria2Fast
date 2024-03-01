@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Aria2Fast.Dialogs;
 using Aria2Fast.Service;
 using Aria2Fast.Service.Model;
 using Aria2Fast.Service.Model.SubscriptionModel;

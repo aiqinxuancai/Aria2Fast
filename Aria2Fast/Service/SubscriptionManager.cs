@@ -442,7 +442,7 @@ namespace Aria2Fast.Service
                     continue;
                 }
 
-                var savePath = (subscription.Path.StartsWith("/") ? "" : "/") + subscription.Path;
+                var savePath = subscription.Path;
 
                 foreach (var link in item.Links)
                 {

@@ -15,7 +15,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Aria2Fast.Dialogs;
 using Aria2Fast.Service;
 using Aria2Fast.Service.Model;
 

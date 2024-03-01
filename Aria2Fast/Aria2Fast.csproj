@@ -10,12 +10,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Config\aria2.conf" />
+    <None Remove="Assets\Config\dht.dat" />
+    <None Remove="Assets\Config\dht6.dat" />
     <None Remove="Assets\Images\github.png" />
     <None Remove="Assets\Images\github30.png" />
     <None Remove="Assets\Images\heart.png" />
     <None Remove="Assets\Images\heart26.png" />
     <None Remove="Assets\Images\star.png" />
     <None Remove="icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Config\aria2.conf" />
+    <EmbeddedResource Include="Assets\Config\dht.dat" />
+    <EmbeddedResource Include="Assets\Config\dht6.dat" />
   </ItemGroup>
 
   <ItemGroup>

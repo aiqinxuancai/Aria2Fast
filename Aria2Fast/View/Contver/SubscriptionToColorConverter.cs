@@ -59,4 +59,5 @@ namespace Aria2Fast.View.Contver
             throw new NotImplementedException();
         }
     }
+
 }

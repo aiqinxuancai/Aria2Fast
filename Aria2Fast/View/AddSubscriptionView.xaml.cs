@@ -1,4 +1,4 @@
-﻿using Aria2Fast.Dialogs;
+﻿
 using Aria2Fast.Service;
 using Aria2Fast.Service.Model;
 using Aria2Fast.Service.Model.SubscriptionModel;
@@ -69,13 +69,21 @@ namespace Aria2Fast.View
         {
             try
             {
-                if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2Rpc, out var path))
+                if (AppConfig.Instance.ConfigData.Aria2UseLocal)
                 {
-                    this.TextBoxPath.Text = path;
+                    this.TextBoxPath.Text = AppConfig.Instance.ConfigData.Aria2LocalSavePath;
+                    this.TextBoxPath.IsEnabled = false;
                 }
                 else
                 {
-                    this.TextBoxPath.Text = "/downloads";
+                    if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
+                    {
+                        this.TextBoxPath.Text = path;
+                    }
+                    else
+                    {
+                        this.TextBoxPath.Text = "/downloads";
+                    }
                 }
             }
             catch (Exception ex)
@@ -88,12 +96,6 @@ namespace Aria2Fast.View
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!TextBoxPath.Text.StartsWith("/"))
-            {
-                MainWindow.Instance.ShowSnackbar("添加失败", $"路径需要用/开头");
-                return;
-            }
-
             ConfirmButton.IsEnabled = false;
             try
             {
@@ -218,7 +220,7 @@ namespace Aria2Fast.View
         private void TextBoxPath_TextChanged(object sender, TextChangedEventArgs e)
         {
             //当前选择的设备ID
-            AppConfig.Instance.ConfigData.AddSubscriptionSavePathDict[AppConfig.Instance.ConfigData.Aria2Rpc] = TextBoxPath.Text;
+            AppConfig.Instance.ConfigData.AddSubscriptionSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = TextBoxPath.Text;
             AppConfig.Instance.Save();
         }
 

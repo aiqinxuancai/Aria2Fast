@@ -23,7 +23,6 @@ using System.Windows.Shapes;
 using Aria2Fast.Service;
 using Aria2Fast.Utils;
 using Aria2Fast.View.Model;
-using Aria2Fast.Dialogs;
 using System.Threading;
 using Wpf.Ui.Controls;
 using System.Reactive.Linq;

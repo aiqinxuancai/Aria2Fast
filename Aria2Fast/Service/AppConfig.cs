@@ -85,23 +85,65 @@ namespace Aria2Fast.Service
         //当前客户端ID
         public string ClientId { get; set; } = string.Empty;
 
-
+        //远程RPC
         public string Aria2Rpc { get; set; } = string.Empty;
 
         public string Aria2Token { get; set; } = string.Empty;
+
+        //本地RPC
+        public string Aria2RpcLocal { get; set; } = string.Empty;
+
+        public string Aria2TokenLocal { get; set; } = string.Empty;
+
+
+        public string Aria2RpcAuto
+        {
+            get
+            {
+                if (Aria2UseLocal)
+                {
+                    return Aria2RpcLocal;
+                }
+                return Aria2Rpc;
+            }
+        }
+
+        public string Aria2TokenAuto
+        {
+            get
+            {
+                if (Aria2UseLocal)
+                {
+                    return Aria2TokenLocal;
+                }
+                return Aria2Token;
+            }
+        }
 
 
         public string Aria2RpcHost
         {
             get
             {
-                if (!string.IsNullOrWhiteSpace(Aria2Rpc) && Uri.TryCreate(Aria2Rpc, new UriCreationOptions(), out Uri? result))
+                var rpc = Aria2UseLocal ? Aria2RpcLocal : Aria2Rpc;
+                if (!string.IsNullOrWhiteSpace(rpc) && Uri.TryCreate(rpc, new UriCreationOptions(), out Uri? result))
                 {
-                    return result.Host;
+                    var port = result.Port > 0 ? (":" + result.Port.ToString()) : ("");
+                    return $"{result.Host}{port}";
                 }
                 return "";
             }
         }
+
+        public string Aria2LocalSavePath{ get; set; } = string.Empty;
+        
+
+        /// <summary>
+        /// 默认使用本地的Aria2下载
+        /// </summary>
+        public bool Aria2UseLocal { get; set; } = true;
+
+
     }
 
     /// <summary>
@@ -187,7 +229,11 @@ namespace Aria2Fast.Service
             {
                 Aria2ApiManager.Instance.UpdateRpc();
             }
-
+            if (e.PropertyName == "Aria2UseLocal")
+            {
+                Aria2ApiManager.Instance.UpdateLocalAria2();
+                Aria2ApiManager.Instance.UpdateRpc();
+            }
             Save();
         }
 

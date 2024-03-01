@@ -16,7 +16,8 @@ using Flurl.Http;
 using System.Linq;
 using System.Timers;
 using Aria2Fast.Utils;
-
+using Newtonsoft.Json.Linq;
+using System.Threading.Channels;
 
 namespace Aria2Fast.Service
 {
@@ -53,7 +54,7 @@ namespace Aria2Fast.Service
         private readonly object _locker = new object();
 
 
-
+        private Process? _aria2Process = null;
 
         private static object _lockForUpdateTask = new object();
 
@@ -78,24 +79,152 @@ namespace Aria2Fast.Service
         {
             try
             {
+                if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+                {
+
+                    StartupLocalAria2();
+                }
+                else
+                {
+                    //无需操作
+                }
                 UpdateRpc();
             }
             catch (Exception ex)
             {
-
+                Debug.WriteLine(ex);
             }
             SetupEvent();
         }
 
+        /// <summary>
+        /// 启动本地Aria2并管理，退出时跟随退出
+        /// </summary>
+        private void StartupLocalAria2()
+        {
+            //key=ARIA2FAST
+            //port=6809
+            StopLocalAria2();
+
+            var aria2Path = Path.Combine(AppContext.BaseDirectory, "Aria2");
+            var aria2File = Path.Combine(aria2Path, "aria2c.exe");
+            var aria2Conf = Path.Combine(aria2Path, "aria2.conf");
+            if (File.Exists(aria2File))
+            {
+                if (!File.Exists(aria2Conf))
+                {
+                    //写出配置
+                    PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.aria2.conf", aria2Conf);
+                    PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.dht.dat", Path.Combine(aria2Path, "dht.dat"));
+                    PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.dht6.dat", Path.Combine(aria2Path, "dht6.dat"));
+                    File.WriteAllBytes(Path.Combine(aria2Path, "aria2.session"), new byte[0]);
+                }
+                //如果没配置，则写出配置，否则读取配置中存储路径
+                var conf = new ConfigFileManager(aria2Conf);
+                var port = conf.GetValue("rpc-listen-port");
+                var secret = conf.GetValue("rpc-secret");
+                var dir = conf.GetValue("dir");
+
+                if (!Directory.Exists(dir)) {
+                    try
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+                    catch (Exception ex) 
+                    {
+                        //D盘没有？C盘总有！
+                        dir = "C:\\downloads";
+                    }
+                }
+
+                var rpc = $"http://127.0.0.1:{port}/jsonrpc";
+                AppConfig.Instance.ConfigData.Aria2RpcLocal = rpc;
+                AppConfig.Instance.ConfigData.Aria2TokenLocal = secret;
+                AppConfig.Instance.ConfigData.Aria2LocalSavePath = dir;
+
+                AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = dir;
+                AppConfig.Instance.Save();
+
+                //启动进程
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = $"{aria2File}", // 可执行文件名
+                    Arguments = $"--conf-path={aria2Conf}", // 命令行参数
+                    WorkingDirectory = aria2Path,
+                    CreateNoWindow = true, // 不创建新窗口
+                    UseShellExecute = false, 
+                    RedirectStandardOutput = true, // 重定向标准输出
+                    RedirectStandardError = true // 重定向标准错误
+                };
+                _aria2Process = Process.Start(startInfo);
+            }
+            else
+            {
+                //错误
+            }
+        }
+
+        public void StopLocalAria2()
+        {
+            foreach (var process in Process.GetProcessesByName("aria2c"))
+            {
+                try
+                {
+                    var aria2Path = Path.Combine(AppContext.BaseDirectory, "Aria2");
+                    var aria2File = Path.Combine(aria2Path, "aria2c.exe");
+                    var path = process.MainModule.FileName;
+                    if (aria2File == path)
+                    {
+                        Debug.WriteLine($"Process {process.Id} {path} has been terminated.");
+                        process.Kill();
+                        process.WaitForExit();
+                    }
+                    
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Could not terminate process {process.Id}: {ex.Message}");
+                }
+            }
+
+            if (_aria2Process != null)
+            {
+                try
+                {
+                    _aria2Process.Kill();
+                    _aria2Process = null;
+
+                }
+                catch 
+                {
+                
+                }
+                finally
+                {
+
+                }
+
+            }
+        }
+
+
+        public void UpdateLocalAria2()
+        {
+            if (AppConfig.Instance.ConfigData.Aria2UseLocal) 
+            {
+                StartupLocalAria2();
+            } 
+            else
+            {
+                StopLocalAria2();
+            }
+        }
+        
+
 
         private void SetupEvent()
         {
-            //TODO 安装事件监听 更新列表
-
-            //_client.TellWaitingAsync()Task
-            
-
-
             Task.Run(async () =>
             {
 
@@ -113,33 +242,18 @@ namespace Aria2Fast.Service
                     {
 
                     }
-                    await Task.Delay(5000);
+                    if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+                    {
+                        await Task.Delay(2000);
+                    }
+                    else
+                    {
+                        await Task.Delay(5000);
+                    }
+                    
 
                 }
             });
-
-            //任务下载完成
-
-            
-
-            //_api?.EventReceived
-            //    .OfType<LoginResultEvent>()
-            //    .Subscribe(async r =>
-            //    {
-            //        //_eventReceivedSubject.OnNext(r);
-            //    });
-
-
-            //_api?.EventReceived
-            //    .OfType<DownloadSuccessEvent>()
-            //    .Subscribe(async r =>
-            //    {
-            //        EasyLogManager.Logger.Info($"下载完成 {r.Task.Data.Name} {r.Task.Data.Path}");
-            //        if (AppConfig.Instance.ConfigData.PushDeerOpen)
-            //        {
-            //            await PushDeer.SendPushDeer($"下载完成 {r.Task.Data.Name}", $"用时 {TimeHelper.SecondsToFormatString((int)r.Task.Data.DownTime)}");
-            //        }
-            //    });
         }
 
         /// <summary>
@@ -418,8 +532,8 @@ namespace Aria2Fast.Service
             {
                 _eventReceivedSubject.OnNext(new LoginStartEvent());
                 
-                var rpc = AppConfig.Instance.ConfigData.Aria2Rpc;
-                var token = AppConfig.Instance.ConfigData.Aria2Token;
+                var rpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
+                var token = AppConfig.Instance.ConfigData.Aria2TokenAuto;
 
                 _client = new Aria2NetClient(rpc, token);
 
@@ -445,7 +559,7 @@ namespace Aria2Fast.Service
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine(ex.ToString());
                 Connected = false;
                 ConnectedRpc = "";
                 _eventReceivedSubject.OnNext(new LoginResultEvent(false));
