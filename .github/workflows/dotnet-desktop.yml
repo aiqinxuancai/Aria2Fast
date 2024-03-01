@@ -48,6 +48,12 @@ jobs:
       - run: powershell curl https://github.com/aiqinxuancai/DotNetDllPathPatcherWPF/releases/download/v0.0.15/DotNetDllPathPatcherCMD.zip -o DotNetDllPathPatcherCMD.zip
       - run: powershell Expand-Archive -Path .\DotNetDllPathPatcherCMD.zip -DestinationPath .\DotNetDllPathPatcherCMD
       - run: powershell .\DotNetDllPathPatcherCMD\publish\DotNetDllPathPatcherCMD.exe $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net8.0-windows\win-x64\publish\Aria2Fast.exe
+      # 下载并解压aria2
+      - name: Download and Extract Aria2
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip" -OutFile "aria2.zip"
+          Expand-Archive -Path "aria2.zip" -DestinationPath "$env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net8.0-windows\win-x64\publish\Aria2"
+        shell: powershell
       - name: Compress
         run: powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net8.0-windows\win-x64\publish -DestinationPath .\Aria2Fast.zip
       - name: Create a Release
