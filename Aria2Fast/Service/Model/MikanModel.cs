@@ -117,6 +117,9 @@ namespace Aria2Fast.Service.Model
 
         private List<MikanAnimeRssItem> _items { get; set; }
 
+        private bool _isUpdateToday;
+        private int _episode = 0;
+        private string _updateTime;
 
         public List<MikanAnimeRssItem> Items
         {
@@ -131,9 +134,14 @@ namespace Aria2Fast.Service.Model
                     {
                         _episode = e;
                     }
+
+                    _isUpdateToday = TimeHelper.IsUpdateToday(item.Updated, +8); ;
+                    _updateTime = TimeHelper.FormatTimeAgo(item.Updated, +8);
                 }
             }
         }
+
+
 
         public string ShowEpisode
         {
@@ -147,12 +155,8 @@ namespace Aria2Fast.Service.Model
                 }
 
                 return text;
-                // text += $" 总{Items.Count}";
             }
         }
-
-
-        private int _episode = 0;
 
         //TODO 当前集数
         public int Episode
@@ -169,15 +173,7 @@ namespace Aria2Fast.Service.Model
         {
             get
             {
-                var item = Items.FirstOrDefault();
-                if (item != null)
-                {
-
-                    string result = TimeHelper.FormatTimeAgo(item.Updated, +8);
-
-                    return result;
-                }
-                return string.Empty;
+                return _updateTime;
             }
         }
 
@@ -185,12 +181,7 @@ namespace Aria2Fast.Service.Model
         {
             get
             {
-                var item = Items.FirstOrDefault();
-                if (item != null)
-                {
-                    return TimeHelper.IsUpdateToday(item.Updated, +8); ;
-                }
-                return false;
+                return _isUpdateToday;
             }
         }
 

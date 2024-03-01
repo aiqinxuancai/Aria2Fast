@@ -35,11 +35,8 @@ namespace Aria2Fast.Utils
                         bitmap.UriSource = new Uri(file);
                         bitmap.EndInit();
 
-                        // 这一步很重要，它标记了图片的缓存行为，当图片加载完毕后，它会被保留在内存中
                         bitmap.Freeze();
 
-                        //var img = new BitmapImage(new Uri(file));
-                        //img.CacheOption = BitmapCacheOption.OnLoad;
                         cache.Set(cacheKey, bitmap, new CacheItemPolicy());
                         Debug.WriteLine($"[缓存]{cacheKey}");
 
@@ -57,13 +54,14 @@ namespace Aria2Fast.Utils
         /// <returns></returns>
         public static BitmapImage GetImageWithLocalCache(Uri uri)
         {
-            //MemoryCache cache = MemoryCache.Default;
+            MemoryCache cache = MemoryCache.Default;
             var fileName = Path.GetFileName(uri.LocalPath);
-            //if (cache.Contains(fileName))
-            //{
-            //    var bmp = (BitmapImage)cache.Get(fileName);
-            //    return bmp;
-            //}
+            if (cache.Contains(fileName))
+            {
+                var bmp = (BitmapImage)cache.Get(fileName);
+                //bmp.Freeze();
+                return bmp;
+            }
 
             var dirPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageCached");
             if (!Directory.Exists(dirPath))
@@ -94,7 +92,7 @@ namespace Aria2Fast.Utils
             }
             img.CacheOption = BitmapCacheOption.OnLoad;
             img.EndInit();
-
+            img.Freeze();
             return img;
         }
 

@@ -59,7 +59,7 @@
                                         Height="200"
                                         Opacity="0"
                                         RenderOptions.BitmapScalingMode="HighQuality"
-                                        Source="{Binding ImageCache}"
+                                        Source="{Binding ImageCache, IsAsync=True}"
                                         Stretch="UniformToFill">
                                         <Image.Clip>
                                             <RectangleGeometry
@@ -69,11 +69,11 @@
                                         </Image.Clip>
                                         <Image.Style>
                                             <Style TargetType="Image">
-                                                <!--  Image initially transparent  -->
+
                                                 <Setter Property="Opacity" Value="0" />
                                                 <Style.Triggers>
                                                     <EventTrigger RoutedEvent="Image.Loaded">
-                                                        <!--  Begin fade in when image is loaded  -->
+
                                                         <BeginStoryboard>
                                                             <Storyboard>
                                                                 <DoubleAnimation
@@ -128,7 +128,7 @@
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Foreground="White"
-                                                Text="{Binding NewEpisode}" />
+                                                Text="{Binding NewEpisode, IsAsync=True}" />
                                             <TextBlock
                                                 Margin="0,0,5,0"
                                                 HorizontalAlignment="Center"

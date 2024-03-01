@@ -54,9 +54,15 @@
             Margin="0,45,0,0"
             HorizontalContentAlignment="Stretch"
             VerticalContentAlignment="Stretch"
-            ItemsSource="{Binding Master.AnimeDays}" />
-        
-        
-        
+            ItemsSource="{Binding Master.AnimeDays, IsAsync=True}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
+
+
     </Grid>
 </Page>
