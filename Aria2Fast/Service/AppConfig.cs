@@ -48,13 +48,16 @@ namespace Aria2Fast.Service
             this.PropertyChanged += AppConfigData_PropertyChanged;
         }
 
-
-        private void AppConfigData_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void AppConfigData_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (_propertyChangedActions.TryGetValue(e.PropertyName, out Action action))
+            if (sender != null)
             {
-                action();
+                if (_propertyChangedActions.TryGetValue(e.PropertyName, out Action action))
+                {
+                    action();
+                }
             }
+
         }
 
 
