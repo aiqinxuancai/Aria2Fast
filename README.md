@@ -13,7 +13,7 @@
 <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/aiqinxuancai/Aria2Fast">
 </p>
 <p align="center" color="#6a737d">
-开箱即用的简易Aria2客户端，支持批量任务添加和订阅下载，内嵌了 <a herf="https://mikanani.me/">Mikan</a> 快速动漫订阅添加<br>
+Aria2的Windows轻量下载客户端，支持支持BT、HTTP下载及动漫订阅，内嵌了 <a herf="https://mikanani.me/">Mikan</a> 快速动漫订阅添加<br>
 </p>
 
 ## 功能
