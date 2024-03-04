@@ -182,10 +182,26 @@ namespace Aria2Fast.Service
             }
             else
             {
+                //自己下载Aria2？
+
                 //错误
                 EasyLogManager.Logger.Error("本地Aria2");
             }
         }
+
+        public static bool ExistLocalAria2()
+        {
+            var aria2Path = Path.Combine(Directory.GetCurrentDirectory(), "Aria2");
+            var aria2File = Path.Combine(aria2Path, "aria2c.exe");
+
+            if (File.Exists(aria2File))
+            {
+                return true;
+            }
+            return false;
+        }
+
+
 
         public bool IsLocalAria2Runing()
         {
@@ -221,10 +237,6 @@ namespace Aria2Fast.Service
             {
                 StartupLocalAria2();
             } 
-            else
-            {
-                //StopLocalAria2();
-            }
         }
         
 

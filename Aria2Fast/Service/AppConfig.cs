@@ -143,7 +143,44 @@ namespace Aria2Fast.Service
         /// </summary>
         public bool Aria2UseLocal { get; set; } = true;
 
+        private readonly Dictionary<string, Action> _propertyChangedActions;
 
+        public AppConfigData ()
+        {
+            _propertyChangedActions = new Dictionary<string, Action>
+                {
+                    { nameof(Aria2Rpc), () => Aria2ApiManager.Instance.UpdateRpc() },
+
+                    { nameof(Aria2Token), () => Aria2ApiManager.Instance.UpdateRpc() },
+
+                    { nameof(Aria2UseLocal), () => {
+
+                        if (!Aria2ApiManager.ExistLocalAria2())
+                        {
+                            if (Aria2UseLocal == true)
+                            {
+                                Aria2UseLocal = false;
+                            }
+                            return;
+                        }
+
+                        Aria2ApiManager.Instance.UpdateLocalAria2();
+                        Aria2ApiManager.Instance.UpdateRpc();
+
+                    } }
+
+                };
+            this.PropertyChanged += AppConfigData_PropertyChanged;
+        }
+
+
+        private void AppConfigData_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (_propertyChangedActions.TryGetValue(e.PropertyName, out Action action))
+            {
+                action();
+            }
+        }
     }
 
     /// <summary>
@@ -160,6 +197,9 @@ namespace Aria2Fast.Service
         private string _configPath = Path.Combine(Directory.GetCurrentDirectory(), @"Config.json");
 
         private object _lock = new object();
+
+        
+
 
         private AppConfig()
         {
@@ -225,15 +265,25 @@ namespace Aria2Fast.Service
 
         private void AppConfigData_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Aria2Rpc" || e.PropertyName == "Aria2Token")
-            {
-                Aria2ApiManager.Instance.UpdateRpc();
-            }
-            if (e.PropertyName == "Aria2UseLocal")
-            {
-                Aria2ApiManager.Instance.UpdateLocalAria2();
-                Aria2ApiManager.Instance.UpdateRpc();
-            }
+            ////TODO 不太优雅，需要优化
+            //if (e.PropertyName == "Aria2Rpc" || e.PropertyName == "Aria2Token")
+            //{
+            //    Aria2ApiManager.Instance.UpdateRpc();
+            //}
+            //if (e.PropertyName == "Aria2UseLocal")
+            //{
+            //    if (Aria2ApiManager.ExistLocalAria2())
+            //    {
+            //        Aria2ApiManager.Instance.UpdateLocalAria2();
+            //        Aria2ApiManager.Instance.UpdateRpc();
+            //    } 
+            //    else
+            //    {
+
+            //    }
+                
+                
+            //}
             Save();
         }
 

@@ -608,6 +608,13 @@ namespace Aria2Fast.Service
                 LoadTrueName();
 
                 var rpc = Aria2ApiManager.Instance.LastChangeRpc;
+
+                if (string.IsNullOrWhiteSpace(rpc))
+                {
+                    SubscriptionModel.Clear();
+                    return;
+                }
+
                 var uri = new Uri(rpc);
 
                 string fileName = @$"Subscription_{uri.Host}.json";
