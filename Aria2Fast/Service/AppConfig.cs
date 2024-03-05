@@ -20,13 +20,20 @@ namespace Aria2Fast.Service
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private Dictionary<string, Action> _propertyChangedActions;
+
         public AppConfigData()
+        {
+            
+        }
+
+        public void Init()
         {
             _propertyChangedActions = new Dictionary<string, Action>
                 {
-                    { nameof(Aria2Rpc), () => Aria2ApiManager.Instance.UpdateRpc() },
+                    { nameof(Aria2Rpc), async () => await Aria2ApiManager.Instance.UpdateRpc() },
 
-                    { nameof(Aria2Token), () => Aria2ApiManager.Instance.UpdateRpc() },
+                    { nameof(Aria2Token), async () => await Aria2ApiManager.Instance.UpdateRpc() },
 
                     { nameof(Aria2UseLocal), () => {
 
@@ -183,7 +190,6 @@ namespace Aria2Fast.Service
         /// </summary>
         public bool Aria2UseLocal { get; set; } = true;
 
-        private readonly Dictionary<string, Action> _propertyChangedActions;
 
 
     }
@@ -193,9 +199,9 @@ namespace Aria2Fast.Service
     /// </summary>
     public class AppConfig
     {
-        private static readonly Lazy<AppConfig> lazy = new Lazy<AppConfig>(() => new AppConfig());
-        
-        public static AppConfig Instance => lazy.Value;
+        private static readonly AppConfig instance = new AppConfig();
+
+        public static AppConfig Instance => instance;
 
         public AppConfigData ConfigData { set; get; } = new AppConfigData();
 
@@ -246,7 +252,7 @@ namespace Aria2Fast.Service
                     ConfigData.ClientId = Guid.NewGuid().ToString();
                     Save();
                 }
-
+                Debug.WriteLine($"初始化配置完毕");
                 return true;
             }
             catch (Exception ex)
@@ -265,6 +271,8 @@ namespace Aria2Fast.Service
                     ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简繁" });
                     ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简日" });
                 }
+
+                ConfigData.Init();
             }
         }
 
