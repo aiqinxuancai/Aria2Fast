@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flurl.Http;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace Aria2Fast.Utils
@@ -72,27 +74,27 @@ namespace Aria2Fast.Utils
 
             BitmapImage img = new BitmapImage();
             img.BeginInit();
-
             if (File.Exists(localFilePath))
             {
                 img.UriSource = new Uri(localFilePath);
             }
             else
             {
-                img.UriSource = uri;
-                img.DownloadCompleted += (s, e) =>
+                var result = uri.GetBytesAsync().Result;
+                if (result != null && result.Length > 0)
                 {
-                    JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create((BitmapImage)s));
-                    using (var fileStream = new FileStream(localFilePath, FileMode.Create))
-                    {
-                        encoder.Save(fileStream);
-                    }
-                };
+                    img.StreamSource = new MemoryStream(result);
+                    File.WriteAllBytes(localFilePath, result);
+                }
             }
+
             img.CacheOption = BitmapCacheOption.OnLoad;
             img.EndInit();
-            img.Freeze();
+            if (img.CanFreeze && !img.IsFrozen) // 检查能否冻结，并且还没有被冻结
+            {
+                img.Freeze();
+            }
+            
             return img;
         }
 
