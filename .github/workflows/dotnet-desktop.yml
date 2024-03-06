@@ -64,12 +64,13 @@ jobs:
       - name: Process tag and rename file
         id: process_tag
         run: |
-          $tagStr = "${{ github.ref }}"
+          $tagStr = "${{ github.event.inputs.tag }}"
           if ($tagStr.StartsWith('v')) {
             $tagStr = $tagStr.SubString(1)
           }
-          Rename-Item -Path .\Aria2Fast.zip -NewName "Aria2Fast-$tagStr.zip"
+          Rename-Item -Path .\Aria2Fast.zip -NewName "Aria2Fast-${tagStr}.zip"
           echo "::set-output name=tag::$tagStr"
+         
         shell: powershell 
       
       - name: Create a Release
