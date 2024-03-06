@@ -54,7 +54,13 @@
 
                 <StackPanel Margin="0,15,0,0">
                     <StackPanel>
-                        <ui:Card x:Name="AccountCardAction">
+                        <TextBlock
+                            Margin="0,10,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="18"
+                            Text="基础设置" />
+
+                        <ui:Card Margin="0,10,0,0" x:Name="AccountCardAction">
                             <StackPanel>
                                 <Grid>
                                     <StackPanel>
@@ -140,7 +146,11 @@
                     </Grid>
 
                 </ui:Card>
-
+                <TextBlock
+                    Margin="0,10,0,0"
+                    VerticalAlignment="Center"
+                    FontSize="18"
+                    Text="实验功能" />
                 <ui:Card Margin="0,10,0,0">
 
                     <Grid>

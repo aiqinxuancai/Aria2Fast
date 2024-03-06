@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converter="clr-namespace:Aria2Fast.View.Contver"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    
     xmlns:local="clr-namespace:Aria2Fast"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:service="clr-namespace:Aria2Fast.Service"
@@ -117,10 +116,17 @@
                 </ui:NavigationView.MenuItems>-->
 
                 <ui:NavigationView.FooterMenuItems>
-                    <ui:NavigationViewItem TargetPageType="{x:Type view:Aria2FastSettingView}">
+                    <ui:NavigationViewItem x:Name="SettingNavigationItem" TargetPageType="{x:Type view:Aria2FastSettingView}">
                         <ui:NavigationViewItem.Icon>
                             <ui:SymbolIcon Symbol="Settings24" />
                         </ui:NavigationViewItem.Icon>
+
+                        <!--<ui:NavigationViewItem.InfoBadge>
+                            <ui:InfoBadge
+                                FontSize="10"
+                                Severity="Informational"
+                                Value="1" />
+                        </ui:NavigationViewItem.InfoBadge>-->
                         <Grid>
                             <TextBlock FontSize="12" Text="设置" />
                         </Grid>

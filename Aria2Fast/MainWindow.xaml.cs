@@ -36,7 +36,7 @@ namespace Aria2Fast
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : INavigationWindow, IContentDialogService
+    public partial class MainWindow : FluentWindow
     {
         public static MainWindow Instance { get; set; }
 
@@ -89,20 +89,11 @@ namespace Aria2Fast
 
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (NavigationViewItem item in NavigationItems)
-            {
+            InitNavigationViewItem();
 
-                var mainBorder = item.Template.FindName("MainBorder", item) as Border;
-                if (mainBorder != null)
-                {
-                    mainBorder.MinWidth = 200; // 或您想要的任意数值
-                }
 
-            }
 
             ApplicationThemeManager.Apply(ApplicationTheme.Light);
-
-            //RootNavigation.MenuItemsSource = _menuItems;
 
             RootNavigation.Navigate(typeof(WkyTaskListView));
 
@@ -133,38 +124,34 @@ namespace Aria2Fast
                     }
                 });
 
-            //开始连接
             Aria2ApiManager.Instance.Init();
-
             MikanManager.Instance.MikanStart(false);
+        }
 
-
-
+        private void InitNavigationViewItem()
+        {
+                        foreach (NavigationViewItem item in NavigationItems)
+            {
+                var mainBorder = item.Template.FindName("MainBorder", item) as Border;
+                if (mainBorder != null)
+                {
+                    mainBorder.MinWidth = 200; // 或您想要的任意数值
+                }
+            }
+            var mb = SettingNavigationItem.Template.FindName("MainBorder", SettingNavigationItem) as Border;
+            if (mb != null)
+            {
+                mb.MinWidth = 150; // 或您想要的任意数值
+            }
         }
 
         private void SubscriptionManager_OnSubscriptionProgressChanged(int now, int max)
         {
-
             this.Dispatcher.Invoke(new Action(() =>
             {
-                //if (max > 0 && now != max)
-                //{
-                //    //进程中
-                //    this.subscriptionProgressBar.Visibility = Visibility.Visible;
-                //    this.subscriptionProgressBar.Value = now;
-                //    this.subscriptionProgressBar.Maximum = max;
-                //}
-                //else
-                //{
-                //    this.subscriptionProgressBar.Visibility = Visibility.Hidden;
-                //    this.subscriptionProgressBar.Value = 0;
-                //    this.subscriptionProgressBar.Maximum = 1;
-                //}
 
 
             }));
-
-
         }
 
         private void MetroWindow_Unloaded(object sender, RoutedEventArgs e)
@@ -263,49 +250,6 @@ namespace Aria2Fast
             
         }
 
-        public INavigationView GetNavigation()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Navigate(Type pageType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetServiceProvider(IServiceProvider serviceProvider)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetPageService(IPageService pageService)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ShowWindow()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CloseWindow()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetContentPresenter(ContentPresenter contentPresenter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ContentPresenter GetContentPresenter()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ContentDialogResult> ShowAsync(ContentDialog dialog, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }
