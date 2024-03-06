@@ -548,7 +548,7 @@ namespace Aria2Fast.Service
                 _eventReceivedSubject.OnNext(new LoginStartEvent());
                 _client = new Aria2NetClient(rpc, token);
 
-                var result = await _client.GetGlobalOptionAsync();
+                var result = await _client.TellAllAsync();
 
                 if (result.Count > 0)
                 {
