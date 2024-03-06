@@ -62,18 +62,18 @@ jobs:
       - name: Compress
         run: powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net8.0-windows\win-x64\publish -DestinationPath .\Aria2Fast.zip
       - name: Process tag and rename file
-        id: process_tag
+        id: processTag
         run: |
           $tagStr="$(echo "${{ github.ref }}" | cut -d / -f 3)"
           $newName="Aria2Fast-$tagStr.zip"
           echo "$newName"
-          Rename-Item -Path .\Aria2Fast.zip -NewName $newName
           echo "tag=$tagStr" >> $GITHUB_OUTPUT
+          Rename-Item -Path .\Aria2Fast.zip -NewName $newName
         shell: powershell 
       
       - name: Create a Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "Aria2Fast-${{ steps.process_tag.outputs.tag }}.zip"
+          artifacts: "Aria2Fast-${{ steps.processTag.outputs.tag }}.zip"
           prerelease: ${{ steps.prerelease.outputs.status }}
           token: ${{ secrets.GITHUB_TOKEN }}
