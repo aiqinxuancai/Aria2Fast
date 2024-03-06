@@ -64,11 +64,10 @@ jobs:
       - name: Process tag and rename file
         id: process_tag
         run: |
-          $tagStr = "$(echo "${{ github.ref }}" | cut -d / -f 3)"
-          if ($tagStr.StartsWith('v')) {
-            $tagStr = $tagStr.SubString(1)
-          }
-          Rename-Item -Path .\Aria2Fast.zip -NewName "Aria2Fast-$tagStr.zip"
+          $tagStr="$(echo "${{ github.ref }}" | cut -d / -f 3)"
+          $newName="Aria2Fast-$tagStr.zip"
+          echo "$newName"
+          Rename-Item -Path .\Aria2Fast.zip -NewName $newName
           echo "tag=$tagStr" >> $GITHUB_OUTPUT
         shell: powershell 
       
