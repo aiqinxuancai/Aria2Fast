@@ -24,9 +24,9 @@ jobs:
         run: |
           $ref = "${{ github.ref }}"
           if ($ref -like "*alpha*") {
-            echo "status=true" >> $GITHUB_OUTPUT
+            echo "##[set-output name=status;]true"
           } else {
-            echo "status=false" >> $GITHUB_OUTPUT
+            echo "##[set-output name=status;]false"
           }
         shell: powershell
       - name: Echo tag
@@ -67,7 +67,7 @@ jobs:
           $tagStr="$(echo "${{ github.ref }}" | cut -d / -f 3)"
           $newName="Aria2Fast-$tagStr.zip"
           echo "$newName"
-          echo "tag=$tagStr" >> $GITHUB_OUTPUT
+          echo "##[set-output name=tag;]$tagStr"
           Rename-Item -Path .\Aria2Fast.zip -NewName $newName
         shell: powershell 
       
