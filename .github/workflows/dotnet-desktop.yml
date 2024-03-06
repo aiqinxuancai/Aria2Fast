@@ -64,7 +64,7 @@ jobs:
       - name: Process tag and rename file
         id: process_tag
         run: |
-          $tagStr = "${{ github.event.inputs.tag }}"
+          $tagStr = "${{ github.ref }}"
           if ($tagStr.StartsWith('v')) {
             $tagStr = $tagStr.SubString(1)
           }
