@@ -24,9 +24,9 @@ jobs:
         run: |
           $ref = "${{ github.ref }}"
           if ($ref -like "*alpha*") {
-            echo "##[set-output name=status;]true"
+            echo "status=true" >> $GITHUB_OUTPUT
           } else {
-            echo "##[set-output name=status;]false"
+            echo "status=false" >> $GITHUB_OUTPUT
           }
         shell: powershell
       - name: Echo tag
@@ -64,13 +64,12 @@ jobs:
       - name: Process tag and rename file
         id: process_tag
         run: |
-          $tagStr = "${{ github.event.inputs.tag }}"
+          $tagStr = "$(echo "${{ github.ref }}" | cut -d / -f 3)"
           if ($tagStr.StartsWith('v')) {
             $tagStr = $tagStr.SubString(1)
           }
-          Rename-Item -Path .\Aria2Fast.zip -NewName "Aria2Fast-${tagStr}.zip"
-          echo "::set-output name=tag::$tagStr"
-         
+          Rename-Item -Path .\Aria2Fast.zip -NewName "Aria2Fast-$tagStr.zip"
+          echo "tag=$tagStr" >> $GITHUB_OUTPUT
         shell: powershell 
       
       - name: Create a Release
