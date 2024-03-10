@@ -69,7 +69,7 @@ namespace Aria2Fast.View
         {
             try
             {
-                if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
+                if (AppConfig.Instance.ConfigData.AddSubscriptionSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
                 {
                     this.TextBoxPath.Text = path;
                 }

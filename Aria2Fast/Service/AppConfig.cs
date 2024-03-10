@@ -75,12 +75,6 @@ namespace Aria2Fast.Service
         public Dictionary<string, string> AddTaskSavePathDict { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
-        /// 设备默认选择订阅的分区对应表 
-        /// 【设备ID->分区路径】
-        /// </summary>
-        public Dictionary<string, string> AddSubscriptionSavePartitionDict { get; set; } = new Dictionary<string, string>();
-
-        /// <summary>
         /// 分区路径->存储路径
         /// 【分区路径->存储路径】
         /// </summary>
