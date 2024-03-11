@@ -106,7 +106,9 @@
                                                         <StackPanel>
                                                             <TextBlock Text="订阅地址" />
                                                             <TextBlock Text="{Binding Url}" TextWrapping="Wrap" />
-                                                            <TextBlock Text="最近下载" />
+                                                            <TextBlock Margin="0,3,0,0" Text="存储路径" />
+                                                            <TextBlock Text="{Binding Path}" TextWrapping="Wrap" />
+                                                            <TextBlock Margin="0,3,0,0" Text="最近下载" />
                                                             <TextBlock Text="{Binding LastSubscriptionContent}" TextWrapping="Wrap" />
                                                         </StackPanel>
                                                     </Border>

@@ -18,6 +18,7 @@ using System.Windows.Documents;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
 
 
 
@@ -103,6 +104,14 @@ namespace Aria2Fast.View
                 menu.Items.Clear();
                 if (_lastSubscriptionModel != null)
                 {
+                    if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+                    {
+                        MenuItem menuOpenPath = new MenuItem() { Header = "打开目录" };
+                        menuOpenPath.Click += MenuOpenPath_Click;
+                        menu.Items.Add(menuOpenPath);
+                    }
+
+
                     MenuItem menuCopyUrl = new MenuItem() { Header = "复制URL" };
                     menuCopyUrl.Click += MenuCopyUrl_Click; ;
 
@@ -111,6 +120,8 @@ namespace Aria2Fast.View
 
                     MenuItem menuDelete = new MenuItem() { Header = "删除" };
                     menuDelete.Click += MenuDelete_Click;
+
+
                     menu.Items.Add(menuCopyUrl);
                     menu.Items.Add(menuReDownload);
                     menu.Items.Add(menuDelete);
@@ -123,6 +134,17 @@ namespace Aria2Fast.View
                 
 
             };
+        }
+
+        private void MenuOpenPath_Click(object sender, RoutedEventArgs e)
+        {
+            var model = _lastSubscriptionModel;
+
+            if (Directory.Exists(model.Path))
+            {
+                string correctedPath = System.IO.Path.GetFullPath(model.Path);
+                Process.Start("explorer.exe", correctedPath);
+            } 
         }
 
         private void MenuCopyUrl_Click(object sender, RoutedEventArgs e)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -17,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Aria2Fast.Service;
 using Aria2Fast.Service.Model;
+using Wpf.Ui.Styles.Controls;
 
 
 
@@ -336,6 +338,18 @@ namespace Aria2Fast.View
                     return false;
                 });
 
+
+                if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+                {
+                    if (_selectedItems.Count == 1)
+                    {
+                        MenuItem menuOpenPath = new MenuItem() { Header = "打开所在目录" };
+                        menuOpenPath.Click += MenuOpenPath_Click;
+                        contextMenu.Items.Add(menuOpenPath);
+                    }
+
+                }
+
                 if (showRestartMenu)
                 {
                     var menuRestart = new MenuItem() { Header = "继续下载" };
@@ -370,6 +384,17 @@ namespace Aria2Fast.View
 
                 DataGrid row = sender as DataGrid;
                 row.ContextMenu = contextMenu;
+            }
+        }
+
+        private void MenuOpenPath_Click(object sender, RoutedEventArgs e)
+        {
+            var model = _selectedItems.FirstOrDefault();
+            //打开目录
+            if (model != null && Directory.Exists(model.Data.Dir))
+            {
+                string correctedPath = System.IO.Path.GetFullPath(model.Data.Dir);
+                Process.Start("explorer.exe", correctedPath);
             }
         }
     }
