@@ -8,22 +8,25 @@
     xmlns:local="clr-namespace:Aria2Fast.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="Self"
-    
     d:DesignHeight="450"
     d:DesignWidth="500"
     mc:Ignorable="d">
 
     <Grid>
-        <Button
-            x:Name="AddTaskButton"
-            Width="80"
+        <StackPanel
             Margin="10,8,0,0"
+            HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Click="AddTaskButton_Click"
-            Content="添加任务"
-            IsEnabled="False" />
-        <!--<TextBox Text="{Binding ViewModel.Text, ElementName=Self, UpdateSourceTrigger=PropertyChanged}" />
-                <Slider Minimum="0" Maximum="100" Value="{Binding ViewModel.Number, ElementName=Self}" />-->
+            Orientation="Horizontal">
+            <Button
+                x:Name="AddTaskButton"
+                Width="80"
+                VerticalAlignment="Top"
+                Click="AddTaskButton_Click"
+                Content="添加任务"
+                IsEnabled="False" />
+        </StackPanel>
+
         <DataGrid
             x:Name="MainDataGrid"
             Margin="0,45,0,0"
