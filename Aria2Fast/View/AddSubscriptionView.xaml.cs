@@ -69,19 +69,19 @@ namespace Aria2Fast.View
         {
             try
             {
-                if (AppConfig.Instance.ConfigData.AddSubscriptionSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
+                var paths = AppConfig.Instance.GetDownloadPathWithAddSubscription();
+                foreach (var item in paths)
                 {
-                    this.TextBoxPath.Text = path;
+                    PathComboBox.Items.Add(item);
                 }
-                else
-                {
-                    this.TextBoxPath.Text = "/downloads";
-                }
+                PathComboBox.SelectedIndex = 0;
+
             }
             catch (Exception ex)
             {
                 EasyLogManager.Logger.Error(ex);
             }
+
 
         }
 
@@ -91,9 +91,9 @@ namespace Aria2Fast.View
             if (AppConfig.Instance.ConfigData.Aria2UseLocal)
             {
                 //检查本地目录存在
-                if (!PathHelper.LocalPathCheckAndCreate(TextBoxPath.Text))
+                if (!PathHelper.LocalPathCheckAndCreate(PathComboBox.Text))
                 {
-                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {TextBoxPath.Text} 无法使用");
+                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {PathComboBox.Text} 无法使用");
                     return;
                 }
             }
@@ -129,7 +129,7 @@ namespace Aria2Fast.View
                         url = UrlTextBox.Text;
                         regex = RegexTextBox.Text;
                         regexEnable = RegexCheckBox.IsChecked == true ? true : false;
-                        path = TextBoxPath.Text;
+                        path = PathComboBox.Text;
                         autoDir = AutoDirSwitch.IsChecked == true ? true : false;
                     });
 
@@ -150,18 +150,18 @@ namespace Aria2Fast.View
 
                         if (string.IsNullOrWhiteSpace(title))
                         {
-                            path = TextBoxPath.Text;
+                            path = PathComboBox.Text;
                         }
                         else
                         {
-                            path = TextBoxPath.Text + (TextBoxPath.Text.EndsWith("/") ? "" : "/") + title;
+                            path = PathComboBox.Text + (PathComboBox.Text.EndsWith("/") ? "" : "/") + title;
                         }
 
                         SubscriptionManager.Instance.Add(url, path, regex, regexEnable, autoDir: autoDir);
                         EasyLogManager.Logger.Info($"订阅已添加：{title} {url}");
 
                         MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{title}", SymbolRegular.AddCircle24);
-
+                        AppConfig.Instance.SaveDownloadPathWithAddSubscription(PathComboBox.Text);
                         if (!string.IsNullOrWhiteSpace(RegexTextBox.Text))
                         {
                             var list = AppConfig.Instance.ConfigData.AddSubscriptionFilterList;
@@ -222,8 +222,8 @@ namespace Aria2Fast.View
         private void TextBoxPath_TextChanged(object sender, TextChangedEventArgs e)
         {
             //当前选择的设备ID
-            AppConfig.Instance.ConfigData.AddSubscriptionSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = TextBoxPath.Text;
-            AppConfig.Instance.Save();
+            //AppConfig.Instance.ConfigData.AddSubscriptionSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = TextBoxPath.Text;
+            //AppConfig.Instance.Save();
         }
 
         private async void UrlTextBox_TextChanged(object sender, TextChangedEventArgs e)

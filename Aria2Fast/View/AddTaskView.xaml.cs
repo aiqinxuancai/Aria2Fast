@@ -32,15 +32,12 @@ namespace Aria2Fast.View
         {
             try
             {
-
-                if (AppConfig.Instance.ConfigData.AddTaskSavePathDict.TryGetValue(AppConfig.Instance.ConfigData.Aria2RpcAuto, out var path))
+                var paths = AppConfig.Instance.GetDownloadPathWithAddTask();
+                foreach (var item in paths)
                 {
-                    this.TextBoxPath.Text = path;
+                    PathComboBox.Items.Add(item);
                 }
-                else
-                {
-                    this.TextBoxPath.Text = "/downloads";
-                }
+                PathComboBox.SelectedIndex = 0;
 
             }
             catch (Exception ex)
@@ -56,9 +53,9 @@ namespace Aria2Fast.View
             if (AppConfig.Instance.ConfigData.Aria2UseLocal)
             {
                 //检查本地目录存在
-                if (!PathHelper.LocalPathCheckAndCreate(TextBoxPath.Text))
+                if (!PathHelper.LocalPathCheckAndCreate(PathComboBox.Text))
                 {
-                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {TextBoxPath.Text} 无法使用");
+                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {PathComboBox.Text} 无法使用");
                     return;
                 }
             }
@@ -74,7 +71,7 @@ namespace Aria2Fast.View
             {
                 try
                 {
-                    var result = await Aria2ApiManager.Instance.DownloadUrl(file, TextBoxPath.Text);
+                    var result = await Aria2ApiManager.Instance.DownloadUrl(file, PathComboBox.Text);
                     if (result.isSuccessed)
                     {
                         EasyLogManager.Logger.Info($"任务已添加：{file}");
@@ -99,11 +96,13 @@ namespace Aria2Fast.View
             {
                 EasyLogManager.Logger.Info($"成功添加{count}个任务，有{files.Length - count}个添加失败");
                 MainWindow.Instance.ShowSnackbar("成功", $"成功添加{count}个任务，有{files.Length - count}个添加失败");
+                AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
             }
             else
             {
                 //EasyLogManager.Logger.Info($"成功添加任务");
                 MainWindow.Instance.ShowSnackbar("成功", $"{count}个任务已添加");
+                AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
                 MainWindow.Instance.RootNavigation.GoBack();
             }
 
@@ -123,9 +122,9 @@ namespace Aria2Fast.View
             if (AppConfig.Instance.ConfigData.Aria2UseLocal)
             {
                 //检查本地目录存在
-                if (!PathHelper.LocalPathCheckAndCreate(TextBoxPath.Text))
+                if (!PathHelper.LocalPathCheckAndCreate(PathComboBox.Text))
                 {
-                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {TextBoxPath.Text} 无法使用");
+                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {PathComboBox.Text} 无法使用");
                     return;
                 }
             }
@@ -149,7 +148,7 @@ namespace Aria2Fast.View
 
                     try
                     {
-                        var result = await Aria2ApiManager.Instance.DownloadBtFile(file, TextBoxPath.Text);
+                        var result = await Aria2ApiManager.Instance.DownloadBtFile(file, PathComboBox.Text);
                         if (result.isSuccessed)
                         {
                             EasyLogManager.Logger.Info($"任务已添加：{file}");
@@ -173,10 +172,12 @@ namespace Aria2Fast.View
                 {
                     EasyLogManager.Logger.Info($"成功添加{count}个任务，有{files.Length - count}个添加失败");
                     MainWindow.Instance.ShowSnackbar("成功", $"成功添加{count}个任务，有{files.Length - count}个添加失败");
+                    AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
                 }
                 else
                 {
                     MainWindow.Instance.ShowSnackbar("成功", $"{count}个任务已添加");
+                    AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
                     MainWindow.Instance.RootNavigation.GoBack();
                 }
             }
@@ -195,8 +196,11 @@ namespace Aria2Fast.View
         private void TextBoxPath_TextChanged(object sender, TextChangedEventArgs e)
         {
             //当前选择的设备ID
-            AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = TextBoxPath.Text;
-            AppConfig.Instance.Save();
+
+            
+
+            //AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = TextBoxPath.Text;
+            //AppConfig.Instance.Save();
         }
     }
 }

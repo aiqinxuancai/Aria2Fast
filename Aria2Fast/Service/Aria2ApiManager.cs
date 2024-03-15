@@ -148,11 +148,10 @@ namespace Aria2Fast.Service
                 AppConfig.Instance.ConfigData.Aria2RpcLocal = rpc;
                 AppConfig.Instance.ConfigData.Aria2TokenLocal = secret;
 
-                if (firstRun)
+                if (firstRun || !AppConfig.Instance.ConfigData.AddTaskSavePathList.ContainsKey(AppConfig.Instance.ConfigData.Aria2RpcAuto))
                 {
                     AppConfig.Instance.ConfigData.Aria2LocalSavePath = dir;
-                    AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = dir;
-                    AppConfig.Instance.Save();
+                    AppConfig.Instance.InitLocalPath(dir);
                 }
 
                 EasyLogManager.Logger.Info($"本地Aria2：{rpc}");

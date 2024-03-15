@@ -67,18 +67,15 @@ namespace Aria2Fast.Service
 
         }
 
+        /// <summary>
+        /// 任务的保存路径
+        /// </summary>
+        public Dictionary<string, List<string>> AddTaskSavePathList { get; set; } = new Dictionary<string, List<string>>();
 
         /// <summary>
-        /// 分区路径->存储路径
-        /// 【RPC URL->存储路径】
+        /// 订阅的保存路径
         /// </summary>
-        public Dictionary<string, string> AddTaskSavePathDict { get; set; } = new Dictionary<string, string>();
-
-        /// <summary>
-        /// 分区路径->存储路径
-        /// 【分区路径->存储路径】
-        /// </summary>
-        public Dictionary<string, string> AddSubscriptionSavePathDict { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, List<string>> AddSubscriptionSavePathList { get; set; } = new Dictionary<string, List<string>>();
 
         /// <summary>
         /// 常用过滤器名称（不区分RPC了）
@@ -86,9 +83,7 @@ namespace Aria2Fast.Service
         public List<SubscriptionFilterModel> AddSubscriptionFilterList { get; set; } = new List<SubscriptionFilterModel>();
 
         //OSS相关设置
-
         public bool OSSSynchronizeOpen { get; set; } = false;
-
 
         public string OSSEndpoint { get; set; } = string.Empty;
 
@@ -191,7 +186,7 @@ namespace Aria2Fast.Service
     /// <summary>
     /// 配置项读取、写入、存储逻辑
     /// </summary>
-    public class AppConfig
+    public partial class AppConfig
     {
         private static readonly AppConfig instance = new AppConfig();
 
@@ -274,6 +269,8 @@ namespace Aria2Fast.Service
         {
             Save();
         }
+
+        
 
         public void Save()
         {

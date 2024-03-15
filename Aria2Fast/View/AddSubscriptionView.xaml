@@ -117,13 +117,13 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100*" />
                     </Grid.ColumnDefinitions>
-                    <ui:TextBox
-                        x:Name="TextBoxPath"
+
+
+                    <ComboBox
+                        x:Name="PathComboBox"
                         Grid.Column="2"
                         Padding="10,5,10,5"
-                        ClearButtonEnabled="False"
-                        PlaceholderText="保存目录"
-                        TextChanged="TextBoxPath_TextChanged" />
+                        IsEditable="True" />
 
                 </Grid>
 
