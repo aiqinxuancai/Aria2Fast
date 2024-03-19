@@ -549,7 +549,7 @@ namespace Aria2Fast.Service
 
                 var result = await _client.TellAllAsync();
 
-                if (result.Count > 0)
+                if (result.Count >= 0)
                 {
                     Connected = true;
                     LastChangeRpc = rpc;
