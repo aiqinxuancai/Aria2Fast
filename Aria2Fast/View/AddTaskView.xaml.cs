@@ -63,12 +63,21 @@ namespace Aria2Fast.View
             ConfirmButton.IsEnabled = false;
             //TODO 支持选择设备和磁盘？？
             //WkyAccountManager.WkyApi.CreateTaskWithUrlResolve();
-            var files = UrlTextBox.Text.Split("\r\n");
+
+            string allLink = UrlTextBox.Text;
+            allLink = allLink.Replace("\r\n", "\n");
+
+            var files = allLink.Split("\n");
             files = files.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
             int count = 0;
 
             foreach (var file in files)
             {
+                if (string.IsNullOrWhiteSpace(file))
+                {
+                    continue;
+                }
+
                 try
                 {
                     var result = await Aria2ApiManager.Instance.DownloadUrl(file, PathComboBox.Text);
@@ -119,72 +128,85 @@ namespace Aria2Fast.View
 
         private async void UrlTextBox_Drop(object sender, DragEventArgs e)
         {
-            if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+            try
             {
-                //检查本地目录存在
-                if (!PathHelper.LocalPathCheckAndCreate(PathComboBox.Text))
+                MaskGrid.Visibility = Visibility.Visible;
+
+                if (AppConfig.Instance.ConfigData.Aria2UseLocal)
                 {
-                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {PathComboBox.Text} 无法使用");
-                    return;
-                }
-            }
-
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                // Note that you can have more than one file.
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-
-
-                int count = 0;
-                foreach (var file in files)
-                {
-                    //判断是不是BT
-                    if (!file.EndsWith(".torrent"))
+                    //检查本地目录存在
+                    if (!PathHelper.LocalPathCheckAndCreate(PathComboBox.Text))
                     {
-                        EasyLogManager.Logger.Error($"任务不是torrent文件：{file}");
-                        continue;
+                        MainWindow.Instance.ShowSnackbar("失败", $"目录 {PathComboBox.Text} 无法使用");
+                        return;
                     }
+                }
 
-                    try
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                    int count = 0;
+                    foreach (var file in files)
                     {
-                        var result = await Aria2ApiManager.Instance.DownloadBtFile(file, PathComboBox.Text);
-                        if (result.isSuccessed)
+                        //判断是不是BT
+                        if (!file.EndsWith(".torrent"))
                         {
-                            EasyLogManager.Logger.Info($"任务已添加：{file}");
-                            count++;
+                            EasyLogManager.Logger.Error($"任务不是torrent文件：{file}");
+                            continue;
+                        }
+
+                        try
+                        {
+                            var result = await Aria2ApiManager.Instance.DownloadBtFile(file, PathComboBox.Text);
+                            if (result.isSuccessed)
+                            {
+                                EasyLogManager.Logger.Info($"任务已添加：{file}");
+                                count++;
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            EasyLogManager.Logger.Error(ex);
                         }
 
                     }
-                    catch (Exception ex)
+
+                    if (count == 0)
                     {
-                        EasyLogManager.Logger.Error(ex);
+                        EasyLogManager.Logger.Info($"任务添加失败");
+                        MainWindow.Instance.ShowSnackbar("失败", "任务添加失败");
                     }
-
+                    else if (files.Length != count)
+                    {
+                        EasyLogManager.Logger.Info($"成功添加{count}个任务，有{files.Length - count}个添加失败");
+                        MainWindow.Instance.ShowSnackbar("成功", $"成功添加{count}个任务，有{files.Length - count}个添加失败");
+                        AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
+                    }
+                    else
+                    {
+                        MainWindow.Instance.ShowSnackbar("成功", $"{count}个任务已添加");
+                        AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
+                        MainWindow.Instance.RootNavigation.GoBack();
+                    }
                 }
-
-                if (count == 0)
+                else if (e.Data.GetDataPresent(DataFormats.Text))
                 {
-                    EasyLogManager.Logger.Info($"任务添加失败");
-                    MainWindow.Instance.ShowSnackbar("失败", "任务添加失败");
-                }
-                else if (files.Length != count)
-                {
-                    EasyLogManager.Logger.Info($"成功添加{count}个任务，有{files.Length - count}个添加失败");
-                    MainWindow.Instance.ShowSnackbar("成功", $"成功添加{count}个任务，有{files.Length - count}个添加失败");
-                    AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
-                }
-                else
-                {
-                    MainWindow.Instance.ShowSnackbar("成功", $"{count}个任务已添加");
-                    AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
-                    MainWindow.Instance.RootNavigation.GoBack();
+                    //粘贴上去？
                 }
             }
-            else if (e.Data.GetDataPresent(DataFormats.Text))
+            catch (Exception ex)
             {
-                //粘贴上去？
+
             }
+            finally
+            {
+                MaskGrid.Visibility = Visibility.Collapsed;
+            }
+
+
+            
         }
 
         private void UrlTextBox_PreviewDragOver(object sender, DragEventArgs e)
@@ -195,12 +217,6 @@ namespace Aria2Fast.View
 
         private void TextBoxPath_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //当前选择的设备ID
-
-            
-
-            //AppConfig.Instance.ConfigData.AddTaskSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = TextBoxPath.Text;
-            //AppConfig.Instance.Save();
         }
     }
 }

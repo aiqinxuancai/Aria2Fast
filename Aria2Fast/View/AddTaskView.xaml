@@ -20,84 +20,96 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Page.Resources>
+
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="46*" />
-            <RowDefinition Height="40" />
-            <RowDefinition Height="40" />
-        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="46*" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+            </Grid.RowDefinitions>
 
-        <TextBlock
-            Grid.Row="0"
-            Margin="10,10,10,0"
-            FontSize="16"
-            Text="添加任务" />
+            <TextBlock
+                Grid.Row="0"
+                Margin="10,10,10,0"
+                FontSize="16"
+                Text="添加任务" />
 
-        <Border
-            Grid.Row="1"
-            Grid.RowSpan="1"
-            Margin="10,0,10,10"
-            CornerRadius="4">
-            <ui:TextBox
-                x:Name="UrlTextBox"
+            <Border
                 Grid.Row="1"
-                Margin="0,0,0,0"
-                VerticalAlignment="Stretch"
-                AcceptsReturn="True"
-                AllowDrop="True"
-                Background="Transparent"
-                BorderBrush="#00CCCCCC"
-                Drop="UrlTextBox_Drop"
-                PlaceholderText="输入下载地址（多行多个）或拖放BT文件"
-                PreviewDragOver="UrlTextBox_PreviewDragOver"
-                Text=""
-                TextWrapping="Wrap" />
-        </Border>
-        <Border
-            Grid.Row="2"
-            Grid.RowSpan="1"
-            Margin="10,0,10,10">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100*" />
-                </Grid.ColumnDefinitions>
+                Grid.RowSpan="1"
+                Margin="10,0,10,10"
+                CornerRadius="4">
+                <ui:TextBox
+                    x:Name="UrlTextBox"
+                    Grid.Row="1"
+                    Margin="0,0,0,0"
+                    VerticalAlignment="Stretch"
+                    AcceptsReturn="True"
+                    AllowDrop="True"
+                    Background="Transparent"
+                    BorderBrush="#00CCCCCC"
+                    Drop="UrlTextBox_Drop"
+                    PlaceholderText="输入下载地址（多行多个）或拖放BT文件"
+                    PreviewDragOver="UrlTextBox_PreviewDragOver"
+                    Text=""
+                    TextWrapping="Wrap" />
+            </Border>
+            <Border
+                Grid.Row="2"
+                Grid.RowSpan="1"
+                Margin="10,0,10,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100*" />
+                    </Grid.ColumnDefinitions>
 
-                <ComboBox
-                    x:Name="PathComboBox"
-                    Grid.Column="2"
-                    Padding="10,5,10,5"
-                    IsEditable="True" />
+                    <ComboBox
+                        x:Name="PathComboBox"
+                        Grid.Column="2"
+                        Padding="10,5,10,5"
+                        IsEditable="True" />
 
-                <!--<ui:TextBox
-                    x:Name="TextBoxPath"
-                    Grid.Column="2"
-                    Padding="10,5,10,5"
-                    ClearButtonEnabled="False"
-                    PlaceholderText="保存目录"
-                    TextChanged="TextBoxPath_TextChanged" />-->
-            </Grid>
-        </Border>
-        <Border
-            Grid.Row="3"
-            Grid.RowSpan="1"
-            Margin="10,0,10,10">
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <Button
-                    x:Name="ConfirmButton"
-                    Width="80"
-                    Click="ConfirmButton_Click"
-                    Content="确定"
-                    Style="{StaticResource AQButtonGreen}" />
-                <Button
-                    x:Name="CancelButton"
-                    Width="80"
-                    Margin="10,0,0,0"
-                    Click="CancelButton_Click"
-                    Content="取消"
-                    Style="{StaticResource AQButtonDefault}" />
-            </StackPanel>
-        </Border>
+                    <!--<ui:TextBox
+                x:Name="TextBoxPath"
+                Grid.Column="2"
+                Padding="10,5,10,5"
+                ClearButtonEnabled="False"
+                PlaceholderText="保存目录"
+                TextChanged="TextBoxPath_TextChanged" />-->
+                </Grid>
+            </Border>
+            <Border
+                Grid.Row="3"
+                Grid.RowSpan="1"
+                Margin="10,0,10,10">
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button
+                        x:Name="ConfirmButton"
+                        Width="80"
+                        Click="ConfirmButton_Click"
+                        Content="确定"
+                        Style="{StaticResource AQButtonGreen}" />
+                    <Button
+                        x:Name="CancelButton"
+                        Width="80"
+                        Margin="10,0,0,0"
+                        Click="CancelButton_Click"
+                        Content="取消"
+                        Style="{StaticResource AQButtonDefault}" />
+                </StackPanel>
+            </Border>
 
+
+        </Grid>
+        <Grid
+            x:Name="MaskGrid"
+            Background="#10000000"
+            Visibility="Collapsed">
+            <ui:ProgressRing IsIndeterminate="True" />
+        </Grid>
     </Grid>
+
+
 </Page>
