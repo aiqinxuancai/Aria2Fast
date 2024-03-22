@@ -49,73 +49,86 @@ namespace Aria2Fast.View
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-
-            if (AppConfig.Instance.ConfigData.Aria2UseLocal)
+            try
             {
-                //检查本地目录存在
-                if (!PathHelper.LocalPathCheckAndCreate(PathComboBox.Text))
+                if (AppConfig.Instance.ConfigData.Aria2UseLocal)
                 {
-                    MainWindow.Instance.ShowSnackbar("失败", $"目录 {PathComboBox.Text} 无法使用");
-                    return;
-                }
-            }
-
-            ConfirmButton.IsEnabled = false;
-            //TODO 支持选择设备和磁盘？？
-            //WkyAccountManager.WkyApi.CreateTaskWithUrlResolve();
-
-            string allLink = UrlTextBox.Text;
-            allLink = allLink.Replace("\r\n", "\n");
-
-            var files = allLink.Split("\n");
-            files = files.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
-            int count = 0;
-
-            foreach (var file in files)
-            {
-                if (string.IsNullOrWhiteSpace(file))
-                {
-                    continue;
-                }
-
-                try
-                {
-                    var result = await Aria2ApiManager.Instance.DownloadUrl(file, PathComboBox.Text);
-                    if (result.isSuccessed)
+                    //检查本地目录存在
+                    if (!PathHelper.LocalPathCheckAndCreate(PathComboBox.Text))
                     {
-                        EasyLogManager.Logger.Info($"任务已添加：{file}");
-                        count++;
+                        MainWindow.Instance.ShowSnackbar("失败", $"目录 {PathComboBox.Text} 无法使用");
+                        return;
                     }
                 }
-                catch (Exception ex)
+                MaskGrid.Visibility = Visibility.Visible;
+                ConfirmButton.IsEnabled = false;
+                //TODO 支持选择设备和磁盘？？
+                //WkyAccountManager.WkyApi.CreateTaskWithUrlResolve();
+
+                string allLink = UrlTextBox.Text;
+                allLink = allLink.Replace("\r\n", "\n");
+
+                var files = allLink.Split("\n");
+                files = files.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
+                int count = 0;
+
+                foreach (var file in files)
                 {
-                    //Debug.WriteLine(ex);
-                    EasyLogManager.Logger.Error(ex);
-                    //await this.ShowMessageAsync("添加异常，请重试", ex.ToString());
+                    if (string.IsNullOrWhiteSpace(file))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        var result = await Aria2ApiManager.Instance.DownloadUrl(file, PathComboBox.Text);
+                        if (result.isSuccessed)
+                        {
+                            EasyLogManager.Logger.Info($"任务已添加：{file}");
+                            count++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //Debug.WriteLine(ex);
+                        EasyLogManager.Logger.Error(ex);
+                        //await this.ShowMessageAsync("添加异常，请重试", ex.ToString());
+                    }
+                }
+
+
+                if (count == 0)
+                {
+                    EasyLogManager.Logger.Info($"任务添加失败");
+                    MainWindow.Instance.ShowSnackbar("失败", "任务添加失败");
+                }
+                else if (files.Length != count)
+                {
+                    EasyLogManager.Logger.Info($"成功添加{count}个任务，有{files.Length - count}个添加失败");
+                    MainWindow.Instance.ShowSnackbar("成功", $"成功添加{count}个任务，有{files.Length - count}个添加失败");
+                    AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
+                }
+                else
+                {
+                    //EasyLogManager.Logger.Info($"成功添加任务");
+                    MainWindow.Instance.ShowSnackbar("成功", $"{count}个任务已添加");
+                    AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
+                    MainWindow.Instance.RootNavigation.GoBack();
                 }
             }
+            catch (Exception ex)
+            {
 
-
-            if (count == 0)
-            {
-                EasyLogManager.Logger.Info($"任务添加失败");
-                MainWindow.Instance.ShowSnackbar("失败", "任务添加失败");
             }
-            else if (files.Length != count)
+            finally
             {
-                EasyLogManager.Logger.Info($"成功添加{count}个任务，有{files.Length - count}个添加失败");
-                MainWindow.Instance.ShowSnackbar("成功", $"成功添加{count}个任务，有{files.Length - count}个添加失败");
-                AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
-            }
-            else
-            {
-                //EasyLogManager.Logger.Info($"成功添加任务");
-                MainWindow.Instance.ShowSnackbar("成功", $"{count}个任务已添加");
-                AppConfig.Instance.SaveDownloadPathWithAddTask(PathComboBox.Text);
-                MainWindow.Instance.RootNavigation.GoBack();
+                ConfirmButton.IsEnabled = true;
+                MaskGrid.Visibility = Visibility.Collapsed;
             }
 
-            ConfirmButton.IsEnabled = true;
+            
+
+            
         }
 
 
@@ -131,6 +144,7 @@ namespace Aria2Fast.View
             try
             {
                 MaskGrid.Visibility = Visibility.Visible;
+                ConfirmButton.IsEnabled = false;
 
                 if (AppConfig.Instance.ConfigData.Aria2UseLocal)
                 {
@@ -202,6 +216,7 @@ namespace Aria2Fast.View
             }
             finally
             {
+                ConfirmButton.IsEnabled = true;
                 MaskGrid.Visibility = Visibility.Collapsed;
             }
 
