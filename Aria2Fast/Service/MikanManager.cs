@@ -14,7 +14,9 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 
 namespace Aria2Fast.Service
 {
@@ -27,10 +29,13 @@ namespace Aria2Fast.Service
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        //"https://mikanani.me/Home/BangumiCoverFlowByDayOfWeek?year=2023&seasonStr=%E7%A7%8B" ;/
+
         public const string kMikanIndex = "https://mikanime.tv";
 
         public const string kMikanCacheFile = "MikanCache.json";
 
+        public const string kUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0";
 
         private static readonly MikanManager instance = new MikanManager();
 
@@ -70,8 +75,8 @@ namespace Aria2Fast.Service
                 
                 if (force || !File.Exists(kMikanCacheFile))
                 {
-                    var indexHtml = await kMikanIndex.GetStringAsync();
-                    var indexJson = IndexPageExtractWeeklyAnimeJson(indexHtml);
+                    var indexHtml = await kMikanIndex.WithHeader("User-Agent", kUserAgent).WithHeader("Referer", kMikanIndex).GetStringAsync();
+                    var indexJson = IndexPageExtractWeeklyAnimeJson2(indexHtml);
                     Debug.WriteLine(indexJson);
 
                     //循环将
@@ -89,7 +94,7 @@ namespace Aria2Fast.Service
                             try
                             {
                                 var pageUrl = $"{anime.Url}";
-                                var animeHtml = await pageUrl.GetStringAsync();
+                                var animeHtml = await pageUrl.WithHeader("User-Agent", kUserAgent).WithHeader("Referer", kMikanIndex).GetStringAsync();
                                 var animeRss = AnimePage(animeHtml);
                                 List<MikanAnimeRss> rssList = JsonConvert.DeserializeObject<List<MikanAnimeRss>>(animeRss);
                                 anime.Rss = rssList;
@@ -186,6 +191,61 @@ namespace Aria2Fast.Service
                     weekList.Add(new
                     {
                         title = title,
+                        anime = animeList,
+                    });
+                }
+            }
+
+            return JsonConvert.SerializeObject(weekList, Formatting.Indented);
+        }
+
+        public string IndexPageExtractWeeklyAnimeJson2(string htmlContent)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlContent);
+
+            var bangumiNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'sk-bangumi')]");
+
+            var weekList = new List<object>();
+
+            foreach (var dayNode in bangumiNodes)
+            {
+                //var dateString = dayNode.SelectSingleNode(".//div[@id='data-row-2']")?.InnerText;
+                var dateNode = dayNode.SelectSingleNode(".//div[starts-with(@id, 'data-row-')]");
+                var dateString = dateNode?.InnerText;
+                dateString = dateString?.Trim();
+                dateString = System.Net.WebUtility.HtmlDecode(dateString);
+
+                var animeNodes = dayNode.SelectNodes(".//li");
+                var animeList = new List<object>();
+
+                foreach (var animeNode in animeNodes)
+                {
+                    var name = animeNode.SelectSingleNode(".//a[@class='an-text']")?.InnerText;
+                    name = HtmlEntity.DeEntitize(name);
+
+                    var url = animeNode.SelectSingleNode(".//a[@class='an-text']")?.GetAttributeValue("href", string.Empty);
+
+                    var imageNode = animeNode.SelectSingleNode(".//span[contains(@class, 'js-expand_bangumi')]");
+                    var dataSrc = imageNode?.GetAttributeValue("data-src", string.Empty);
+                    var imageUrl = dataSrc;
+
+                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(imageUrl))
+                    {
+                        animeList.Add(new
+                        {
+                            name,
+                            url = $"{kMikanIndex}{url}",
+                            image = imageUrl
+                        });
+                    }
+                }
+
+                if (dateString != null && animeList.Count > 0)
+                {
+                    weekList.Add(new
+                    {
+                        title = dateString,
                         anime = animeList,
                     });
                 }
