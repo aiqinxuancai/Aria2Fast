@@ -21,7 +21,7 @@
         <converter:ExistVisibilityConverter x:Key="ExistVisibilityConverter" />
         <converter:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
         <converter:DownloadSizeToProgressConverter x:Key="DownloadSizeToProgressConverter" />
-
+        <converter:DownloadStatusFullContver x:Key="DownloadStatusFullContver" />
 
 
     </UserControl.Resources>
@@ -89,8 +89,13 @@
                                 <TextBlock
                                     Margin="4,0,4,0"
                                     HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Data.Status, Converter={StaticResource DownloadStatusContver}}">
+                                    VerticalAlignment="Center">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource DownloadStatusFullContver}">
+                                            <Binding Path="Data.Status" />
+                                            <Binding Path="Data.ErrorCode" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="#FFFFFF" />

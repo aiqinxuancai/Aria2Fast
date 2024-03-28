@@ -140,6 +140,57 @@ namespace Aria2Fast.View.Contver
         }
     }
 
+    public class DownloadStatusFullContver : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var value = values[0] as string;
+            var errorCode = values[1] as string;
+
+
+
+            if (value == null)
+            {
+                return "错误";
+            }
+
+
+            var errorTitle = value switch
+            {
+                Aria2ApiManager.KARIA2_STATUS_ACTIVE => "下载中",
+                Aria2ApiManager.KARIA2_STATUS_WAITING => "等待中",
+                Aria2ApiManager.KARIA2_STATUS_PAUSED => "已暂停",
+                Aria2ApiManager.KARIA2_STATUS_ERROR => "错误",
+                Aria2ApiManager.KARIA2_STATUS_COMPLETE => "已完成",
+                Aria2ApiManager.KARIA2_STATUS_REMOVED => "已删除",
+                _ => value,
+
+
+                //0 => "添加中",
+                //8 => "等待中",
+                //9 => "已暂停",
+                //1 => "下载中",
+                //11 => "已完成",
+                //12 => "缺少资源",
+                //14 => "准备添加中",
+                //38 => "磁盘写入异常",
+            };
+
+            if (errorCode == "13")
+            {
+                errorTitle += " [文件已存在]";
+            }
+
+            return errorTitle;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
     [ValueConversion(typeof(uint), typeof(Visibility))]
     public class DownloadProgressVisibilityConverter : IValueConverter
     {
