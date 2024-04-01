@@ -20,29 +20,24 @@ namespace Aria2Fast.Utils
         {
             var dirPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageCached");
             var files = Directory.GetFiles(dirPath);
-            MemoryCache cache = MemoryCache.Default;
+            //MemoryCache cache = MemoryCache.Default;
 
             await Task.Run(() => {
                 foreach (var file in files)
                 {
                     var fileName = Path.GetFileName(file);
                     string cacheKey = fileName;
-                    if (!cache.Contains(cacheKey))
-                    {
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache | BitmapCreateOptions.DelayCreation;
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.UriSource = new Uri(file);
+                    bitmap.EndInit();
 
-                        BitmapImage bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache | BitmapCreateOptions.DelayCreation;
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.UriSource = new Uri(file);
-                        bitmap.EndInit();
+                    bitmap.Freeze();
 
-                        bitmap.Freeze();
-
-                        cache.Set(cacheKey, bitmap, new CacheItemPolicy());
-                        Debug.WriteLine($"[缓存]{cacheKey}");
-
-                    }
+                    //cache.Set(cacheKey, bitmap, new CacheItemPolicy());
+                    Debug.WriteLine($"[缓存]{cacheKey}");
                 }
             });
 
@@ -56,14 +51,14 @@ namespace Aria2Fast.Utils
         /// <returns></returns>
         public static BitmapImage GetImageWithLocalCache(Uri uri)
         {
-            MemoryCache cache = MemoryCache.Default;
+            //MemoryCache cache = MemoryCache.Default;
             var fileName = Path.GetFileName(uri.LocalPath);
-            if (cache.Contains(fileName))
-            {
-                var bmp = (BitmapImage)cache.Get(fileName);
-                //bmp.Freeze();
-                return bmp;
-            }
+            //if (cache.Contains(fileName))
+            //{
+            //    var bmp = (BitmapImage)cache.Get(fileName);
+            //    //bmp.Freeze();
+            //    return bmp;
+            //}
 
             var dirPath = Path.Combine(Directory.GetCurrentDirectory(), "ImageCached");
             if (!Directory.Exists(dirPath))
@@ -80,12 +75,22 @@ namespace Aria2Fast.Utils
             }
             else
             {
-                var result = uri.GetBytesAsync().Result;
-                if (result != null && result.Length > 0)
+                try
                 {
-                    img.StreamSource = new MemoryStream(result);
-                    File.WriteAllBytes(localFilePath, result);
+                    var result = uri.GetBytesAsync().Result;
+                    if (result != null && result.Length > 0)
+                    {
+                        img.StreamSource = new MemoryStream(result);
+                        File.WriteAllBytes(localFilePath, result);
+                    }
                 }
+                catch (Exception ex)
+                {
+
+                }
+
+
+
             }
 
             img.CacheOption = BitmapCacheOption.OnLoad;
@@ -98,30 +103,5 @@ namespace Aria2Fast.Utils
             return img;
         }
 
-        public static BitmapImage GetImageFromCache(Uri uri)
-        {
-            BitmapImage img = null;
-
-            MemoryCache cache = MemoryCache.Default;
-           
-            var fileName = Path.GetFileName(uri.LocalPath);
-            string cacheKey = fileName;
-
-            if (cache.Contains(cacheKey))
-            {
-                img = (BitmapImage)cache.Get(cacheKey);
-            }
-            else
-            {
-                img = new BitmapImage(uri);
-                img.CacheOption = BitmapCacheOption.OnLoad;
-                img.DownloadCompleted += (s, e) =>
-                {
-                    cache.Set(cacheKey, img, new CacheItemPolicy());
-                };
-            }
-
-            return img;
-        }
     }
 }

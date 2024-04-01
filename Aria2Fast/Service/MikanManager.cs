@@ -173,7 +173,7 @@ namespace Aria2Fast.Service
                     var imageAbsUrl = imageRelUrl;
 
                     imageAbsUrl = imageAbsUrl.Replace("width=400", "width=460");
-                    imageAbsUrl = imageAbsUrl.Replace("height=400", "width=640");
+                    imageAbsUrl = imageAbsUrl.Replace("height=400", "height=640");
 
                     if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(imageAbsUrl))
                     {
@@ -210,7 +210,6 @@ namespace Aria2Fast.Service
 
             foreach (var dayNode in bangumiNodes)
             {
-                //var dateString = dayNode.SelectSingleNode(".//div[@id='data-row-2']")?.InnerText;
                 var dateNode = dayNode.SelectSingleNode(".//div[starts-with(@id, 'data-row-')]");
                 var dateString = dateNode?.InnerText;
                 dateString = dateString?.Trim();
@@ -221,16 +220,31 @@ namespace Aria2Fast.Service
 
                 foreach (var animeNode in animeNodes)
                 {
-                    var name = animeNode.SelectSingleNode(".//a[@class='an-text']")?.InnerText;
+                    var nameNode = animeNode.SelectSingleNode(".//a[@class='an-text']");
+                    var name = nameNode?.InnerText;
+
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        // 从最后一个div，class=date-text中提取名称
+                        var lastNameNode = animeNode.SelectSingleNode(".//div[@class='an-info-group']/div[contains(@class, 'date-text')][last()]");
+                        name = lastNameNode?.InnerText;
+
+
+                    }
+
+
                     name = HtmlEntity.DeEntitize(name);
 
                     var url = animeNode.SelectSingleNode(".//a[@class='an-text']")?.GetAttributeValue("href", string.Empty);
 
-                    var imageNode = animeNode.SelectSingleNode(".//span[contains(@class, 'js-expand_bangumi')]");
+                    var imageNode = animeNode.SelectSingleNode(".//span");
                     var dataSrc = imageNode?.GetAttributeValue("data-src", string.Empty);
                     var imageUrl = dataSrc;
 
-                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(imageUrl))
+                    imageUrl = imageUrl.Replace("width=400", "width=460");
+                    imageUrl = imageUrl.Replace("height=400", "height=640");
+
+                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(imageUrl))
                     {
                         animeList.Add(new
                         {
@@ -262,6 +276,11 @@ namespace Aria2Fast.Service
 
             var divs = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'subgroup-text')]");
             var subgroupInfoList = new List<object>();
+
+            if (divs == null)
+            {
+                return "[]";
+            }
 
             foreach (var div in divs)
             {

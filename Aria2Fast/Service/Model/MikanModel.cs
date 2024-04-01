@@ -65,15 +65,20 @@ namespace Aria2Fast.Service.Model
         {
             get
             {
-                if (Rss == null)
+                if (Rss == null || Rss.Count == 0)
                 {
                     return 0;
                 }
-                return Rss!.Max(a =>
+
+
+
+                int newEpisode = Rss!.Max(a =>
                 {
                     return a.Episode;
-                }
-                );
+                });
+
+                return newEpisode;
+               
             }
         }
 
