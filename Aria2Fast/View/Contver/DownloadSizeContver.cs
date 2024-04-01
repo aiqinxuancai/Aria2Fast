@@ -175,13 +175,43 @@ namespace Aria2Fast.View.Contver
                 //14 => "准备添加中",
                 //38 => "磁盘写入异常",
             };
-
-            if (errorCode == "13")
-            {
-                errorTitle += " [文件已存在]";
-            }
-
             return errorTitle;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ErrorStatusEasyContver : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var value = values[0] as string;
+            var errorCode = values[1] as string;
+        
+            return value;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ErrorStatusEasyNeedShowContver : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var value = values[0] as string;
+            var errorCode = values[1] as string;
+
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -297,45 +327,7 @@ namespace Aria2Fast.View.Contver
     }
 
    
-    [ValueConversion(typeof(bool), typeof(Visibility))]
-    public class BoolVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value == null || (bool)value == false)
-            {
-                return Visibility.Collapsed;
-            }
-            return Visibility.Visible;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-
-    [ValueConversion(typeof(uint), typeof(Visibility))]
-    public class IntVisibilityConverter : IValueConverter
-    {
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            int? number = (int?)value;
-
-            if (number > 0)
-            {
-                return Visibility.Visible;
-            }
-            return Visibility.Hidden;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    
 
 
     public class NegationConverter : IValueConverter
