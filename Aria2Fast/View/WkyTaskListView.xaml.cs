@@ -319,10 +319,10 @@ namespace Aria2Fast.View
 
             contextMenu.Items.Clear();
             //contextMenu.Visibility
-            if (selectedItems.Count > 0)
+            if (_selectedItems.Count > 0)
             {
                 //展示继续下载
-                var showRestartMenu = selectedItems.Any(a =>
+                var showRestartMenu = _selectedItems.Any(a =>
                 {
                     if (a.Data.Status == Aria2ApiManager.KARIA2_STATUS_PAUSED ||
                         a.Data.Status == Aria2ApiManager.KARIA2_STATUS_ERROR)
@@ -333,7 +333,7 @@ namespace Aria2Fast.View
                 });
 
 
-                var showStopMenu = selectedItems.Any(a =>
+                var showStopMenu = _selectedItems.Any(a =>
                 {
                     if (a.Data.Status == Aria2ApiManager.KARIA2_STATUS_WAITING ||
                         a.Data.Status == Aria2ApiManager.KARIA2_STATUS_ACTIVE)

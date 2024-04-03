@@ -108,8 +108,7 @@ namespace Aria2Fast.Service.Model
                 {
                     string message = Data.ErrorCode switch
                     {
-                        null => "未知错误",
-                        "0" => "所有下载成功", //没有问题
+                        "0" => "", //没有问题 所有下载成功
                         "1" => "未知错误",
                         "2" => "超时",
                         "3" => "资源未找到",
@@ -142,7 +141,7 @@ namespace Aria2Fast.Service.Model
                         "30" => "无法解析 JSON-RPC 请求",
                         "31" => "预留。未使用",
                         "32" => "效验和验证失败",
-                        _ => "未知错误"
+                        _ => ""
                     };
                     return message;
                 }
@@ -192,7 +191,7 @@ namespace Aria2Fast.Service.Model
                         "30" => "无法解析JSON-RPC请求",
                         "31" => "预留未使用",
                         "32" => "效验和验证失败",
-                        _ => "未知错误"
+                        _ => ""//没有问题
                     };
                     return message;
                 }
