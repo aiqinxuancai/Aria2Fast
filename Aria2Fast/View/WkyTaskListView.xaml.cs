@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Aria2Fast.Service;
 using Aria2Fast.Service.Model;
+using Newtonsoft.Json;
 using Wpf.Ui.Styles.Controls;
 
 
@@ -297,6 +298,7 @@ namespace Aria2Fast.View
 
         private void MainDataGrid_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
+            //展开时，需要暂停刷新？
             var contextMenu = MainDataGrid.ContextMenu;
             contextMenu.Items.Clear();
 
@@ -310,10 +312,13 @@ namespace Aria2Fast.View
                 }
             }
 
-            _selectedItems = selectedItems;
+            var jsonString = JsonConvert.SerializeObject(selectedItems);
+
+            //需要深拷贝
+            _selectedItems = JsonConvert.DeserializeObject<List<TaskModel>>(jsonString) ;
 
             contextMenu.Items.Clear();
-
+            //contextMenu.Visibility
             if (selectedItems.Count > 0)
             {
                 //展示继续下载
