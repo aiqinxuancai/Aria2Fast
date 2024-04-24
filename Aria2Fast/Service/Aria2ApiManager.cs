@@ -442,6 +442,7 @@ namespace Aria2Fast.Service
                             TaskList.RemoveAt(TaskList.Count - 1);
                         }
                     }
+                    tasks = tasks.OrderByDescending(a => a.Status == KARIA2_STATUS_PAUSED).ToArray();
                     tasks = tasks.OrderByDescending(a => a.Status == KARIA2_STATUS_WAITING).ToArray();
                     tasks = tasks.OrderByDescending(a => a.Status == KARIA2_STATUS_ACTIVE).ToArray();
                     for (int i = 0; i < tasks.Count; i++)
