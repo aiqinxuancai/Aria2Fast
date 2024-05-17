@@ -563,20 +563,29 @@ namespace Aria2Fast.Service
 
         public void LoadTrueName()
         {
-            string fileName = @$"UrlNameTable.bin";
-            TaskUrlToSubscriptionName = new Dictionary<string, string>();
 
-            if (File.Exists(fileName))
+            try
             {
-                var fileContent = File.ReadAllBytes(fileName);
-                var val = MemoryPackSerializer.Deserialize<Dictionary<string, string>>(fileContent);
+                string fileName = @$"UrlNameTable.bin";
+                TaskUrlToSubscriptionName = new Dictionary<string, string>();
 
-                if (val != null)
+                if (File.Exists(fileName))
                 {
-                    TaskUrlToSubscriptionName = val;
-                }
+                    var fileContent = File.ReadAllBytes(fileName);
+                    var val = MemoryPackSerializer.Deserialize<Dictionary<string, string>>(fileContent);
 
+                    if (val != null)
+                    {
+                        TaskUrlToSubscriptionName = val;
+                    }
+
+                }
+            } 
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Info(ex);
             }
+
         }
 
 
