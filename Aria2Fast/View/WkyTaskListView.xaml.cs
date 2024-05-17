@@ -19,7 +19,6 @@ using System.Windows.Shapes;
 using Aria2Fast.Service;
 using Aria2Fast.Service.Model;
 using Newtonsoft.Json;
-using Wpf.Ui.Styles.Controls;
 
 
 

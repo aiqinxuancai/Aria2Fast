@@ -57,7 +57,7 @@ namespace Aria2Fast
             new NavigationViewItem("订阅源", SymbolRegular.StarAdd24, null)
             {
                 NavigationCacheMode = NavigationCacheMode.Required,
-                MenuItems = new object[]
+                MenuItemsSource = new object[]
                 {
                     new NavigationViewItem("Mikan", typeof(AnimeListView))
                     {

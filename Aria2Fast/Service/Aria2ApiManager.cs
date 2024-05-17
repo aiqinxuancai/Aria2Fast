@@ -271,7 +271,7 @@ namespace Aria2Fast.Service
         /// 从一个BT的URL添加到下载中（用于订阅的下载）
         /// </summary>
         /// <param name="url"></param>
-        public async Task<WkyDownloadResult> DownloadBtFileUrl(string url, string path, string taskName = "")
+        public async Task<Aria2FastDownloadResult> DownloadBtFileUrl(string url, string path, string taskName = "")
         {
             //先下载BT文件
 
@@ -301,18 +301,18 @@ namespace Aria2Fast.Service
                     { "dir", System.IO.Path.Combine(path, taskName)}
                 };
 
-                WkyDownloadResult downloadResult = new WkyDownloadResult();
+                Aria2FastDownloadResult downloadResult = new Aria2FastDownloadResult();
                 if (data.Length > 0)
                 {
                     var result = await _client.AddTorrentAsync(data, options: config, position: 0);
                     Debug.WriteLine($"DownloadBtFileUrl结果：{result}");
-
-                    downloadResult.isSuccessed = IsGid(result);
+                    downloadResult.IsSuccessed = IsGid(result);
                     downloadResult.Gid = result;
                 }
                 else
                 {
-                    downloadResult.isSuccessed = false;
+                    downloadResult.IsSuccessed = false;
+                    downloadResult.ErrorMessage = "无法下载BT文件";
                 }
 
                 return downloadResult;
@@ -324,7 +324,7 @@ namespace Aria2Fast.Service
                     { "dir", System.IO.Path.Combine(path, taskName)}
                 };
 
-                WkyDownloadResult downloadResult = new WkyDownloadResult();
+                Aria2FastDownloadResult downloadResult = new Aria2FastDownloadResult();
                 var result = await _client.AddUriAsync(new List<string> { url }, options: config, position: 0);
                 Debug.WriteLine($"DownloadBtFileUrl结果#2：{result}");
 
@@ -336,7 +336,7 @@ namespace Aria2Fast.Service
                     downloadResult.InfoHash = statusResult.InfoHash;
                 }
 
-                downloadResult.isSuccessed = IsGid(result);
+                downloadResult.IsSuccessed = IsGid(result);
                 downloadResult.Gid = result;
 
                 return downloadResult;
@@ -345,7 +345,7 @@ namespace Aria2Fast.Service
             
         }
 
-        public async Task<WkyDownloadResult> DownloadUrl(string url, string savePath = "")
+        public async Task<Aria2FastDownloadResult> DownloadUrl(string url, string savePath = "")
         {
             var result = await _client.AddUriAsync(new List<String>
             {
@@ -359,15 +359,15 @@ namespace Aria2Fast.Service
 
             Debug.WriteLine($"DownloadBtFileUrl结果：{result}");
 
-            WkyDownloadResult downloadResult = new WkyDownloadResult();
-            downloadResult.isSuccessed = IsGid(result);
+            Aria2FastDownloadResult downloadResult = new Aria2FastDownloadResult();
+            downloadResult.IsSuccessed = IsGid(result);
             downloadResult.Gid = result;
 
 
             return downloadResult;
         }
 
-        public async Task<WkyDownloadResult> DownloadBtFile(string filePath, string savePath = "")
+        public async Task<Aria2FastDownloadResult> DownloadBtFile(string filePath, string savePath = "")
         {
             var config = new Dictionary<String, Object>
                     {
@@ -378,8 +378,8 @@ namespace Aria2Fast.Service
 
             Debug.WriteLine($"DownloadBtFile结果：{result}");
 
-            WkyDownloadResult downloadResult = new WkyDownloadResult();
-            downloadResult.isSuccessed = IsGid(result);
+            Aria2FastDownloadResult downloadResult = new Aria2FastDownloadResult();
+            downloadResult.IsSuccessed = IsGid(result);
             downloadResult.Gid = result;
 
 

@@ -82,7 +82,7 @@ namespace Aria2Fast.View
                     try
                     {
                         var result = await Aria2ApiManager.Instance.DownloadUrl(file, PathComboBox.Text);
-                        if (result.isSuccessed)
+                        if (result.IsSuccessed)
                         {
                             EasyLogManager.Logger.Info($"任务已添加：{file}");
                             count++;
@@ -173,7 +173,7 @@ namespace Aria2Fast.View
                         try
                         {
                             var result = await Aria2ApiManager.Instance.DownloadBtFile(file, PathComboBox.Text);
-                            if (result.isSuccessed)
+                            if (result.IsSuccessed)
                             {
                                 EasyLogManager.Logger.Info($"任务已添加：{file}");
                                 count++;

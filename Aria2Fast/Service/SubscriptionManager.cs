@@ -458,7 +458,7 @@ namespace Aria2Fast.Service
 
                                 EasyLogManager.Logger.Info($"添加下载完毕");
 
-                                if (aria2Result.isSuccessed)
+                                if (aria2Result.IsSuccessed)
                                 {
                                     TaskUrlToSubscriptionName[aria2Result.Gid] = subject;
                                     if (!string.IsNullOrWhiteSpace(aria2Result.InfoHash))
@@ -467,7 +467,7 @@ namespace Aria2Fast.Service
                                     }
                                 }
 
-                                if (aria2Result.isSuccessed)
+                                if (aria2Result.IsSuccessed)
                                 {
                                     subscription.AlreadyAddedDownloadModel.Add(new SubscriptionSubTaskModel() { Name = subject, Url = downloadUrl, Time = DateTime.Now });
                                     EasyLogManager.Logger.Info($"添加成功");

@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace Aria2Fast.Service.Model
 {
-    public class WkyDownloadResult
+    public class Aria2FastDownloadResult
     {
         //返回值非0或网络请求有异常
-        public bool isSuccessed { get; set; }
+        public bool IsSuccessed { get; set; }
+
+        public string ErrorMessage { get; set; }
 
         public string Gid { get; set; }
 
