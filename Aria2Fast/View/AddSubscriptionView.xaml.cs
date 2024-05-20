@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +21,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Wpf.Ui.Controls;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Aria2Fast.View
 {
@@ -37,7 +39,11 @@ namespace Aria2Fast.View
             LoadDefaultPathSelected();
             LoadDefaultFilterList();
             LoadSeasons();
+            UpdateDownloadPath();
+
         }
+
+
 
         private void Page_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -55,6 +61,7 @@ namespace Aria2Fast.View
                 {
                     ComboBoxSeasonPath.SelectedIndex = MatchUtils.GetSeasonFromTitle(_anime.Name);
                 }
+                UpdateDownloadPath();
             }
         }
 
@@ -109,6 +116,52 @@ namespace Aria2Fast.View
 
         }
 
+
+        private string GetDownloadPath(string pathComboBoxText = "")
+        {
+            int season = 0;
+            string title = "";
+            string basePath = "";
+
+            this.Dispatcher.Invoke(() =>
+            {
+                season = ComboBoxSeasonPath.SelectedIndex;
+                title = TextBoxRssPath.Text;
+                if (string.IsNullOrEmpty(pathComboBoxText))
+                {
+                    basePath = PathComboBox.Text;
+                }
+                else
+                {
+                    basePath = pathComboBoxText;
+
+                }
+                
+            });
+
+            title = MatchUtils.RemoveSeasonFromTitle(title); //移除
+            string path = string.Empty;
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                path = basePath;
+            }
+            else
+            {
+                path = basePath + (basePath.EndsWith("/") ? "" : "/") + title;
+            }
+
+            if (season > 0)
+            {
+                path = path + (basePath.EndsWith("/") ? "" : "/") + $"Season {season}";
+            }
+
+            return path;
+        }
+
+        private void UpdateDownloadPath(string pathComboBoxText = "")
+        {
+            this.LabelFullPath.Text = "存储目录：" + GetDownloadPath(pathComboBoxText);
+        }
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
@@ -174,21 +227,8 @@ namespace Aria2Fast.View
                     {
                         string title = TextBoxRssPath.Text;
                         title = MatchUtils.RemoveSeasonFromTitle(title); //移除
+                        path = GetDownloadPath();
 
-                        if (string.IsNullOrWhiteSpace(title))
-                        {
-                            path = PathComboBox.Text;
-                        }
-                        else
-                        {
-                            path = PathComboBox.Text + (PathComboBox.Text.EndsWith("/") ? "" : "/") + title;
-                        }
-
-
-                        if (season > 0)
-                        {
-                            path = System.IO.Path.Combine(path, $"Season {season}");
-                        }
 
                         SubscriptionManager.Instance.Add(url, path, season, title, regex, regexEnable, autoDir: autoDir);
                         EasyLogManager.Logger.Info($"订阅已添加：{title} {url}");
@@ -257,6 +297,7 @@ namespace Aria2Fast.View
             //当前选择的设备ID
             //AppConfig.Instance.ConfigData.AddSubscriptionSavePathDict[AppConfig.Instance.ConfigData.Aria2RpcAuto] = TextBoxPath.Text;
             //AppConfig.Instance.Save();
+            UpdateDownloadPath();
         }
 
         private async void UrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -360,6 +401,30 @@ namespace Aria2Fast.View
                 this.RegexTextBox.Text = model.Filter;
                 this.RegexCheckBox.IsChecked = model.IsFilterRegex;
             }
+        }
+
+        private void ComboBoxSeasonPath_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateDownloadPath();
+        }
+
+        private void PathComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateDownloadPath();
+        }
+
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.TextBox textBox= PathComboBox.Template.FindName("PART_EditableTextBox", PathComboBox) as System.Windows.Controls.TextBox;
+            if (textBox != null)
+            {
+                textBox.TextChanged += new TextChangedEventHandler(textBox_TextChanged);
+            }
+        }
+        void textBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateDownloadPath();
         }
     }
 }

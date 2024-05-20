@@ -7,10 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="AddSubscriptionView"
-    d:DesignHeight="450"
+    d:DesignHeight="600"
     d:DesignWidth="800"
     DataContextChanged="Page_DataContextChanged"
-    mc:Ignorable="d">
+    mc:Ignorable="d" Loaded="Page_Loaded">
 
     <Page.Resources>
         <ResourceDictionary>
@@ -123,7 +123,9 @@
                         x:Name="PathComboBox"
                         Grid.Column="2"
                         Padding="10,5,10,5"
-                        IsEditable="True" />
+                        IsEditable="True"
+                       
+                        SelectionChanged="PathComboBox_SelectionChanged" />
 
                 </Grid>
 
@@ -154,7 +156,22 @@
                         x:Name="ComboBoxSeasonPath"
                         Grid.Column="2"
                         Padding="10,5,10,5"
-                        IsEditable="True" />
+                        IsEditable="False"
+                        SelectionChanged="ComboBoxSeasonPath_SelectionChanged" />
+
+                </Grid>
+
+            </Border>
+
+            <Border Margin="10,0,10,6" CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        x:Name="LabelFullPath"
+                        Grid.Column="2"
+                        Padding="10,5,10,5" FontSize="12" Foreground="#B2000000" />
 
                 </Grid>
 
