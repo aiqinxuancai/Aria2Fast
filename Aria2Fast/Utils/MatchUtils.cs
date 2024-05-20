@@ -33,12 +33,11 @@ namespace Aria2Fast.Utils
             {
                 Match match = regex.Match(title);
                 string seasonStr = match.Groups[1].Value;
-                // check if the match value is Arabic numeral
+
                 if (int.TryParse(seasonStr, out int seasonNum))
                 {
                     return seasonNum;
                 }
-                // Match Chinese digit
                 else
                 {
                     switch (seasonStr)
