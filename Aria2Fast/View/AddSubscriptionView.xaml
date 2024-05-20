@@ -144,6 +144,22 @@
                 </Grid>
 
             </Border>
+
+            <Border Margin="10,0,10,6" CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100*" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox
+                        x:Name="ComboBoxSeasonPath"
+                        Grid.Column="2"
+                        Padding="10,5,10,5"
+                        IsEditable="True" />
+
+                </Grid>
+
+            </Border>
+
             <Border Margin="10,0,10,10">
                 <Grid>
                     <Grid.ColumnDefinitions>

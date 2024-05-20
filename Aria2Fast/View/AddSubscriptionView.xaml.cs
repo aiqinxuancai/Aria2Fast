@@ -5,6 +5,7 @@ using Aria2Fast.Service.Model.SubscriptionModel;
 using Aria2Fast.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace Aria2Fast.View
             InitializeComponent();
             LoadDefaultPathSelected();
             LoadDefaultFilterList();
-
+            LoadSeasons();
         }
 
         private void Page_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -48,8 +49,31 @@ namespace Aria2Fast.View
                 UrlTextBox.Text = obj.Item1;
                 TextBoxRssPath.Text = obj.Item2;
                 _anime = obj.Item3;
+
+                //更新UI
+                if (_anime != null) 
+                {
+                    ComboBoxSeasonPath.SelectedIndex = MatchUtils.GetSeasonFromTitle(_anime.Name);
+                }
             }
         }
+
+
+
+
+        private void LoadSeasons()
+        {
+            ComboBoxSeasonPath.Items.Add("未知季");
+            //GetSeasonFromTitle
+            for (int i = 1; i < 20; i++)
+            {
+                string item = $"第{i}季"; 
+                ComboBoxSeasonPath.Items.Add(item);
+            }
+            ComboBoxSeasonPath.SelectedIndex = 0;
+
+        }
+
 
         private void LoadDefaultFilterList()
         {
@@ -64,7 +88,7 @@ namespace Aria2Fast.View
                 SubscriptionFilterItemsControl.Visibility = Visibility.Visible;
             }
         }
-
+        
         private void LoadDefaultPathSelected()
         {
             try
@@ -123,6 +147,7 @@ namespace Aria2Fast.View
                     bool regexEnable = false;
                     string path = string.Empty;
                     bool autoDir = false;
+                    int season = 0; 
 
                     this.Dispatcher.Invoke(() =>
                     {
@@ -131,6 +156,7 @@ namespace Aria2Fast.View
                         regexEnable = RegexCheckBox.IsChecked == true ? true : false;
                         path = PathComboBox.Text;
                         autoDir = AutoDirSwitch.IsChecked == true ? true : false;
+                        season = ComboBoxSeasonPath.SelectedIndex;
                     });
 
                     try
@@ -147,6 +173,7 @@ namespace Aria2Fast.View
                     this.Dispatcher.Invoke(() =>
                     {
                         string title = TextBoxRssPath.Text;
+                        title = MatchUtils.RemoveSeasonFromTitle(title); //移除
 
                         if (string.IsNullOrWhiteSpace(title))
                         {
@@ -157,7 +184,13 @@ namespace Aria2Fast.View
                             path = PathComboBox.Text + (PathComboBox.Text.EndsWith("/") ? "" : "/") + title;
                         }
 
-                        SubscriptionManager.Instance.Add(url, path, regex, regexEnable, autoDir: autoDir);
+
+                        if (season > 0)
+                        {
+                            path = System.IO.Path.Combine(path, $"Season {season}");
+                        }
+
+                        SubscriptionManager.Instance.Add(url, path, season, title, regex, regexEnable, autoDir: autoDir);
                         EasyLogManager.Logger.Info($"订阅已添加：{title} {url}");
 
                         MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{title}", SymbolRegular.AddCircle24);

@@ -43,6 +43,9 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
         [JsonProperty("Name")]
         public string Name { get; set; }
 
+        [JsonProperty("Season")]
+        public int Season { get; set; }
+        
         [JsonProperty("Filter")]
         public string Filter { get; set; }
 

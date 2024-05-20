@@ -700,7 +700,7 @@ namespace Aria2Fast.Service
 
         //存储订阅，读取加载订阅
 
-        public bool Add(string url, string path, string keyword = "", bool keywordIsRegex = false, bool autoDir = false)
+        public bool Add(string url, string path, int season = 0, string title = "", string keyword = "", bool keywordIsRegex = false, bool autoDir = false)
         {
             if (SubscriptionModel.ToList().Find( a => { return a.Url == url; }) != null)
             {
@@ -715,6 +715,11 @@ namespace Aria2Fast.Service
             model.IsFilterRegex = keywordIsRegex;
             model.Path = path;
             model.AutoDir = autoDir;
+            model.Season = season;
+            model.Name = title;
+            //识别季？
+
+
             EasyLogManager.Logger.Error($"添加订阅：{model.Url}");
 
             SubscriptionModel.Add(model);
