@@ -98,6 +98,7 @@ namespace Aria2Fast.View
 
         private async void MenuCopyTitle_Click(object sender, RoutedEventArgs e)
         {
+            MainDataGrid.SelectedItem = null;
             try
             {
                 var selectedItems = _selectedItems;
@@ -121,6 +122,7 @@ namespace Aria2Fast.View
 
         private async void MenuRestart_Click(object sender, RoutedEventArgs e)
         {
+            MainDataGrid.SelectedItem = null;
             try
             {
                 var selectedItems = _selectedItems;
@@ -143,6 +145,7 @@ namespace Aria2Fast.View
 
         private async void MenuStop_Click(object sender, RoutedEventArgs e)
         {
+            MainDataGrid.SelectedItem = null;
             try
             {
                 var selectedItems = _selectedItems;
@@ -165,6 +168,7 @@ namespace Aria2Fast.View
 
         private async void MenuDelete_Click(object sender, RoutedEventArgs e)
         {
+            MainDataGrid.SelectedItem = null;
             var selectedItems = _selectedItems;
 
             var title = "";
@@ -187,7 +191,7 @@ namespace Aria2Fast.View
                 content = $"是否确认删除{selectedItems.Count}个任务？";
             }
 
-            MainWindow.Instance.ShowMessageBox("提示", content, async () => {
+            await MainWindow.Instance.ShowMessageBox("提示", content, async () => {
                 try
                 {
                     foreach (var item in selectedItems)
@@ -205,7 +209,7 @@ namespace Aria2Fast.View
                         }
                     }
 
-                    Aria2ApiManager.Instance.UpdateTask();
+                    await Aria2ApiManager.Instance.UpdateTask();
                     MainDataGrid.Dispatcher.Invoke(() => MainDataGrid.UnselectAll());
                 }
                 catch (Exception ex)
@@ -247,7 +251,7 @@ namespace Aria2Fast.View
 
 
 
-            MainWindow.Instance.ShowMessageBox("提示", content, async () => {
+            await MainWindow.Instance.ShowMessageBox("提示", content, async () => {
                 try
                 {
                     foreach (var item in selectedItems)
@@ -271,6 +275,7 @@ namespace Aria2Fast.View
 
         private async void MenuCopyLink_Click(object sender, RoutedEventArgs e)
         {
+            MainDataGrid.SelectedItem = null;
             try
             {
                 var url = "";
@@ -394,6 +399,7 @@ namespace Aria2Fast.View
         private void MenuOpenPath_Click(object sender, RoutedEventArgs e)
         {
             var model = _selectedItems.FirstOrDefault();
+            MainDataGrid.SelectedItem = null;
             //打开目录
             if (model != null && Directory.Exists(model.Data.Dir))
             {
