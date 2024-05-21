@@ -168,7 +168,6 @@ namespace Aria2Fast.View
 
         private async void MenuDelete_Click(object sender, RoutedEventArgs e)
         {
-            MainDataGrid.SelectedItem = null;
             var selectedItems = _selectedItems;
 
             var title = "";
@@ -194,6 +193,7 @@ namespace Aria2Fast.View
             await MainWindow.Instance.ShowMessageBox("提示", content, async () => {
                 try
                 {
+                    MainDataGrid.SelectedItem = null;
                     foreach (var item in selectedItems)
                     {
                         if (item.Data.Status == Aria2ApiManager.KARIA2_STATUS_ERROR ||
