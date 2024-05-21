@@ -700,16 +700,29 @@ namespace Aria2Fast.Service
 
         //存储订阅，读取加载订阅
 
-        public bool Add(string url, string path, int season = 0, string namePath = "", string keyword = "", bool keywordIsRegex = false, bool autoDir = false)
+        public bool Add(string url, string path, int season = 0, string namePath = "", string keyword = "", bool keywordIsRegex = false, bool autoDir = false, SubscriptionModel? sourceModel = null)
         {
-            if (SubscriptionModel.ToList().Find( a => { return a.Url == url; }) != null)
+
+            if (sourceModel == null)
             {
-                //找到了存在相同
-                EasyLogManager.Logger.Error($"添加失败，重复的订阅");
-                return false;
+                if (SubscriptionModel.ToList().Find(a => { return a.Url == url; }) != null)
+                {
+                    //找到了存在相同
+                    EasyLogManager.Logger.Error($"添加失败，重复的订阅");
+                    return false;
+                }
+            }
+            else
+            {
+                SubscriptionModel.Remove(sourceModel);
             }
 
             SubscriptionModel model = new SubscriptionModel();
+            if (sourceModel != null)
+            {
+                model = sourceModel;
+            }
+
             model.Url = url;
             model.Filter = keyword;
             model.IsFilterRegex = keywordIsRegex;

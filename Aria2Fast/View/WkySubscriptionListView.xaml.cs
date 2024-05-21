@@ -112,6 +112,9 @@ namespace Aria2Fast.View
                     }
 
 
+                    MenuItem menuEdit = new MenuItem() { Header = "编辑" };
+                    menuEdit.Click += MenuEdit_Click;
+
                     MenuItem menuCopyUrl = new MenuItem() { Header = "复制URL" };
                     menuCopyUrl.Click += MenuCopyUrl_Click; ;
 
@@ -121,10 +124,8 @@ namespace Aria2Fast.View
                     MenuItem menuDelete = new MenuItem() { Header = "删除" };
                     menuDelete.Click += MenuDelete_Click;
 
-                    //MenuItem menuFixS = new MenuItem() { Header = "修正季" };
-                    //menuDelete.Click += MenuDelete_Click;
 
-
+                    menu.Items.Add(menuEdit);
                     menu.Items.Add(menuCopyUrl);
                     menu.Items.Add(menuReDownload);
                     menu.Items.Add(menuDelete);
@@ -137,6 +138,15 @@ namespace Aria2Fast.View
                 
 
             };
+        }
+
+        private void MenuEdit_Click(object sender, RoutedEventArgs e)
+        {
+            var model = _lastSubscriptionModel;
+
+            //编辑
+            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (model.Url, model.Name, new MikanAnime(), model));
+
         }
 
         private void MenuOpenPath_Click(object sender, RoutedEventArgs e)

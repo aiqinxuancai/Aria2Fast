@@ -30,8 +30,11 @@ namespace Aria2Fast.View
     /// </summary>
     public partial class AddSubscriptionView : Page
     {
-        private string _groupNamePath;
+        private string _customNamePath;
         private MikanAnime _anime;
+
+        //原始订阅model，编辑时生效
+        private SubscriptionModel _subscriptionModel;
 
         public AddSubscriptionView()
         {
@@ -49,19 +52,41 @@ namespace Aria2Fast.View
         {
             if (e.NewValue != null)
             {
-                var obj = ((ValueTuple<string, string, MikanAnime>)DataContext);
+                var obj = ((ValueTuple<string, string, MikanAnime, SubscriptionModel>)DataContext);
 
-                _groupNamePath = obj.Item2;
-                UrlTextBox.Text = obj.Item1;
-                TextBoxRssPath.Text = obj.Item2;
+                UrlTextBox.Text = obj.Item1; //订阅地址
+                _customNamePath = obj.Item2; //指定订阅存储名称
                 _anime = obj.Item3;
+                _subscriptionModel = obj.Item4;
+
+
+                TextBoxRssPath.Text = _customNamePath; //
 
                 //更新UI
-                if (_anime != null) 
+                if (_anime != null && !string.IsNullOrEmpty(_anime.Name) ) 
                 {
                     ComboBoxSeasonPath.SelectedIndex = MatchUtils.GetSeasonFromTitle(_anime.Name);
                 }
+
+                //修改 季修正
+                if (_subscriptionModel != null)
+                {
+                    ComboBoxSeasonPath.SelectedIndex = _subscriptionModel.Season;
+                    RegexTextBox.Text = _subscriptionModel.Filter;
+                    RegexCheckBox.IsChecked = _subscriptionModel.IsFilterRegex;
+                    AutoDirSwitch.IsChecked = _subscriptionModel.AutoDir;
+                    TextBoxRssPath.Text = _subscriptionModel.NamePath; //
+                    PathComboBox.Text = _subscriptionModel.Path;
+                }
+
+
                 UpdateDownloadPath();
+
+
+
+
+
+
             }
         }
 
@@ -152,7 +177,7 @@ namespace Aria2Fast.View
 
             if (season > 0)
             {
-                path = path + (basePath.EndsWith("/") ? "" : "/") + $"Season {season}";
+                path = path + (path.EndsWith("/") ? "" : "/") + $"Season {season}";
             }
 
             return path;
@@ -230,7 +255,7 @@ namespace Aria2Fast.View
                         //path = GetDownloadPath();
 
 
-                        SubscriptionManager.Instance.Add(url, path, season, namePath, regex, regexEnable, autoDir: autoDir);
+                        SubscriptionManager.Instance.Add(url, path, season, namePath, regex, regexEnable, autoDir: autoDir, _subscriptionModel);
                         EasyLogManager.Logger.Info($"订阅已添加：{namePath} {url}");
 
                         MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{namePath}", SymbolRegular.AddCircle24);
@@ -276,7 +301,7 @@ namespace Aria2Fast.View
 
         private void Back()
         {
-            if (_anime != null)
+            if (_anime != null && !string.IsNullOrEmpty(_anime.Name))
             {
                 MainWindow.Instance.RootNavigation.Navigate(typeof(MikanAnimeRssView), _anime);
             }
@@ -304,7 +329,7 @@ namespace Aria2Fast.View
         {
             if (string.IsNullOrEmpty(UrlTextBox.Text))
             {
-                _groupNamePath = string.Empty;
+                _customNamePath = string.Empty;
                 return;
             }
 
@@ -319,7 +344,7 @@ namespace Aria2Fast.View
                     return model;
                 });
 
-                if (string.IsNullOrEmpty(_groupNamePath))
+                if (string.IsNullOrEmpty(_customNamePath))
                 {
                     TextBoxRssPath.Text = rssModel.SubscriptionName;
                 }

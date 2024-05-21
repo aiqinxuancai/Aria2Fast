@@ -67,12 +67,28 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
 
         [JsonProperty("Season")]
         public int Season { get; set; }
-        
+
+        /// <summary>
+        /// 过滤器
+        /// </summary>
         [JsonProperty("Filter")]
         public string Filter { get; set; }
 
         [JsonProperty("IsFilterRegex")]
         public bool IsFilterRegex { get; set; }
+
+
+
+        [JsonIgnore]
+        public string FilterInfo { get
+            {
+                if (string.IsNullOrEmpty(Filter))
+                {
+                    return "无过滤器";
+                }
+                return $"{Filter} " + (IsFilterRegex ? "(正则)" : "(非正则)");
+            }
+        }
 
         /// <summary>
         /// 任务总数

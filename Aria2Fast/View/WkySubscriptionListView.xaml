@@ -103,14 +103,28 @@
                                                                 <Setter Property="Background" Value="#DDFFFFFF" />
                                                             </Style>
                                                         </Border.Style>
-                                                        <StackPanel>
-                                                            <TextBlock Text="订阅地址" />
-                                                            <TextBlock Text="{Binding Url}" TextWrapping="Wrap" />
-                                                            <TextBlock Margin="0,3,0,0" Text="存储路径" />
-                                                            <TextBlock Text="{Binding Path}" TextWrapping="Wrap" />
-                                                            <TextBlock Margin="0,3,0,0" Text="最近下载" />
-                                                            <TextBlock Text="{Binding LastSubscriptionContent}" TextWrapping="Wrap" />
-                                                        </StackPanel>
+                                                        <ui:Card>
+                                                            <StackPanel>
+                                                                <TextBlock FontWeight="Bold" Text="订阅地址" />
+                                                                <TextBlock Text="{Binding Url}" TextWrapping="Wrap" />
+                                                                <TextBlock
+                                                                    Margin="0,3,0,3"
+                                                                    Text="{Binding FilterInfo}"
+                                                                    TextWrapping="Wrap" />
+                                                                <TextBlock
+                                                                    Margin="0,3,0,0"
+                                                                    FontWeight="Bold"
+                                                                    Text="存储路径" />
+                                                                <TextBlock Text="{Binding SavePath}" TextWrapping="Wrap" />
+                                                                <TextBlock
+                                                                    Margin="0,3,0,0"
+                                                                    FontWeight="Bold"
+                                                                    Text="最近下载" />
+                                                                <TextBlock Text="{Binding LastSubscriptionContent}" TextWrapping="Wrap" />
+
+                                                            </StackPanel>
+                                                        </ui:Card>
+
                                                     </Border>
                                                 </Border>
                                             </ControlTemplate>
