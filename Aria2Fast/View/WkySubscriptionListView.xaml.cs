@@ -121,6 +121,9 @@ namespace Aria2Fast.View
                     MenuItem menuDelete = new MenuItem() { Header = "删除" };
                     menuDelete.Click += MenuDelete_Click;
 
+                    //MenuItem menuFixS = new MenuItem() { Header = "修正季" };
+                    //menuDelete.Click += MenuDelete_Click;
+
 
                     menu.Items.Add(menuCopyUrl);
                     menu.Items.Add(menuReDownload);
@@ -140,9 +143,9 @@ namespace Aria2Fast.View
         {
             var model = _lastSubscriptionModel;
 
-            if (Directory.Exists(model.Path))
+            if (Directory.Exists(model.SavePath))
             {
-                string correctedPath = System.IO.Path.GetFullPath(model.Path);
+                string correctedPath = System.IO.Path.GetFullPath(model.SavePath);
                 Process.Start("explorer.exe", correctedPath);
             } 
         }

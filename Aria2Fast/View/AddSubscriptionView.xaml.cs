@@ -225,15 +225,15 @@ namespace Aria2Fast.View
 
                     this.Dispatcher.Invoke(() =>
                     {
-                        string title = TextBoxRssPath.Text;
-                        title = MatchUtils.RemoveSeasonFromTitle(title); //移除
-                        path = GetDownloadPath();
+                        string namePath = TextBoxRssPath.Text;
+                        namePath = MatchUtils.RemoveSeasonFromTitle(namePath); //移除
+                        //path = GetDownloadPath();
 
 
-                        SubscriptionManager.Instance.Add(url, path, season, title, regex, regexEnable, autoDir: autoDir);
-                        EasyLogManager.Logger.Info($"订阅已添加：{title} {url}");
+                        SubscriptionManager.Instance.Add(url, path, season, namePath, regex, regexEnable, autoDir: autoDir);
+                        EasyLogManager.Logger.Info($"订阅已添加：{namePath} {url}");
 
-                        MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{title}", SymbolRegular.AddCircle24);
+                        MainWindow.Instance.ShowSnackbar("添加成功", $"已添加订阅{namePath}", SymbolRegular.AddCircle24);
                         AppConfig.Instance.SaveDownloadPathWithAddSubscription(PathComboBox.Text);
                         if (!string.IsNullOrWhiteSpace(RegexTextBox.Text))
                         {

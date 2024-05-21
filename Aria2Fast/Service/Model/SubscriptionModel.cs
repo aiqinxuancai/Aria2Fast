@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using Aria2Fast.Utils;
 using MemoryPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -35,13 +36,34 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
         public List<string> EpisodeTitleList { get; set; }
 
         /// <summary>
-        /// 存储路径
+        /// 存储路径 根据实际情况生成 最终的结果
         /// </summary>
-        [JsonProperty("Path")] 
+        [JsonIgnore] 
+        public string SavePath 
+        { 
+            get 
+            {
+                return GetDownloadPath();
+            } 
+        }
+
+        /// <summary>
+        /// 基础目录
+        /// </summary>
+        [JsonProperty("Path")]
         public string Path { get; set; }
 
+        /// <summary>
+        /// 来自订阅RSS文件
+        /// </summary>
         [JsonProperty("Name")]
         public string Name { get; set; }
+
+        /// <summary>
+        /// 存储时使用此代码来计算
+        /// </summary>
+        [JsonProperty("NamePath")]
+        public string NamePath { get; set; }
 
         [JsonProperty("Season")]
         public int Season { get; set; }
@@ -90,6 +112,25 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
         public SubscriptionModel()
         {
             AlreadyAddedDownloadModel.CollectionChanged += AlreadyAddedDownloadModel_CollectionChanged;
+        }
+
+        private string GetDownloadPath()
+        {
+            var path = Path;
+
+            //如果有指定NamePath，则添加上去
+            if (!string.IsNullOrWhiteSpace(NamePath))
+            {
+                path = path + (path.EndsWith("/") ? "" : "/") + NamePath;
+            }
+
+            //如果指定有季度，则添加上去
+            if (Season > 0)
+            {
+                path = path + (path.EndsWith("/") ? "" : "/") + $"Season {Season}";
+            }
+
+            return path;
         }
 
         private void AlreadyAddedDownloadModel_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
