@@ -57,7 +57,11 @@ namespace Aria2Fast.View
                 UrlTextBox.Text = obj.Item1; //订阅地址
                 _customNamePath = obj.Item2; //指定订阅存储名称
                 _anime = obj.Item3;
-                _subscriptionModel = obj.Item4;
+                if (!string.IsNullOrEmpty(obj.Item4.Url))
+                {
+                    _subscriptionModel = obj.Item4;
+                }
+                
 
 
                 TextBoxRssPath.Text = _customNamePath; //
