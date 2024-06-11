@@ -69,6 +69,7 @@ namespace Aria2Fast.Service
                     if (!string.IsNullOrEmpty(result.Response))
                     {
                         JObject root = JObject.Parse(result.Response);
+                        
                         List<RenameModel> objs = root.ToObject<List<RenameModel>>();
                         return objs;
                     }

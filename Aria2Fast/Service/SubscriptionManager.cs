@@ -95,7 +95,16 @@ namespace Aria2Fast.Service
             }
 
             _tokenSource = new CancellationTokenSource();
-            Task.Run(() => TimerFunc(_tokenSource.Token), _tokenSource.Token);
+            //Task.Run(() => TimerFunc(_tokenSource.Token), _tokenSource.Token);
+
+
+
+            Task longRunningTask = Task.Factory.StartNew((object? token) =>
+            {
+                TimerFunc(_tokenSource.Token);
+            }, _tokenSource.Token, TaskCreationOptions.LongRunning);
+
+
         }
 
         public void Stop()
