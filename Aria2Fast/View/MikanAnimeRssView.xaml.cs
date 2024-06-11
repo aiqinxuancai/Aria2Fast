@@ -1,4 +1,5 @@
 ﻿using Aria2Fast.Service.Model;
+using Aria2Fast.Service.Model.SubscriptionModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace Aria2Fast.View
             //MainWindow.Instance.RootNavigation.NavigateWithHierarchy(typeof(MikanAnimeRssView), animeItem);
             //弹出订阅页面？
             //MainWindow.Instance.RootNavigation.IsBackButtonVisible = Wpf.Ui.Controls.NavigationViewBackButtonVisible.Visible;
-            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name, mikanAnime));
+            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name, mikanAnime, new SubscriptionModel()));
         }
     }
 }
