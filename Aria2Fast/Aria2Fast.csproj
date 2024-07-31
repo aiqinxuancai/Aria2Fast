@@ -52,8 +52,8 @@
     <PackageReference Include="System.Reactive.Linq" Version="6.0.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
-    <PackageReference Include="WPF-UI" Version="3.0.4" />
-    <PackageReference Include="WPF-UI.Tray" Version="3.0.4" />
+    <PackageReference Include="WPF-UI" Version="3.0.5" />
+    <PackageReference Include="WPF-UI.Tray" Version="3.0.5" />
   </ItemGroup>
 
   <ItemGroup>

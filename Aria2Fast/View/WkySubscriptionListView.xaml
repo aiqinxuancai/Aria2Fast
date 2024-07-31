@@ -106,7 +106,10 @@
                                                         <ui:Card>
                                                             <StackPanel>
                                                                 <TextBlock FontWeight="Bold" Text="订阅地址" />
-                                                                <TextBlock Text="{Binding Url}" TextWrapping="Wrap" />
+                                                                <TextBlock
+                                                                    Text="{Binding Url}"
+                                                                    TextTrimming="CharacterEllipsis"
+                                                                    TextWrapping="Wrap" />
                                                                 <TextBlock
                                                                     Margin="0,3,0,3"
                                                                     Text="{Binding FilterInfo}"
@@ -115,12 +118,18 @@
                                                                     Margin="0,3,0,0"
                                                                     FontWeight="Bold"
                                                                     Text="存储路径" />
-                                                                <TextBlock Text="{Binding SavePath}" TextWrapping="Wrap" />
+                                                                <TextBlock
+                                                                    Text="{Binding SavePath}"
+                                                                    TextTrimming="CharacterEllipsis"
+                                                                    TextWrapping="Wrap" />
                                                                 <TextBlock
                                                                     Margin="0,3,0,0"
                                                                     FontWeight="Bold"
                                                                     Text="最近下载" />
-                                                                <TextBlock Text="{Binding LastSubscriptionContent}" TextWrapping="Wrap" />
+                                                                <TextBlock
+                                                                    Text="{Binding LastSubscriptionContent}"
+                                                                    TextTrimming="CharacterEllipsis"
+                                                                    TextWrapping="Wrap" />
 
                                                             </StackPanel>
                                                         </ui:Card>
