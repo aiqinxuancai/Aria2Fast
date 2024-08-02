@@ -120,7 +120,7 @@ namespace Aria2Fast.Service
             {
                 if (!File.Exists(aria2Conf))
                 {
-                    EasyLogManager.Logger.Info($"本地Aria2：{rpc}");
+                    EasyLogManager.Logger.Info($"本地Aria2写出配置");
                     firstRun = true;
                     //写出配置
                     PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.aria2.conf", aria2Conf);
