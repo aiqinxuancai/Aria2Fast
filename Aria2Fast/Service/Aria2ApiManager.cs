@@ -18,6 +18,8 @@ using System.Timers;
 using Aria2Fast.Utils;
 using Newtonsoft.Json.Linq;
 using System.Threading.Channels;
+using System.Text;
+using System.Collections.Concurrent;
 
 namespace Aria2Fast.Service
 {
@@ -52,6 +54,8 @@ namespace Aria2Fast.Service
         public string LastChangeRpc;
         private Timer _debounceTimer;
         private readonly object _locker = new object();
+
+        private static ConcurrentQueue<string> _outputQueue = new ConcurrentQueue<string>();
 
 
         private Process? _aria2Process = null;
@@ -101,7 +105,7 @@ namespace Aria2Fast.Service
         /// <summary>
         /// 启动本地Aria2并管理，退出时跟随退出
         /// </summary>
-        private void StartupLocalAria2()
+        private async void StartupLocalAria2()
         {
             //key=ARIA2FAST
             //port=6809
@@ -170,9 +174,35 @@ namespace Aria2Fast.Service
                         WorkingDirectory = aria2Path,
                         CreateNoWindow = true,
                         UseShellExecute = false,
-   
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        StandardOutputEncoding = Encoding.UTF8, // 设置标准输出编码
+                        StandardErrorEncoding = Encoding.UTF8   // 设置标准错误编码
                     };
-                    _aria2Process = Process.Start(startInfo);
+          
+                    _aria2Process = new Process
+                    {
+                        StartInfo = startInfo,
+                        EnableRaisingEvents = true
+                    };
+
+                    _aria2Process.OutputDataReceived += (sender, e) => { if (e.Data != null) AddToQueue(e.Data); };
+                    _aria2Process.ErrorDataReceived += (sender, e) => { if (e.Data != null) AddToQueue(e.Data); };
+
+                    _aria2Process.Start();
+                    _aria2Process.BeginOutputReadLine();
+                    _aria2Process.BeginErrorReadLine();
+
+                    // 等待 5 秒（异步）
+
+
+
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(5000);
+                        RecordOutput();
+                    });
+
                     EasyLogManager.Logger.Info($"Aria2已启动");
                 } 
                 else
@@ -187,6 +217,26 @@ namespace Aria2Fast.Service
                 EasyLogManager.Logger.Error("本地Aria2不存在！");
             }
         }
+
+        private static void AddToQueue(string line)
+        {
+            _outputQueue.Enqueue(line);
+            while (_outputQueue.Count > 1000)
+            {
+                _outputQueue.TryDequeue(out _);
+            }
+        }
+
+        private static void RecordOutput()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var line in _outputQueue)
+            {
+                sb.AppendLine(line);
+            }
+            EasyLogManager.Logger.Info(@$"Aria2启动日志:{sb.ToString()}");
+        }
+
 
         public static bool ExistLocalAria2()
         {
