@@ -25,6 +25,9 @@ namespace Aria2Fast.Service
 {
     public class SubscriptionManager
     {
+        private const int kTimeOutSec = 40;
+
+
         public event Action<int, int> OnSubscriptionProgressChanged;
 
         private static SubscriptionManager instance = new SubscriptionManager();
@@ -299,7 +302,7 @@ namespace Aria2Fast.Service
                         var handler = new HttpClientHandler() { Proxy = proxy };
                         var client = new HttpClient(handler);
 
-                        client.Timeout = TimeSpan.FromSeconds(20);
+                        client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
                         var response = client.GetAsync(url).Result;
 
 
@@ -310,7 +313,7 @@ namespace Aria2Fast.Service
                     else
                     {
                         var client = new HttpClient();
-                        client.Timeout = TimeSpan.FromSeconds(20);
+                        client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
                         var response = client.GetAsync(url).Result;
                         reader = XmlReader.Create(response.Content.ReadAsStreamAsync().Result);
                         feed = SyndicationFeed.Load(reader);
@@ -407,7 +410,7 @@ namespace Aria2Fast.Service
                     var client = new HttpClient(handler);
 
                     // 注意这里的GET请求的地址需要替换为你需要请求的地址
-                    client.Timeout = TimeSpan.FromSeconds(20);
+                    client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
                     var response = client.GetAsync(url).Result;
 
 
@@ -418,7 +421,7 @@ namespace Aria2Fast.Service
                 else
                 {
                     var client = new HttpClient();
-                    client.Timeout = TimeSpan.FromSeconds(20);
+                    client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
                     var response = client.GetAsync(url).Result;
                     reader = XmlReader.Create(response.Content.ReadAsStreamAsync().Result);
                     feed = SyndicationFeed.Load(reader);

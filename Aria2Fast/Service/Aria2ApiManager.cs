@@ -92,7 +92,8 @@ namespace Aria2Fast.Service
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                EasyLogManager.Logger.Info($"启动本地Aria2Fast失败：{ex}");
+               
             }
             SetupEvent();
         }
@@ -119,6 +120,7 @@ namespace Aria2Fast.Service
             {
                 if (!File.Exists(aria2Conf))
                 {
+                    EasyLogManager.Logger.Info($"本地Aria2：{rpc}");
                     firstRun = true;
                     //写出配置
                     PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.aria2.conf", aria2Conf);
@@ -159,7 +161,7 @@ namespace Aria2Fast.Service
 
                 if (!IsLocalAria2Runing())
                 {
-                    EasyLogManager.Logger.Info($"启动Aria2：{aria2File}");
+                    EasyLogManager.Logger.Info($"准备启动Aria2：{aria2File} 目录：{aria2Path}");
                     //本地的Aria2已经在运行了，这里不再启动
                     ProcessStartInfo startInfo = new ProcessStartInfo
                     {
@@ -171,6 +173,7 @@ namespace Aria2Fast.Service
    
                     };
                     _aria2Process = Process.Start(startInfo);
+                    EasyLogManager.Logger.Info($"Aria2已启动");
                 } 
                 else
                 {
@@ -181,10 +184,7 @@ namespace Aria2Fast.Service
             }
             else
             {
-                //自己下载Aria2？
-
-                //错误
-                EasyLogManager.Logger.Error("本地Aria2");
+                EasyLogManager.Logger.Error("本地Aria2不存在！");
             }
         }
 
