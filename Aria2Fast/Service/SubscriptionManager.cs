@@ -407,6 +407,7 @@ namespace Aria2Fast.Service
                     var client = new HttpClient(handler);
 
                     // 注意这里的GET请求的地址需要替换为你需要请求的地址
+                    client.Timeout = TimeSpan.FromSeconds(20);
                     var response = client.GetAsync(url).Result;
 
 
@@ -416,7 +417,10 @@ namespace Aria2Fast.Service
                 }
                 else
                 {
-                    reader = XmlReader.Create(url);
+                    var client = new HttpClient();
+                    client.Timeout = TimeSpan.FromSeconds(20);
+                    var response = client.GetAsync(url).Result;
+                    reader = XmlReader.Create(response.Content.ReadAsStreamAsync().Result);
                     feed = SyndicationFeed.Load(reader);
                     reader.Close();
                 }

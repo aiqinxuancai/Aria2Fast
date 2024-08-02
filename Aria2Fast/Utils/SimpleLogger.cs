@@ -13,6 +13,7 @@ namespace Aria2Fast.Utils
         private readonly string datetimeFormat;
         private readonly string logFilename;
 
+
         /// <summary>
         /// Initiate an instance of SimpleLogger class constructor.
         /// If log file does not exist, it will be created automatically.
@@ -85,7 +86,6 @@ namespace Aria2Fast.Utils
         {
             WriteFormattedLog(LogLevel.INFO, string.Format(text, args));
         }
-
 
         /// <summary>
         /// Log a TRACE message
