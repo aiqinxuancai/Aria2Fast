@@ -465,7 +465,7 @@ namespace Aria2Fast.Service
                 {
                     string downloadUrl = link.Uri.ToString();
                     //没有下载过
-                    if (!subscription.AlreadyAddedDownloadModel.Any(a => a.Url.Contains(downloadUrl)))
+                    if (!subscription.AlreadyAddedDownloadModel.Any(a => a.Name == subject))
                     {
                         if (link.RelationshipType == "enclosure" ||
                            (!string.IsNullOrWhiteSpace(link.MediaType) && link.MediaType.Contains("bittorrent")))  //"application/x-bittorrent"
