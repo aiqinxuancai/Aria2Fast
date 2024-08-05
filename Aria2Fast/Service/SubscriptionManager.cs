@@ -52,9 +52,7 @@ namespace Aria2Fast.Service
 
         public bool Subscribing { get; set; } = false;
 
-
         private object _look = new object();
-
         private object _lookForSave = new object();
 
         public SubscriptionManager()
@@ -98,15 +96,11 @@ namespace Aria2Fast.Service
             }
 
             _tokenSource = new CancellationTokenSource();
-            //Task.Run(() => TimerFunc(_tokenSource.Token), _tokenSource.Token);
-
-
 
             Task longRunningTask = Task.Factory.StartNew((object? token) =>
             {
                 TimerFunc(_tokenSource.Token);
             }, _tokenSource.Token, TaskCreationOptions.LongRunning);
-
 
         }
 
@@ -128,7 +122,7 @@ namespace Aria2Fast.Service
                 }
                 try
                 {
-                    CheckSubscription();
+                    CheckSubscription(Aria2ApiManager.Instance.CurrentRpc);
                 }
                 catch (Exception ex)
                 {
@@ -356,23 +350,18 @@ namespace Aria2Fast.Service
         /// <summary>
         /// 检查一次订阅
         /// </summary>
-        private async void CheckSubscription()
+        private async void CheckSubscription(string currentRpc)
         {
             Subscribing = true;
 
             EasyLogManager.Logger.Info("检查订阅...");
 
             var copyList = new List<SubscriptionModel>(SubscriptionModel);
-
-
             OnSubscriptionProgressChanged?.Invoke(0, copyList.Count);
 
             for (int i = 0; i < copyList.Count; i++)
             {
-           
-                await CheckSubscriptionOne(copyList[i]);
-                
-
+                await CheckSubscriptionOne(copyList[i], currentRpc);
                 OnSubscriptionProgressChanged?.Invoke(i, copyList.Count);
             }
 
@@ -381,15 +370,10 @@ namespace Aria2Fast.Service
             Subscribing = false;
         }
 
-        public async Task CheckSubscriptionOne(SubscriptionModel subscription)
+        public async Task CheckSubscriptionOne(SubscriptionModel subscription, string currentRpc)
         {
-
-
             string url = subscription.Url;
-
             EasyLogManager.Logger.Info($"订阅地址：{url}");
-
-
             XmlReader reader;
             SyndicationFeed feed = null;
 
@@ -474,8 +458,11 @@ namespace Aria2Fast.Service
                             {
                                 savePath = await AutoEpisodeTitle(subscription, subject, savePath);
 
+                                if (currentRpc != Aria2ApiManager.Instance.CurrentRpc)
+                                {
+                                    return;
+                                }
                                 EasyLogManager.Logger.Info($"添加下载{subject} {link.Uri} {savePath}");
-
                                 //支持由http开头的bt文件和magnet:?xt=urn:btih:开头的文件
                                 var aria2Result = await Aria2ApiManager.Instance.DownloadBtFileUrl(downloadUrl, savePath);
 
@@ -639,7 +626,7 @@ namespace Aria2Fast.Service
 
                 LoadTrueName();
 
-                var rpc = Aria2ApiManager.Instance.LastChangeRpc;
+                var rpc = Aria2ApiManager.Instance.CurrentRpc;
 
                 if (string.IsNullOrWhiteSpace(rpc))
                 {
@@ -699,7 +686,7 @@ namespace Aria2Fast.Service
 
                 try
                 {
-                    var rpc = Aria2ApiManager.Instance.LastChangeRpc;
+                    var rpc = Aria2ApiManager.Instance.CurrentRpc;
                     var uri = new Uri(rpc);
                     string fileName = @$"Subscription_{uri.Host}.json";
                     var content = JsonConvert.SerializeObject(SubscriptionModel);
@@ -763,7 +750,7 @@ namespace Aria2Fast.Service
             Save();
 
             Task.Run(() => {
-                CheckSubscription();
+                CheckSubscription(Aria2ApiManager.Instance.CurrentRpc);
             });
             
             return true;

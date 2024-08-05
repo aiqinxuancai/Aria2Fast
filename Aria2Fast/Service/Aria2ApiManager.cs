@@ -39,27 +39,20 @@ namespace Aria2Fast.Service
         public const string KARIA2_STATUS_COMPLETE = "complete";
         public const string KARIA2_STATUS_REMOVED = "removed";
 
-        private static int kMaxTaskListCount = 100;
-
-        private static Aria2ApiManager instance = new Aria2ApiManager();
-
-        private Aria2NetClient _client ;
-
 
         public IObservable<Aria2Event> EventReceived => _eventReceivedSubject.AsObservable();
-        private readonly Subject<Aria2Event> _eventReceivedSubject = new();
+        public bool Connected { set; get; }
+        public string CurrentRpc { set; get; }
 
 
-        public bool Connected;
-        public string LastChangeRpc;
+        private static int kMaxTaskListCount = 100;
+        private static Aria2ApiManager instance = new Aria2ApiManager();
+        private Aria2NetClient _client ;
         private Timer _debounceTimer;
         private readonly object _locker = new object();
-
         private static ConcurrentQueue<string> _outputQueue = new ConcurrentQueue<string>();
-
-
+        private readonly Subject<Aria2Event> _eventReceivedSubject = new();
         private Process? _aria2Process = null;
-
         private static object _lockForUpdateTask = new object();
 
         public static Aria2ApiManager Instance
@@ -603,7 +596,7 @@ namespace Aria2Fast.Service
                 if (result.Count >= 0)
                 {
                     Connected = true;
-                    LastChangeRpc = rpc;
+                    CurrentRpc = rpc;
                     _eventReceivedSubject.OnNext(new LoginResultEvent(true));
                     UpdateTask();
                     return true;
@@ -611,7 +604,7 @@ namespace Aria2Fast.Service
                 else
                 {
                     Connected = false;
-                    LastChangeRpc = rpc;
+                    CurrentRpc = rpc;
                     _eventReceivedSubject.OnNext(new LoginResultEvent(false));
 
                     return false;
@@ -622,7 +615,7 @@ namespace Aria2Fast.Service
             {
                 Debug.WriteLine(ex.ToString());
                 Connected = false;
-                LastChangeRpc = rpc;
+                CurrentRpc = rpc;
                 _eventReceivedSubject.OnNext(new LoginResultEvent(false));
             }
             return false;

@@ -175,7 +175,7 @@ namespace Aria2Fast.View
             if (!SubscriptionManager.Instance.Subscribing)
             {
                 _lastSubscriptionModel.AlreadyAddedDownloadModel = new ObservableCollection<SubscriptionSubTaskModel> { };
-                SubscriptionManager.Instance.CheckSubscriptionOne(_lastSubscriptionModel);
+                SubscriptionManager.Instance.CheckSubscriptionOne(_lastSubscriptionModel, Aria2ApiManager.Instance.CurrentRpc);
             }
             else
             {
