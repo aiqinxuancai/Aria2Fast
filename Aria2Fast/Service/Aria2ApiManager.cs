@@ -170,7 +170,7 @@ namespace Aria2Fast.Service
                     ProcessStartInfo startInfo = new ProcessStartInfo
                     {
                         FileName = $"{aria2File}",
-                        Arguments = $"--conf-path={aria2Conf}",
+                        Arguments = $"--conf-path=\"{aria2Conf}\"",
                         WorkingDirectory = aria2Path,
                         CreateNoWindow = true,
                         UseShellExecute = false,
