@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
@@ -103,5 +104,35 @@ namespace Aria2Fast.Utils
             return img;
         }
 
+
+        public static async Task<BitmapImage> LoadImageAsync(string url)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+                    var imageData = await response.Content.ReadAsByteArrayAsync();
+
+                    var bitmap = new BitmapImage();
+                    using (var stream = new System.IO.MemoryStream(imageData))
+                    {
+                        bitmap.BeginInit();
+                        bitmap.StreamSource = stream;
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        bitmap.Freeze(); // Make the BitmapImage cross-thread accessible
+                    }
+
+                    return bitmap;
+                }
+            }
+            catch
+            {
+                // Handle exceptions
+                return null;
+            }
+        }
     }
 }

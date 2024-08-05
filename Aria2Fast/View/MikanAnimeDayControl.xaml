@@ -14,7 +14,7 @@
         <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
         <contver:WidthMinusConverter x:Key="WidthMinusConverter" />
         <contver:IntVisibilityConverter x:Key="IntVisibilityConverter" />
-
+        <contver:ImageUrlToBitmapConverter x:Key="ImageUrlToBitmapConverter" />
 
     </UserControl.Resources>
 
@@ -54,11 +54,13 @@
 
                             <Border Background="#05000000" CornerRadius="6">
                                 <Grid>
+                                   
                                     <Image
                                         Width="140"
                                         Height="200"
                                         Opacity="0"
                                         RenderOptions.BitmapScalingMode="HighQuality"
+                                        
                                         Source="{Binding ImageCache, IsAsync=True}"
                                         Stretch="UniformToFill">
                                         <Image.Clip>
