@@ -641,11 +641,10 @@ namespace Aria2Fast.Service
 
                 //名称URL
                 //载入TaskUrlToSubscriptionName
+                SubscriptionModel.Clear();
 
                 if (File.Exists(fileName))
                 {
-                    SubscriptionModel.Clear();
-
                     List<SubscriptionModel> subscriptionModel = JsonConvert.DeserializeObject<List<SubscriptionModel>>(File.ReadAllText(fileName));
 
                     if (subscriptionModel != null)
