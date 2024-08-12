@@ -210,7 +210,7 @@
                                 VerticalAlignment="Center"
                                 FontSize="12"
                                 Foreground="White"
-                                Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2RpcHost, Converter={StaticResource Aria2HostEmptyStringConverter}}" />
+                                Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2RpcHostDisplay, Converter={StaticResource Aria2HostEmptyStringConverter}}" />
 
                         </Grid>
 

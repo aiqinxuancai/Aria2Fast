@@ -130,7 +130,7 @@ namespace Aria2Fast
 
         private void InitNavigationViewItem()
         {
-                        foreach (NavigationViewItem item in NavigationItems)
+            foreach (NavigationViewItem item in NavigationItems)
             {
                 var mainBorder = item.Template.FindName("MainBorder", item) as Border;
                 if (mainBorder != null)

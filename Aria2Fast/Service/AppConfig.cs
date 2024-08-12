@@ -24,7 +24,7 @@ namespace Aria2Fast.Service
 
         public AppConfigData()
         {
-            
+
         }
 
         public void Init()
@@ -156,6 +156,18 @@ namespace Aria2Fast.Service
             }
         }
 
+
+        public string Aria2RpcHostDisplay
+        {
+            get
+            {
+                if (Aria2UseLocal)
+                {
+                    return "本地Aria2";
+                }
+                return Aria2RpcHost;
+            }
+        }
 
         public string Aria2RpcHost
         {
