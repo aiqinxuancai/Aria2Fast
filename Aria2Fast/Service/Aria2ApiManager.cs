@@ -95,6 +95,43 @@ namespace Aria2Fast.Service
             SetupEvent();
         }
 
+        private async Task<bool> UpdateTrackersList()
+        {
+            try
+            {
+                var aria2Path = Path.Combine(Directory.GetCurrentDirectory(), "Aria2");
+                var aria2Conf = Path.Combine(aria2Path, "aria2.conf");
+
+                string list = await "https://cf.trackerslist.com/best.txt".WithTimeout(10).GetStringAsync();
+                list = list.Replace("\n\n", ",");
+
+
+                //更新内容到
+                var lines = File.ReadAllLines(aria2Conf);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].StartsWith("bt-tracker="))
+                    {
+                        lines[i] = $"bt-tracker={list}";
+                    }
+                }
+
+                File.WriteAllLines(aria2Conf, lines);
+                Debug.WriteLine(list);
+                return true;
+            }
+            catch (Exception e) 
+            {
+
+            }
+
+            
+            return false;
+        }
+
+
+
+
         /// <summary>
         /// 启动本地Aria2并管理，退出时跟随退出
         /// </summary>
@@ -125,6 +162,9 @@ namespace Aria2Fast.Service
                     PathHelper.WriteResourceToFile("Aria2Fast.Assets.Config.dht6.dat", Path.Combine(aria2Path, "dht6.dat"));
                     File.WriteAllBytes(Path.Combine(aria2Path, "aria2.session"), new byte[0]);
                 }
+
+                await UpdateTrackersList();
+
                 //如果没配置，则写出配置，否则读取配置中存储路径
                 var conf = new ConfigFileManager(aria2Conf);
                 var port = conf.GetValue("rpc-listen-port");
@@ -585,39 +625,55 @@ namespace Aria2Fast.Service
         {
             var rpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
             var token = AppConfig.Instance.ConfigData.Aria2TokenAuto;
+            int retryCount = 0;
 
-            try
+            while (retryCount < 3)
             {
-                _eventReceivedSubject.OnNext(new LoginStartEvent());
-                _client = new Aria2NetClient(rpc, token);
-
-                var result = await _client.TellAllAsync();
-
-                if (result.Count >= 0)
+                try
                 {
-                    Connected = true;
-                    CurrentRpc = rpc;
-                    _eventReceivedSubject.OnNext(new LoginResultEvent(true));
-                    UpdateTask();
-                    return true;
+                    var currentRpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
+                    if (currentRpc != rpc)
+                    {
+                        return false;
+                    }
+                    _eventReceivedSubject.OnNext(new LoginStartEvent());
+                    _client = new Aria2NetClient(rpc, token);
+
+                    var result = await _client.TellAllAsync();
+
+                    currentRpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
+                    if (currentRpc != rpc)
+                    {
+                        return false;
+                    }
+
+                    if (result.Count >= 0)
+                    {
+                        Connected = true;
+                        CurrentRpc = rpc;
+                        _eventReceivedSubject.OnNext(new LoginResultEvent(true));
+                        UpdateTask();
+                        return true;
+                    }
+                    else
+                    {
+                        Connected = false;
+                        CurrentRpc = rpc;
+                        _eventReceivedSubject.OnNext(new LoginResultEvent(false));
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
+                    Debug.WriteLine(ex.ToString());
                     Connected = false;
                     CurrentRpc = rpc;
                     _eventReceivedSubject.OnNext(new LoginResultEvent(false));
-
-                    return false;
                 }
 
+                retryCount++;
+                await Task.Delay(3000);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-                Connected = false;
-                CurrentRpc = rpc;
-                _eventReceivedSubject.OnNext(new LoginResultEvent(false));
-            }
+
             return false;
         }
 
