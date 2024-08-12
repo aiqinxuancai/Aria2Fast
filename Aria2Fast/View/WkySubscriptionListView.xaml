@@ -44,6 +44,7 @@
             HorizontalScrollBarVisibility="Disabled"
             ItemsSource="{Binding ViewModel, ElementName=Self, UpdateSourceTrigger=PropertyChanged}"
             LoadingRow="MainDataGrid_LoadingRow"
+            ContextMenuOpening="MainDataGrid_ContextMenuOpening"
             ScrollViewer.CanContentScroll="True">
 
             <DataGrid.HorizontalGridLinesBrush>
