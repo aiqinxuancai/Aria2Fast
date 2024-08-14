@@ -39,14 +39,18 @@
             AutoGenerateColumns="False"
             BorderBrush="Transparent"
             CanUserAddRows="False"
+            ContextMenuOpening="MainDataGrid_ContextMenuOpening"
             GridLinesVisibility="Horizontal"
             HeadersVisibility="None"
             HorizontalScrollBarVisibility="Disabled"
             ItemsSource="{Binding ViewModel, ElementName=Self, UpdateSourceTrigger=PropertyChanged}"
             LoadingRow="MainDataGrid_LoadingRow"
-            ContextMenuOpening="MainDataGrid_ContextMenuOpening"
             ScrollViewer.CanContentScroll="True">
-
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="TTT" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.HorizontalGridLinesBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                     <GradientStop Offset="0" Color="#00000000" />
