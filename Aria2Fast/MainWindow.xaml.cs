@@ -221,32 +221,36 @@ namespace Aria2Fast
             //连接中
             //连接成功
 
-            SolidColorBrush myBrush = new SolidColorBrush();
-
-            switch (status)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                case LinkStatus.Linking:
-                    //LinkStatusProgressBar.IsIndeterminate = true;
-                    //LinkStatusProgressBar.Visibility = Visibility.Visible;
-                    myBrush.Color = (Color)ColorConverter.ConvertFromString("#2db7f5");
-                    LinkStatusBorder.Background = myBrush;
-                    break;
-                case LinkStatus.Error:
-                    //LinkStatusProgressBar.IsIndeterminate = false;
-                    //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
-                    myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
-                    LinkStatusBorder.Background = myBrush;
-                    break;
-                case LinkStatus.Success:
-                    //LinkStatusProgressBar.IsIndeterminate = false;
-                    //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
-                    myBrush.Color = (Color)ColorConverter.ConvertFromString("#65B741");
-                    LinkStatusBorder.Background = myBrush;
-                    
+                SolidColorBrush myBrush = new SolidColorBrush();
 
-                    break;
+                switch (status)
+                {
+                    case LinkStatus.Linking:
+                        //LinkStatusProgressBar.IsIndeterminate = true;
+                        //LinkStatusProgressBar.Visibility = Visibility.Visible;
+                        myBrush.Color = (Color)ColorConverter.ConvertFromString("#2db7f5");
+                        LinkStatusBorder.Background = myBrush;
+                        break;
+                    case LinkStatus.Error:
+                        //LinkStatusProgressBar.IsIndeterminate = false;
+                        //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
+                        myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
+                        LinkStatusBorder.Background = myBrush;
+                        break;
+                    case LinkStatus.Success:
+                        //LinkStatusProgressBar.IsIndeterminate = false;
+                        //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
+                        myBrush.Color = (Color)ColorConverter.ConvertFromString("#65B741");
+                        LinkStatusBorder.Background = myBrush;
 
-            }
+
+                        break;
+
+                }
+            });
+
             
         }
 
