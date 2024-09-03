@@ -101,10 +101,11 @@ namespace Aria2Fast.Service
             {
                 var aria2Path = Path.Combine(Directory.GetCurrentDirectory(), "Aria2");
                 var aria2Conf = Path.Combine(aria2Path, "aria2.conf");
+                //https://cdn.jsdelivr.net/gh/ngosang/trackerslist@master/trackers_all.txt
+                //https://cf.trackerslist.com/best.txt
 
-                string list = await "https://cf.trackerslist.com/best.txt".WithTimeout(10).GetStringAsync();
+                string list = await "https://cdn.jsdelivr.net/gh/ngosang/trackerslist@master/trackers_all.txt".WithTimeout(10).GetStringAsync();
                 list = list.Replace("\n\n", ",");
-
 
                 //更新内容到
                 var lines = File.ReadAllLines(aria2Conf);

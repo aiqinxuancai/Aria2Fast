@@ -187,7 +187,6 @@
                     Margin="10"
                     VerticalAlignment="Center"
                     Orientation="Horizontal">
-                    <Button Content="hahah"></Button>
 
                     <Border
                         x:Name="LinkStatusBorder"
