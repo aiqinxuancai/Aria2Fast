@@ -31,9 +31,9 @@ namespace Aria2Fast.Service
         {
             _propertyChangedActions = new Dictionary<string, Action>
                 {
-                    { nameof(Aria2Rpc), async () => await Aria2ApiManager.Instance.UpdateRpc() },
+                    { nameof(Aria2Rpc), async () => await Aria2ApiManager.Instance.UpdateRpcAndTest() },
 
-                    { nameof(Aria2Token), async () => await Aria2ApiManager.Instance.UpdateRpc() },
+                    { nameof(Aria2Token), async () => await Aria2ApiManager.Instance.UpdateRpcAndTest() },
 
                     { nameof(Aria2UseLocal), () => {
 
@@ -47,7 +47,7 @@ namespace Aria2Fast.Service
                         }
 
                         Aria2ApiManager.Instance.UpdateLocalAria2();
-                        Aria2ApiManager.Instance.UpdateRpc();
+                        Aria2ApiManager.Instance.UpdateRpcAndTest();
 
                     } }
 

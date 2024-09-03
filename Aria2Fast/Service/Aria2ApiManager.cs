@@ -78,14 +78,14 @@ namespace Aria2Fast.Service
             {
                 if (AppConfig.Instance.ConfigData.Aria2UseLocal)
                 {
-
+                    //启动本地Aria2
                     StartupLocalAria2();
                 }
                 else
                 {
                     //无需操作
                 }
-                UpdateRpc();
+                UpdateRpcAndTest();
             }
             catch (Exception ex)
             {
@@ -227,9 +227,13 @@ namespace Aria2Fast.Service
                     _aria2Process.BeginErrorReadLine();
 
                     // 等待 5 秒（异步）
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(3000);
+                        UpdateRpcAndTest();
+                    });
 
-
-
+                    
                     Task.Run(async () =>
                     {
                         await Task.Delay(5000);
@@ -613,7 +617,7 @@ namespace Aria2Fast.Service
                 _debounceTimer = new Timer(2000);
 
                 // After 1 second, execute the method
-                _debounceTimer.Elapsed += (s, e) => UpdateRpc();
+                _debounceTimer.Elapsed += (s, e) => UpdateRpcAndTest();
                 _debounceTimer.AutoReset = false; // Make sure the timer runs only once
 
                 _debounceTimer.Start();
@@ -621,7 +625,7 @@ namespace Aria2Fast.Service
         }
 
 
-        internal async Task<bool> UpdateRpc()
+        internal async Task<bool> UpdateRpcAndTest()
         {
             var rpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
             var token = AppConfig.Instance.ConfigData.Aria2TokenAuto;
