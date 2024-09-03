@@ -105,29 +105,24 @@ namespace Aria2Fast
 
             Aria2ApiManager.Instance.EventReceived
                 .OfType<LoginStartEvent>()
-                .Subscribe(async r =>
+                .SubscribeOnMainThread(async r =>
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
-                        UpdateConnectionStatus(LinkStatus.Linking);
-                    }));
-                    
+                    UpdateConnectionStatus(LinkStatus.Linking);
                 });
 
 
             Aria2ApiManager.Instance.EventReceived
                 .OfType<LoginResultEvent>()
-                .Subscribe(async r =>
+                .SubscribeOnMainThread(async r =>
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
-                        if (r.IsSuccess)
-                        {
-                            UpdateConnectionStatus(LinkStatus.Success);
-                        }
-                        else
-                        {
-                            UpdateConnectionStatus(LinkStatus.Error);
-                        }
-                    }));
+                    if (r.IsSuccess)
+                    {
+                        UpdateConnectionStatus(LinkStatus.Success);
+                    }
+                    else
+                    {
+                        UpdateConnectionStatus(LinkStatus.Error);
+                    }
 
                 });
 

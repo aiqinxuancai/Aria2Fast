@@ -44,18 +44,16 @@ namespace Aria2Fast.View
 
             Aria2ApiManager.Instance.EventReceived
                 .OfType<LoginResultEvent>()
-                .Subscribe(async r =>
+                .SubscribeOnMainThread(async r =>
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() => {
-                        if (r.IsSuccess)
-                        {
-                            this.AddTaskButton.IsEnabled = true;
-                        }
-                        else
-                        {
-                            this.AddTaskButton.IsEnabled = false;
-                        }
-                    }));
+                    if (r.IsSuccess)
+                    {
+                        this.AddTaskButton.IsEnabled = true;
+                    }
+                    else
+                    {
+                        this.AddTaskButton.IsEnabled = false;
+                    }
 
                 });
 

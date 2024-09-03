@@ -21,6 +21,7 @@ using System.Net;
 using MemoryPack;
 using System.Reactive.Linq;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Aria2Fast.Service
 {
@@ -63,11 +64,10 @@ namespace Aria2Fast.Service
 
             Aria2ApiManager.Instance.EventReceived
                 .OfType<LoginResultEvent>()
-                .Subscribe(async r =>
+                .SubscribeOnMainThread(async r =>
                 {
-                    //成功不成功都重载
-                    Application.Current.Dispatcher.Invoke(() => { Restart(); });
-                    
+                    Restart();
+
                 });
         }
 
