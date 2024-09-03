@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Net;
 using MemoryPack;
 using System.Reactive.Linq;
+using System.Windows;
 
 namespace Aria2Fast.Service
 {
@@ -65,7 +66,8 @@ namespace Aria2Fast.Service
                 .Subscribe(async r =>
                 {
                     //成功不成功都重载
-                    Restart();
+                    Application.Current.Dispatcher.Invoke(() => { Restart(); });
+                    
                 });
         }
 
