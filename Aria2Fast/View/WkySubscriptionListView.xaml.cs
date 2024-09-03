@@ -47,14 +47,17 @@ namespace Aria2Fast.View
                 .OfType<LoginResultEvent>()
                 .Subscribe(async r =>
                 {
-                    if (r.IsSuccess)
-                    {
-                        this.SubscriptionButton.IsEnabled = true;
-                    }
-                    else
-                    {
-                        this.SubscriptionButton.IsEnabled = false;
-                    }
+                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                        if (r.IsSuccess)
+                        {
+                            this.SubscriptionButton.IsEnabled = true;
+                        }
+                        else
+                        {
+                            this.SubscriptionButton.IsEnabled = false;
+                        }
+                    }));
+
                 });
         }
 

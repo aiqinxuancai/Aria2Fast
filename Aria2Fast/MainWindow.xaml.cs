@@ -30,6 +30,7 @@ using Aria2Fast.Service.Model;
 using Wpf.Ui.Appearance;
 using Wpf.Ui;
 using Aria2Fast.View;
+using System.Reactive.Concurrency;
 
 namespace Aria2Fast
 {
@@ -106,7 +107,10 @@ namespace Aria2Fast
                 .OfType<LoginStartEvent>()
                 .Subscribe(async r =>
                 {
-                    UpdateConnectionStatus(LinkStatus.Linking);
+                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                        UpdateConnectionStatus(LinkStatus.Linking);
+                    }));
+                    
                 });
 
 
@@ -114,14 +118,17 @@ namespace Aria2Fast
                 .OfType<LoginResultEvent>()
                 .Subscribe(async r =>
                 {
-                    if (r.IsSuccess)
-                    {
-                        UpdateConnectionStatus(LinkStatus.Success);
-                    }
-                    else
-                    {
-                        UpdateConnectionStatus(LinkStatus.Error);
-                    }
+                    Application.Current.Dispatcher.Invoke(new Action(() => {
+                        if (r.IsSuccess)
+                        {
+                            UpdateConnectionStatus(LinkStatus.Success);
+                        }
+                        else
+                        {
+                            UpdateConnectionStatus(LinkStatus.Error);
+                        }
+                    }));
+
                 });
 
             Aria2ApiManager.Instance.Init();
