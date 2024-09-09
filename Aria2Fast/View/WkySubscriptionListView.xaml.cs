@@ -106,10 +106,10 @@ namespace Aria2Fast.View
                 }
             }
 
-            var jsonString = JsonConvert.SerializeObject(selectedItems);
+            //var jsonString = JsonConvert.SerializeObject(selectedItems);
 
             //需要深拷贝
-            _selectedItems = JsonConvert.DeserializeObject<List<SubscriptionModel>>(jsonString);
+            _selectedItems = selectedItems;//JsonConvert.DeserializeObject<List<SubscriptionModel>>(jsonString);
 
             if (_selectedItems.Count > 0)
             {
@@ -201,7 +201,13 @@ namespace Aria2Fast.View
         {
             foreach (var item in _selectedItems)
             {
-                SubscriptionManager.Instance.SubscriptionModel.Remove(item);
+                var findModel = SubscriptionManager.Instance.SubscriptionModel.FirstOrDefault(a => a.Url == item.Url);
+
+                if (findModel != null)
+                {
+                    SubscriptionManager.Instance.SubscriptionModel.Remove(findModel);
+                }
+                
             }
             SubscriptionManager.Instance.Save();
         }

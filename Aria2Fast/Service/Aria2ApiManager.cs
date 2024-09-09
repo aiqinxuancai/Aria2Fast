@@ -628,6 +628,7 @@ namespace Aria2Fast.Service
 
         internal async Task<bool> UpdateRpcAndTest()
         {
+            Debug.WriteLine("开始检查节点可用性");
             var rpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
             var token = AppConfig.Instance.ConfigData.Aria2TokenAuto;
             int retryCount = 0;
