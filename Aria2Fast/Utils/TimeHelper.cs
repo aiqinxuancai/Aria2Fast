@@ -9,6 +9,29 @@ namespace Aria2Fast.Utils
 {
     class TimeHelper
     {
+        public static string ConvertToTimeAgo(DateTime dateTime)
+        {
+            var now = DateTime.Now;
+            var timeSpan = now - dateTime;
+
+            if (timeSpan.TotalSeconds < 60)
+                return $"{timeSpan.Seconds}秒前";
+
+            if (timeSpan.TotalMinutes < 60)
+                return $"{timeSpan.Minutes}分钟前";
+
+            if (timeSpan.TotalHours < 24)
+                return $"{timeSpan.Hours}小时前";
+
+            if (timeSpan.TotalDays < 30)
+                return $"{timeSpan.Days}天前";
+
+            if (timeSpan.TotalDays < 365)
+                return $"{(int)(timeSpan.TotalDays / 30)}月前";
+
+            return $"{(int)(timeSpan.TotalDays / 365)}年前";
+        }
+
 
         public static string SecondsToFormatString(int seconds)
         {

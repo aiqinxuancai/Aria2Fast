@@ -118,6 +118,22 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
         }
 
 
+        [JsonIgnore]
+        private string _lastDownload;
+
+        [JsonIgnore]
+        public string LastDownload
+        {
+            get
+            {
+
+
+                return _lastDownload;
+            }
+        }
+        
+
+
         /// <summary>
         /// 已经添加了下载的任务
         /// </summary>
@@ -166,6 +182,8 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
 
                     if (last.Time != DateTime.MinValue)
                     {
+                        _lastDownload = TimeHelper.ConvertToTimeAgo(last.Time);
+                        OnPropertyChanged("LastDownload");
                         _lastSubscriptionContent = $"{last.Name}\n{last.Time.ToString("yyyy-MM-dd HH:mm:ss")}";
                     }
                     else
@@ -173,6 +191,9 @@ namespace Aria2Fast.Service.Model.SubscriptionModel
                         _lastSubscriptionContent = $"{last.Name}";//未赋值时间
 
                     }
+
+                    
+
                     OnPropertyChanged("LastSubscriptionContent");
                 }
             }
