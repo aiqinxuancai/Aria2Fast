@@ -48,7 +48,7 @@ namespace Aria2Fast.Service
         /// <returns></returns>
         public static async Task<string> GetEpisode(string s)
         {
-            var client = new ChatGPTClient(AppConfig.Instance.ConfigData.OpenAIKey, timeoutSeconds: 60, proxyUri: AppConfig.Instance.ConfigData.OpenAIProxy);
+            var client = new ChatGPTClient(AppConfig.Instance.ConfigData.OpenAIKey, "gpt-4o-mini", timeoutSeconds: 60, proxyUri: AppConfig.Instance.ConfigData.OpenAIProxy);
 
             if (!string.IsNullOrEmpty(AppConfig.Instance.ConfigData.OpenAIHost))
             {
