@@ -36,7 +36,7 @@ namespace Aria2Fast.Service
             - 当文本中含有多种语言的作品名称时，通常以"/"符号进行分割，仅返回第一种语言的名称。
             - 避免将字幕组名称及字幕名称等误识别为标题。
             - 不对作品名称进行编辑、翻译或字符转换。
-            - 如果作品名称可能带有包含[]、【】等符号，这不是我们要提取的作品名称。
+            - 请移除作品名中的[]、【】等符号。
             """;
 
         static Dictionary<string, string> _cache = new Dictionary<string, string>();
