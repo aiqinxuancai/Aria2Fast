@@ -60,7 +60,7 @@
                             FontSize="18"
                             Text="基础设置" />
 
-                        <ui:Card Margin="0,10,0,0" x:Name="AccountCardAction">
+                        <ui:Card x:Name="AccountCardAction" Margin="0,10,0,0">
                             <StackPanel>
                                 <Grid>
                                     <StackPanel>
@@ -186,11 +186,8 @@
                                     <ui:HyperlinkButton
                                         x:Name="LinkAIKEY"
                                         Click="LinkAIKEY_Click"
-                                        Content="https://aikey.one/" />
-                                    <ui:HyperlinkButton
-                                        x:Name="LinkAPI2D"
-                                        Click="LinkAPI2D_Click"
-                                        Content="https://api2d.com/" />
+                                        Content="gptapi.us" />
+
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>

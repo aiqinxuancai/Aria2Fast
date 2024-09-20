@@ -47,7 +47,7 @@ namespace Aria2Fast.View
 
         private async void LinkAIKEY_Click(object sender, RoutedEventArgs e)
         {
-            BrowserHelper.OpenUrlBrowser("https://aikey.one/register?aff=qHFBWX");
+            BrowserHelper.OpenUrlBrowser("https://www.gptapi.us/register?aff=J99N");
         }
 
         private async void LinkAPI2D_Click(object sender, RoutedEventArgs e)
