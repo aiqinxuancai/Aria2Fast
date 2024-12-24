@@ -1,174 +1,102 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using System;
+using ZLogger;
 
 namespace Aria2Fast.Utils
 {
-    public class SimpleLogger
+    public class SimpleLogger : IDisposable
     {
-        private const string FILE_EXT = ".log";
-        private readonly object fileLock = new object();
-        private readonly string datetimeFormat;
-        private readonly string logFilename;
+        private readonly ILogger logger;
+        private readonly ILoggerFactory loggerFactory;
 
-
-        /// <summary>
-        /// Initiate an instance of SimpleLogger class constructor.
-        /// If log file does not exist, it will be created automatically.
-        /// </summary>
         public SimpleLogger()
         {
-            datetimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
-            logFilename = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + FILE_EXT;
-
-            // Log file header line
-            string logHeader = logFilename + " is created.";
-            if (!System.IO.File.Exists(logFilename))
+            loggerFactory = LoggerFactory.Create(builder =>
             {
-                WriteLine(System.DateTime.Now.ToString(datetimeFormat) + " " + logHeader);
-            }
+                builder.SetMinimumLevel(LogLevel.Debug);
+
+
+
+                // 添加控制台输出
+                builder.AddZLoggerConsole(options =>
+                {
+                    options.UsePlainTextFormatter(formatter =>
+                    {
+                        // 使用 Format 方法格式化时间和日志级别
+                        formatter.SetPrefixFormatter($"{0}|{1}|", (in MessageTemplate template, in LogInfo info) => template.Format(info.Timestamp, info.LogLevel));
+                    });
+                });
+
+                // 添加文件输出
+                var logFilename = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".log";
+                builder.AddZLoggerFile(logFilename, options =>
+                {
+                    options.UsePlainTextFormatter(formatter =>
+                    {
+                        formatter.SetPrefixFormatter($"{0}|{1}|", (in MessageTemplate template, in LogInfo info) => template.Format(info.Timestamp, info.LogLevel));
+                    });
+                });
+
+
+                //builder.AddDebug();
+            });
+
+            logger = loggerFactory.CreateLogger("SimpleLogger");
         }
 
-        /// <summary>
-        /// Log a DEBUG message
-        /// </summary>
-        /// <param name="text">Message</param>
         public void Debug(string text)
         {
-            WriteFormattedLog(LogLevel.DEBUG, text);
+            logger.ZLogDebug($"{text}");
         }
 
         public void Debug(object text)
         {
-            WriteFormattedLog(LogLevel.DEBUG, text == null ? "null" : text.ToString());
+            logger.ZLogDebug($"{text?.ToString() ?? "null"}");
         }
 
-        /// <summary>
-        /// Log an ERROR message
-        /// </summary>
-        /// <param name="text">Message</param>
         public void Error(string text)
         {
-            WriteFormattedLog(LogLevel.ERROR, text);
+            logger.ZLogError($"{text}");
         }
 
         public void Error(object text)
         {
-            WriteFormattedLog(LogLevel.ERROR, text == null ? "null" : text.ToString());
+            logger.ZLogError($"{text?.ToString() ?? "null"}");
         }
 
-        /// <summary>
-        /// Log a FATAL ERROR message
-        /// </summary>
-        /// <param name="text">Message</param>
         public void Fatal(string text)
         {
-            WriteFormattedLog(LogLevel.FATAL, text);
+            logger.ZLogCritical($"{text}");
         }
 
-        /// <summary>
-        /// Log an INFO message
-        /// </summary>
-        /// <param name="text">Message</param>
         public void Info(string text)
         {
-            WriteFormattedLog(LogLevel.INFO, text);
+            logger.ZLogInformation($"{text}");
         }
 
         public void Info(object text)
         {
-            WriteFormattedLog(LogLevel.INFO, text == null ? "null" : text.ToString());
+            logger.ZLogInformation($"{text?.ToString() ?? "null"}");
         }
 
         public void Info(string text, params object[] args)
         {
-            WriteFormattedLog(LogLevel.INFO, string.Format(text, args));
+            logger.ZLogInformation($"{string.Format(text, args)}");
         }
 
-        /// <summary>
-        /// Log a TRACE message
-        /// </summary>
-        /// <param name="text">Message</param>
         public void Trace(string text)
         {
-            WriteFormattedLog(LogLevel.TRACE, text);
+            logger.ZLogTrace($"{text}");
         }
 
-        /// <summary>
-        /// Log a WARNING message
-        /// </summary>
-        /// <param name="text">Message</param>
         public void Warning(string text)
         {
-            WriteFormattedLog(LogLevel.WARNING, text);
+            logger.ZLogWarning($"{text}");
         }
 
-        private void WriteLine(string text, bool append = false)
+        public void Dispose()
         {
-            try
-            {
-                if (string.IsNullOrEmpty(text))
-                {
-                    return;
-                }
-                lock (fileLock)
-                {
-                    using (System.IO.StreamWriter writer = new System.IO.StreamWriter(logFilename, append, System.Text.Encoding.UTF8))
-                    {
-                        writer.WriteLine(text);
-                    }
-                }
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        private void WriteFormattedLog(LogLevel level, string text)
-        {
-            string pretext;
-            switch (level)
-            {
-                case LogLevel.TRACE:
-                    pretext = System.DateTime.Now.ToString(datetimeFormat) + " [TRACE]";
-                    break;
-                case LogLevel.INFO:
-                    pretext = System.DateTime.Now.ToString(datetimeFormat) + " [INFO]";
-                    break;
-                case LogLevel.DEBUG:
-                    pretext = System.DateTime.Now.ToString(datetimeFormat) + " [DEBUG]";
-                    break;
-                case LogLevel.WARNING:
-                    pretext = System.DateTime.Now.ToString(datetimeFormat) + " [WARNING]";
-                    break;
-                case LogLevel.ERROR:
-                    pretext = System.DateTime.Now.ToString(datetimeFormat) + " [ERROR]";
-                    break;
-                case LogLevel.FATAL:
-                    pretext = System.DateTime.Now.ToString(datetimeFormat) + " [FATAL]";
-                    break;
-                default:
-                    pretext = "";
-                    break;
-            }
-
-            System.Diagnostics.Debug.WriteLine(pretext + text);
-
-            WriteLine(pretext + text, true);
-        }
-
-        [System.Flags]
-        private enum LogLevel
-        {
-            TRACE,
-            INFO,
-            DEBUG,
-            WARNING,
-            ERROR,
-            FATAL
+            loggerFactory?.Dispose();
         }
     }
 }
