@@ -110,6 +110,8 @@ namespace Aria2Fast.Service
 
         public string OpenAIProxy { get; set; } = string.Empty;
 
+        public string OpenAIModelName { get; set; } = "gpt-4o-mini";
+
         public bool OpenAIOpen { get; set; } = false;
 
 
