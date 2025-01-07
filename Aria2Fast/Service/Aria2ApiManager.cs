@@ -20,6 +20,8 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Channels;
 using System.Text;
 using System.Collections.Concurrent;
+using System.Threading;
+using Timer = System.Timers.Timer;
 
 namespace Aria2Fast.Service
 {
@@ -41,9 +43,13 @@ namespace Aria2Fast.Service
 
 
         public IObservable<Aria2Event> EventReceived => _eventReceivedSubject.AsObservable();
+
         public bool Connected { set; get; }
+
         public string CurrentRpc { set; get; }
 
+
+        public Aria2Node LocalAria2Node { set; get; } = new Aria2Node();
 
         private static int kMaxTaskListCount = 100;
         private static Aria2ApiManager instance = new Aria2ApiManager();
@@ -54,6 +60,9 @@ namespace Aria2Fast.Service
         private readonly Subject<Aria2Event> _eventReceivedSubject = new();
         private Process? _aria2Process = null;
         private static object _lockForUpdateTask = new object();
+
+        private readonly SemaphoreSlim _updateLock = new SemaphoreSlim(1, 1);
+        private CancellationTokenSource _debounceCts;
 
         public static Aria2ApiManager Instance
         {
@@ -185,10 +194,10 @@ namespace Aria2Fast.Service
                 }
 
                 var rpc = $"http://127.0.0.1:{port}/jsonrpc";
-                AppConfig.Instance.ConfigData.Aria2RpcLocal = rpc;
-                AppConfig.Instance.ConfigData.Aria2TokenLocal = secret;
+                LocalAria2Node.URL = rpc;
+                LocalAria2Node.Token = secret;
 
-                if (firstRun || !AppConfig.Instance.ConfigData.AddTaskSavePathList.ContainsKey(AppConfig.Instance.ConfigData.Aria2RpcAuto))
+                if (firstRun || !AppConfig.Instance.ConfigData.AddTaskSavePathList.ContainsKey(AppConfig.Instance.ConfigData.CurrentAria2Rpc))
                 {
                     AppConfig.Instance.ConfigData.Aria2LocalSavePath = dir;
                     AppConfig.Instance.InitLocalPath(dir);
@@ -246,6 +255,11 @@ namespace Aria2Fast.Service
                 else
                 {
                     EasyLogManager.Logger.Info($"Aria2已启动：{aria2File}");
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(1000);
+                        UpdateRpcAndTest();
+                    });
                 }
                 //启动进程
 
@@ -607,80 +621,107 @@ namespace Aria2Fast.Service
 
         }
 
-        internal void UpdateRpcDebounce()
-        {
-            lock (_locker)
-            {
-                // Dispose previous timer
-                _debounceTimer?.Dispose();
-
-                // Create a new timer that delays for 1 second
-                _debounceTimer = new Timer(2000);
-
-                // After 1 second, execute the method
-                _debounceTimer.Elapsed += (s, e) => UpdateRpcAndTest();
-                _debounceTimer.AutoReset = false; // Make sure the timer runs only once
-
-                _debounceTimer.Start();
-            }
-        }
-
-
         internal async Task<bool> UpdateRpcAndTest()
         {
-            Debug.WriteLine("开始检查节点可用性");
-            var rpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
-            var token = AppConfig.Instance.ConfigData.Aria2TokenAuto;
-            int retryCount = 0;
-
-            while (retryCount < 3)
+            // 去抖动处理
+            try
             {
-                try
+                var previousCts = Interlocked.Exchange(ref _debounceCts, new CancellationTokenSource());
+                previousCts?.Cancel();
+
+                // 等待一小段时间，让快速的连续调用被取消
+                await Task.Delay(300, _debounceCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return false; // 如果被取消，直接返回
+            }
+
+            // 使用锁确保同一时间只有一个更新操作
+            try
+            {
+                await _updateLock.WaitAsync();
+
+                Debug.WriteLine("开始检查节点可用性");
+                var rpc = AppConfig.Instance.ConfigData.CurrentAria2Rpc;
+                var token = AppConfig.Instance.ConfigData.CurrentAria2Token;
+                int retryCount = 0;
+
+                while (retryCount < 3)
                 {
-                    var currentRpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
-                    if (currentRpc != rpc)
+                    try
                     {
-                        return false;
-                    }
-                    _eventReceivedSubject.OnNext(new LoginStartEvent());
-                    _client = new Aria2NetClient(rpc, token);
+                        // 检查是否被取消
+                        if (_debounceCts.Token.IsCancellationRequested)
+                        {
+                            return false;
+                        }
 
-                    var result = await _client.TellAllAsync();
+                        var currentRpc = AppConfig.Instance.ConfigData.CurrentAria2Rpc;
+                        if (currentRpc != rpc)
+                        {
+                            return false;
+                        }
 
-                    currentRpc = AppConfig.Instance.ConfigData.Aria2RpcAuto;
-                    if (currentRpc != rpc)
-                    {
-                        return false;
-                    }
+                        _eventReceivedSubject.OnNext(new LoginStartEvent());
+                        _client = new Aria2NetClient(rpc, token);
 
-                    if (result.Count >= 0)
-                    {
-                        Connected = true;
-                        CurrentRpc = rpc;
-                        _eventReceivedSubject.OnNext(new LoginResultEvent(true));
-                        UpdateTask();
-                        return true;
+                        var result = await _client.TellAllAsync();
+
+                        currentRpc = AppConfig.Instance.ConfigData.CurrentAria2Rpc;
+                        if (currentRpc != rpc)
+                        {
+                            return false;
+                        }
+
+                        if (result.Count >= 0)
+                        {
+                            Connected = true;
+                            CurrentRpc = rpc;
+                            _eventReceivedSubject.OnNext(new LoginResultEvent(true));
+                            UpdateTask();
+                            return true;
+                        }
+                        else
+                        {
+                            Connected = false;
+                            CurrentRpc = rpc;
+                            _eventReceivedSubject.OnNext(new LoginResultEvent(false));
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        Debug.WriteLine(ex.ToString());
                         Connected = false;
                         CurrentRpc = rpc;
                         _eventReceivedSubject.OnNext(new LoginResultEvent(false));
                     }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                    Connected = false;
-                    CurrentRpc = rpc;
-                    _eventReceivedSubject.OnNext(new LoginResultEvent(false));
+
+                    retryCount++;
+                    try
+                    {
+                        await Task.Delay(500, _debounceCts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return false;
+                    }
                 }
 
-                retryCount++;
-                await Task.Delay(3000);
+                return false;
             }
+            finally
+            {
+                _updateLock.Release();
+            }
+        }
 
-            return false;
+        // 在类的Dispose方法中需要清理资源
+        public void Dispose()
+        {
+            _updateLock?.Dispose();
+            _debounceCts?.Dispose();
+            // ... 其他清理代码
         }
 
         private static bool IsGid(string gid)

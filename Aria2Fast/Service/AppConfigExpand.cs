@@ -17,7 +17,7 @@ namespace Aria2Fast.Service
         {
             var dict = ConfigData.AddTaskSavePathList;
 
-            dict[ConfigData.Aria2RpcAuto] = new List<string>
+            dict[ConfigData.CurrentAria2Rpc] = new List<string>
             {
                 dir,
                 Path.Combine(dir, "movies"),
@@ -25,7 +25,7 @@ namespace Aria2Fast.Service
             };
 
             dict = ConfigData.AddSubscriptionSavePathList;
-            dict[ConfigData.Aria2RpcAuto] = new List<string>
+            dict[ConfigData.CurrentAria2Rpc] = new List<string>
             {
                 dir,
                 Path.Combine(dir, "movies"),
@@ -42,13 +42,13 @@ namespace Aria2Fast.Service
         {
             var dict = ConfigData.AddTaskSavePathList;
 
-            if (dict.ContainsKey(ConfigData.Aria2RpcAuto))
+            if (dict.ContainsKey(ConfigData.CurrentAria2Rpc))
             {
-                return dict[ConfigData.Aria2RpcAuto];
+                return dict[ConfigData.CurrentAria2Rpc];
             }
             //返回默认的值并写入
 
-            dict[ConfigData.Aria2RpcAuto] = new List<string>
+            dict[ConfigData.CurrentAria2Rpc] = new List<string>
             {
                 "/downloads" ,
                 "/downloads/movies",
@@ -57,20 +57,20 @@ namespace Aria2Fast.Service
 
             Save();
 
-            return dict[ConfigData.Aria2RpcAuto];
+            return dict[ConfigData.CurrentAria2Rpc];
         }
 
         public List<string> GetDownloadPathWithAddSubscription()
         {
             var dict = ConfigData.AddSubscriptionSavePathList;
 
-            if (dict.ContainsKey(ConfigData.Aria2RpcAuto))
+            if (dict.ContainsKey(ConfigData.CurrentAria2Rpc))
             {
-                return dict[ConfigData.Aria2RpcAuto];
+                return dict[ConfigData.CurrentAria2Rpc];
             }
             //返回默认的值并写入
 
-            dict[ConfigData.Aria2RpcAuto] = new List<string>
+            dict[ConfigData.CurrentAria2Rpc] = new List<string>
             {
                 "/downloads" ,
                 "/downloads/movies",
@@ -79,18 +79,18 @@ namespace Aria2Fast.Service
 
             Save();
 
-            return dict[ConfigData.Aria2RpcAuto];
+            return dict[ConfigData.CurrentAria2Rpc];
         }
 
         public void SaveDownloadPathWithAddTask(string path)
         {
             var dict = ConfigData.AddTaskSavePathList;
 
-            if (!dict.ContainsKey(ConfigData.Aria2RpcAuto))
+            if (!dict.ContainsKey(ConfigData.CurrentAria2Rpc))
             {
-                dict[ConfigData.Aria2RpcAuto] = new List<string>();
+                dict[ConfigData.CurrentAria2Rpc] = new List<string>();
             }
-            var list = dict[ConfigData.Aria2RpcAuto];
+            var list = dict[ConfigData.CurrentAria2Rpc];
 
             var hasValue = list.Any(a => a == path);
             if (hasValue)
@@ -110,11 +110,11 @@ namespace Aria2Fast.Service
         {
             var dict = ConfigData.AddSubscriptionSavePathList;
 
-            if (!dict.ContainsKey(ConfigData.Aria2RpcAuto))
+            if (!dict.ContainsKey(ConfigData.CurrentAria2Rpc))
             {
-                dict[ConfigData.Aria2RpcAuto] = new List<string>();
+                dict[ConfigData.CurrentAria2Rpc] = new List<string>();
             }
-            var list = dict[ConfigData.Aria2RpcAuto];
+            var list = dict[ConfigData.CurrentAria2Rpc];
 
             var hasValue = list.Any(a => a == path);
             if (hasValue)

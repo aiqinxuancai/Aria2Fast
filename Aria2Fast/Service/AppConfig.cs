@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Aria2Fast.Service.Model.SubscriptionModel;
+using Aria2Fast.Service.Model;
 
 namespace Aria2Fast.Service
 {
@@ -31,9 +32,10 @@ namespace Aria2Fast.Service
         {
             _propertyChangedActions = new Dictionary<string, Action>
                 {
-                    { nameof(Aria2Rpc), async () => await Aria2ApiManager.Instance.UpdateRpcAndTest() },
+                //TODO
+                    //{ nameof(Aria2Rpc), async () => await Aria2ApiManager.Instance.UpdateRpcAndTest() },
 
-                    { nameof(Aria2Token), async () => await Aria2ApiManager.Instance.UpdateRpcAndTest() },
+                    //{ nameof(Aria2Token), async () => await Aria2ApiManager.Instance.UpdateRpcAndTest() },
 
                     { nameof(Aria2UseLocal), () => {
 
@@ -53,6 +55,7 @@ namespace Aria2Fast.Service
 
                 };
             this.PropertyChanged += AppConfigData_PropertyChanged;
+
         }
 
         private void AppConfigData_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -123,43 +126,23 @@ namespace Aria2Fast.Service
         //当前客户端ID
         public string ClientId { get; set; } = string.Empty;
 
-        //远程RPC
-        public string Aria2Rpc { get; set; } = string.Empty;
-
-        public string Aria2Token { get; set; } = string.Empty;
-
-        //本地RPC
-        public string Aria2RpcLocal { get; set; } = string.Empty;
-
-        public string Aria2TokenLocal { get; set; } = string.Empty;
-
-
-        public string Aria2RpcAuto
+        public Aria2Node Aria2NodeAuto
         {
             get
             {
                 if (Aria2UseLocal)
                 {
-                    return Aria2RpcLocal;
+                    return Aria2ApiManager.Instance.LocalAria2Node;
                 }
-                return Aria2Rpc;
+                return RemoteAria2Node;
             }
         }
 
-        public string Aria2TokenAuto
-        {
-            get
-            {
-                if (Aria2UseLocal)
-                {
-                    return Aria2TokenLocal;
-                }
-                return Aria2Token;
-            }
-        }
+        public string CurrentAria2Rpc => Aria2NodeAuto.URL;
 
+        public string CurrentAria2Token => Aria2NodeAuto.Token;
 
-        public string Aria2RpcHostDisplay
+        public string CurrentShowAria2RpcHost
         {
             get
             {
@@ -167,15 +150,15 @@ namespace Aria2Fast.Service
                 {
                     return "本地Aria2";
                 }
-                return Aria2RpcHost;
+                return CurrentAria2Host;
             }
         }
 
-        public string Aria2RpcHost
+        public string CurrentAria2Host
         {
             get
             {
-                var rpc = Aria2UseLocal ? Aria2RpcLocal : Aria2Rpc;
+                var rpc = Aria2NodeAuto.URL;
                 if (!string.IsNullOrWhiteSpace(rpc) && Uri.TryCreate(rpc, new UriCreationOptions(), out Uri? result))
                 {
                     var port = result.Port > 0 ? (":" + result.Port.ToString()) : ("");
@@ -193,6 +176,33 @@ namespace Aria2Fast.Service
         /// </summary>
         public bool Aria2UseLocal { get; set; } = true;
 
+        private Aria2Node _remoteAria2Node;
+
+        public Aria2Node RemoteAria2Node
+        {
+            get => _remoteAria2Node;
+            set
+            {
+                if (_remoteAria2Node != null)
+                {
+                    ((INotifyPropertyChanged)_remoteAria2Node).PropertyChanged -= Aria2Node_PropertyChanged;
+                }
+
+                _remoteAria2Node = value;
+
+                if (_remoteAria2Node != null)
+                {
+                    ((INotifyPropertyChanged)_remoteAria2Node).PropertyChanged += Aria2Node_PropertyChanged;
+                }
+            }
+        }
+
+        private void Aria2Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Aria2ApiManager.Instance.UpdateRpcAndTest();
+            //通知上层 触发一次PropertyChanged
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoteAria2Node)));
+        }
 
 
     }
@@ -283,8 +293,6 @@ namespace Aria2Fast.Service
         {
             Save();
         }
-
-        
 
         public void Save()
         {
