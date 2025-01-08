@@ -138,6 +138,12 @@ namespace Aria2Fast.Service
             }
         }
 
+
+        //远程RPC 旧的 兼容
+        public string Aria2Rpc { get; set; } = string.Empty;
+
+        public string Aria2Token { get; set; } = string.Empty;
+
         public string CurrentAria2Rpc => Aria2NodeAuto.URL;
 
         public string CurrentAria2Token => Aria2NodeAuto.Token;
@@ -285,6 +291,19 @@ namespace Aria2Fast.Service
                     ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简日" });
                 }
 
+                if (ConfigData.RemoteAria2Node == null)
+                {
+                    ConfigData.RemoteAria2Node = new Aria2Node();
+                }
+
+                if (!string.IsNullOrWhiteSpace(ConfigData.Aria2Rpc))
+                {
+                    ConfigData.RemoteAria2Node.URL = ConfigData.Aria2Rpc;
+                }
+                if (!string.IsNullOrWhiteSpace(ConfigData.Aria2Token))
+                {
+                    ConfigData.RemoteAria2Node.Token = ConfigData.Aria2Token;
+                }
                 ConfigData.Init();
             }
         }
