@@ -29,8 +29,10 @@ namespace Aria2Fast.Service
     {
         private const int kTimeOutSec = 40;
 
-
-        public event Action<int, int> OnSubscriptionProgressChanged;
+        /// <summary>
+        /// 订阅进度变化 当前，总数，当前名称
+        /// </summary>
+        public event Action<int, int, string> OnSubscriptionProgressChanged;
 
         private static SubscriptionManager instance = new SubscriptionManager();
 
@@ -359,15 +361,15 @@ namespace Aria2Fast.Service
             EasyLogManager.Logger.Info("检查订阅...");
 
             var copyList = new List<SubscriptionModel>(SubscriptionModel);
-            OnSubscriptionProgressChanged?.Invoke(0, copyList.Count);
+            OnSubscriptionProgressChanged?.Invoke(0, copyList.Count, string.Empty);
 
             for (int i = 0; i < copyList.Count; i++)
             {
+                OnSubscriptionProgressChanged?.Invoke(i, copyList.Count, copyList[i].Name);
                 await CheckSubscriptionOne(copyList[i], currentRpc);
-                OnSubscriptionProgressChanged?.Invoke(i, copyList.Count);
             }
 
-            OnSubscriptionProgressChanged?.Invoke(copyList.Count, copyList.Count);
+            OnSubscriptionProgressChanged?.Invoke(copyList.Count, copyList.Count, string.Empty);
 
             Subscribing = false;
         }

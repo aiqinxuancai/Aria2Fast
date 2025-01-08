@@ -147,11 +147,20 @@ namespace Aria2Fast
             }
         }
 
-        private void SubscriptionManager_OnSubscriptionProgressChanged(int now, int max)
+        private void SubscriptionManager_OnSubscriptionProgressChanged(int now, int max, string currentRssName)
         {
             this.Dispatcher.Invoke(new Action(() =>
             {
+                if (now == 0 && max > 0)
+                {
+                    RssStatusBorder.Visibility = Visibility.Visible;
+                }
+                else if (now == max && max > 0 && string.IsNullOrWhiteSpace(currentRssName))
+                {
+                    RssStatusBorder.Visibility = Visibility.Collapsed;
+                }
 
+                RssStatusTextBlock.Text = @$"({now + 1}/{max}) {currentRssName}";
 
             }));
         }
@@ -231,19 +240,19 @@ namespace Aria2Fast
                 {
                     case LinkStatus.Linking:
                         //LinkStatusProgressBar.IsIndeterminate = true;
-                        //LinkStatusProgressBar.Visibility = Visibility.Visible;
+                        LinkStatusProgressRing.Visibility = Visibility.Visible;
                         myBrush.Color = (Color)ColorConverter.ConvertFromString("#2db7f5");
                         LinkStatusBorder.Background = myBrush;
                         break;
                     case LinkStatus.Error:
                         //LinkStatusProgressBar.IsIndeterminate = false;
-                        //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
+                        LinkStatusProgressRing.Visibility = Visibility.Collapsed;
                         myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
                         LinkStatusBorder.Background = myBrush;
                         break;
                     case LinkStatus.Success:
                         //LinkStatusProgressBar.IsIndeterminate = false;
-                        //LinkStatusProgressBar.Visibility = Visibility.Collapsed;
+                        LinkStatusProgressRing.Visibility = Visibility.Collapsed;
                         myBrush.Color = (Color)ColorConverter.ConvertFromString("#65B741");
                         LinkStatusBorder.Background = myBrush;
 
