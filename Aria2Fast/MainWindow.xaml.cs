@@ -159,6 +159,10 @@ namespace Aria2Fast
                 {
                     RssStatusBorder.Visibility = Visibility.Collapsed;
                 }
+                else if (max == 0)
+                {
+                    RssStatusBorder.Visibility = Visibility.Collapsed;
+                }
 
                 RssStatusTextBlock.Text = @$"({now + 1}/{max}) {currentRssName}";
 
