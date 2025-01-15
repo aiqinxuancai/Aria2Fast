@@ -22,11 +22,11 @@ namespace Aria2Fast.Service.Model
         {
             get
             {
-                //if (!string.IsNullOrWhiteSpace(Data.Gid) && 
-                //    SubscriptionManager.Instance.TaskUrlToSubscriptionName.ContainsKey(Data.Gid))
-                //{
-                //    return true;
-                //}
+                if (!string.IsNullOrWhiteSpace(Data.Gid) &&
+                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.ContainsKey(Data.Gid))
+                {
+                    return true;
+                }
                 if (!string.IsNullOrWhiteSpace(Data.InfoHash) &&
                     SubscriptionManager.Instance.TaskUrlToSubscriptionName.Any(a => a.Key.Contains(Data.InfoHash)))
                 {
@@ -73,26 +73,24 @@ namespace Aria2Fast.Service.Model
             {
                 if (FromSubscription)
                 {
-                    //var name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.Gid];
-                    //if (!string.IsNullOrWhiteSpace(name))
-                    //{
-                    //    return name;
-                    //}
-
-                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.TryGetValue(Data.InfoHash!, out string name);
+                    var name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.Gid];
                     if (!string.IsNullOrWhiteSpace(name))
                     {
                         return name;
                     }
-                    else
+
+                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.TryGetValue(Data.InfoHash!, out string nameFromHash);
+                    if (!string.IsNullOrWhiteSpace(nameFromHash))
                     {
-                        var kv = SubscriptionManager.Instance.TaskUrlToSubscriptionName.FirstOrDefault(a => a.Key.Contains(Data.InfoHash));
-                        if (!string.IsNullOrWhiteSpace(kv.Value))
-                        {
-                            return kv.Value;
-                        }
+                        return nameFromHash;
                     }
- 
+
+                    var kv = SubscriptionManager.Instance.TaskUrlToSubscriptionName.LastOrDefault(a => a.Key.Contains(Data.InfoHash));
+                    if (!string.IsNullOrWhiteSpace(kv.Value))
+                    {
+                        return kv.Value;
+                    }
+
 
                     return ShowName;
 

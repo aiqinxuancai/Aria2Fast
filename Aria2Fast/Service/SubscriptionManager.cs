@@ -376,6 +376,7 @@ namespace Aria2Fast.Service
                                     {
                                         TaskUrlToSubscriptionName[aria2Result.InfoHash] = subject;
                                     }
+                                    TaskUrlToSubscriptionName[downloadUrl] = subject;
                                 }
 
                                 if (aria2Result.IsSuccessed)
