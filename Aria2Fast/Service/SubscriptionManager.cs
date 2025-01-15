@@ -27,7 +27,7 @@ namespace Aria2Fast.Service
 {
     public class SubscriptionManager
     {
-        private const int kTimeOutSec = 40;
+        private const int kTimeOutSec = 20;
 
         /// <summary>
         /// 订阅进度变化 当前，总数，当前名称
@@ -116,6 +116,10 @@ namespace Aria2Fast.Service
             }
         }
 
+        /// <summary>
+        /// 10分钟检查一次订阅
+        /// </summary>
+        /// <param name="cancellationToken"></param>
         private void TimerFunc(CancellationToken cancellationToken)
         {
             while (true)
@@ -134,7 +138,7 @@ namespace Aria2Fast.Service
                 }
                 
 
-                TaskHelper.Sleep(1000 * 60 * 5, 100, cancellationToken);
+                TaskHelper.Sleep(1000 * 60 * 10, 100, cancellationToken);
             }
         }
 
@@ -254,29 +258,6 @@ namespace Aria2Fast.Service
 
         }
 
-
-        //public string GetSubscriptionName(string downloadName)
-        //{
-        //    foreach (var sub in SubscriptionModel)
-        //    {
-        //        foreach (var model in sub.AlreadyAddedDownloadModel)
-        //        {
-        //            if (model.Result != null && model.Result.Tasks.Count() > 0)
-        //            {
-        //                foreach (var task in model.Result.Tasks)
-        //                {
-        //                    if (task.Name == downloadName)
-        //                    {
-        //                        return model.Name;
-        //                    }
-        //                }
-                        
-        //            }
-        //        }
-        //    }
-        //    return "";
-        //}
-
         /// <summary>
         /// 通过网络获取订阅地址的Model
         /// </summary>
@@ -285,70 +266,27 @@ namespace Aria2Fast.Service
         {
             try
             {
-                EasyLogManager.Logger.Info($"订阅地址：{url}");
-                XmlReader reader;
-                SyndicationFeed feed;
-
-                try
+                var feed = LoadSyndicationFeedAsync(url).Result;
+                if (feed == null)
                 {
-
-                    if (AppConfig.Instance.ConfigData.SubscriptionProxyOpen && !string.IsNullOrEmpty(AppConfig.Instance.ConfigData.SubscriptionProxy))
-                    {
-                        var proxyUrl = AppConfig.Instance.ConfigData.SubscriptionProxy;
-
-                        var proxy = new WebProxy(proxyUrl);
-                        var handler = new HttpClientHandler() { Proxy = proxy };
-                        var client = new HttpClient(handler);
-
-                        client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
-                        var response = client.GetAsync(url).Result;
-
-
-                        reader = XmlReader.Create(response.Content.ReadAsStreamAsync().Result);
-                        feed = SyndicationFeed.Load(reader);
-                        reader.Close();
-                    }
-                    else
-                    {
-                        var client = new HttpClient();
-                        client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
-                        var response = client.GetAsync(url).Result;
-                        reader = XmlReader.Create(response.Content.ReadAsStreamAsync().Result);
-                        feed = SyndicationFeed.Load(reader);
-                        reader.Close();
-
-                        //reader = XmlReader.Create(url);
-                        //feed = SyndicationFeed.Load(reader);
-                        //reader.Close();
-                    }
-                    EasyLogManager.Logger.Info($"获取订阅标题：{feed.Title.Text}");
-
-                    SubscriptionInfoModel model = new SubscriptionInfoModel();
-
-
-                    foreach (SyndicationItem item in feed.Items)
-                    {
-                        string subject = item.Title.Text;
-                        model.SubRssTitles.Add(subject);
-                    }
-                    model.SubscriptionName = feed.Title.Text;
-
-                    return model;
-
-                }
-                catch (Exception e)
-                {
-                    EasyLogManager.Logger.Error($"无法访问订阅：{url} \n {e}");
+                    return null;
                 }
 
+                SubscriptionInfoModel model = new SubscriptionInfoModel();
+                foreach (SyndicationItem item in feed.Items)
+                {
+                    string subject = item.Title.Text;
+                    model.SubRssTitles.Add(subject);
+                }
+                model.SubscriptionName = feed.Title.Text;
 
+                return model;
             }
             catch (Exception e)
             {
-                EasyLogManager.Logger.Error($"获取订阅标题失败");
-                
+                EasyLogManager.Logger.Error($"获取订阅标题失败 {url} {e}");
+                return null;
             }
-            return null;
         }
 
         /// <summary>
@@ -356,9 +294,13 @@ namespace Aria2Fast.Service
         /// </summary>
         private async void CheckSubscription(string currentRpc)
         {
+            if (Subscribing)
+            {
+                EasyLogManager.Logger.Info("当前正在检查订阅，不再执行");
+                return;
+            }
             Subscribing = true;
-
-            EasyLogManager.Logger.Info("检查订阅...");
+            EasyLogManager.Logger.Info("开始检查订阅");
 
             var copyList = new List<SubscriptionModel>(SubscriptionModel);
             OnSubscriptionProgressChanged?.Invoke(0, copyList.Count, string.Empty);
@@ -370,80 +312,36 @@ namespace Aria2Fast.Service
             }
 
             OnSubscriptionProgressChanged?.Invoke(copyList.Count, copyList.Count, string.Empty);
-
+            EasyLogManager.Logger.Info("订阅检查完毕");
             Subscribing = false;
         }
 
         public async Task CheckSubscriptionOne(SubscriptionModel subscription, string currentRpc)
         {
             string url = subscription.Url;
-            EasyLogManager.Logger.Info($"订阅地址：{url}");
-            XmlReader reader;
-            SyndicationFeed feed = null;
 
             if (subscription.AlreadyAddedDownloadModel == null)
             {
                 subscription.AlreadyAddedDownloadModel = new ObservableCollection<SubscriptionSubTaskModel> { };
             }
 
-            try
+            var feed = await LoadSyndicationFeedAsync(url);
+            if (feed == null)
             {
-
-                if (AppConfig.Instance.ConfigData.SubscriptionProxyOpen && !string.IsNullOrEmpty(AppConfig.Instance.ConfigData.SubscriptionProxy))
-                {
-                    var proxyUrl = AppConfig.Instance.ConfigData.SubscriptionProxy;
-
-                    var proxy = new WebProxy(proxyUrl);
-                    var handler = new HttpClientHandler() { Proxy = proxy };
-                    var client = new HttpClient(handler);
-
-                    // 注意这里的GET请求的地址需要替换为你需要请求的地址
-                    client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
-                    var response = client.GetAsync(url).Result;
-
-
-                    reader = XmlReader.Create(response.Content.ReadAsStreamAsync().Result);
-                    feed = SyndicationFeed.Load(reader);
-                    reader.Close();
-                }
-                else
-                {
-                    var client = new HttpClient();
-                    client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
-                    var response = client.GetAsync(url).Result;
-                    reader = XmlReader.Create(response.Content.ReadAsStreamAsync().Result);
-                    feed = SyndicationFeed.Load(reader);
-                    reader.Close();
-                }
-
-            }
-            catch (Exception e)
-            {
-                EasyLogManager.Logger.Error($"无法访问订阅：{url} \n {e}");
-                //continue;
                 return;
             }
 
-
-            subscription.TaskFullCount = feed!.Items.Count();
+            subscription.TaskFullCount = feed.Items.Count();
             subscription.Name = feed.Title.Text;
             subscription.TaskMatchCount = GetMatchTaskCount(feed.Items, subscription);
-
-            EasyLogManager.Logger.Info($"订阅标题：{subscription.Name} 订阅总任务数：{subscription.TaskFullCount} 符合任务数：{subscription.TaskMatchCount}");
 
             foreach (SyndicationItem item in feed.Items)
             {
                 string subject = item.Title.Text;
                 string summary = item.Summary?.Text;
 
-
-                if (CheckTitle(subscription, subject))
+                if (!CheckTitle(subscription, subject))
                 {
-                    //EasyLogManager.Logger.Info($"标题验证 {subject} 通过，准备下载");
-                }
-                else
-                {
-                    //EasyLogManager.Logger.Info($"标题验证 {subject} 未通过");
                     continue;
                 }
 
@@ -452,11 +350,10 @@ namespace Aria2Fast.Service
                 foreach (var link in item.Links)
                 {
                     string downloadUrl = link.Uri.ToString();
-                    //没有下载过
                     if (!subscription.AlreadyAddedDownloadModel.Any(a => a.Name == subject))
                     {
                         if (link.RelationshipType == "enclosure" ||
-                           (!string.IsNullOrWhiteSpace(link.MediaType) && link.MediaType.Contains("bittorrent")))  //"application/x-bittorrent"
+                           (!string.IsNullOrWhiteSpace(link.MediaType) && link.MediaType.Contains("bittorrent")))
                         {
                             try
                             {
@@ -466,8 +363,8 @@ namespace Aria2Fast.Service
                                 {
                                     return;
                                 }
+
                                 EasyLogManager.Logger.Info($"添加下载{subject} {link.Uri} {savePath}");
-                                //支持由http开头的bt文件和magnet:?xt=urn:btih:开头的文件
                                 var aria2Result = await Aria2ApiManager.Instance.DownloadBtFileUrl(downloadUrl, savePath);
 
                                 EasyLogManager.Logger.Info($"添加下载完毕");
@@ -495,47 +392,8 @@ namespace Aria2Fast.Service
                             {
                                 EasyLogManager.Logger.Error(ex.ToString());
                             }
-
-
                         }
-                        else
-                        {
-                            //其他类型订阅，如https、ftp?
-                            //try
-                            //{
-
-                            //    savePath = await AutoEpisodeTitle(subscription, subject, savePath);
-
-                            //    EasyLogManager.Logger.Info($"添加下载{subject} {link.Uri} {savePath}");
-                            //    var aria2Result = Aria2ApiManager.Instance.DownloadUrl(downloadUrl, savePath).Result;
-
-                            //    if (aria2Result.isSuccessed)
-                            //    {
-                            //        TaskUrlToSubscriptionName[aria2Result.Gid] = subject;
-                            //        if (!string.IsNullOrWhiteSpace(aria2Result.InfoHash))
-                            //        {
-                            //            TaskUrlToSubscriptionName[aria2Result.InfoHash] = subject;
-                            //        }
-                            //    }
-
-                            //    if (aria2Result.isSuccessed)
-                            //    {
-                            //        subscription.AlreadyAddedDownloadModel.Add(new SubscriptionSubTaskModel() { Name = subject, Url = downloadUrl, Time = DateTime.Now });
-                            //        EasyLogManager.Logger.Info($"添加成功");
-                            //    }
-                            //    else
-                            //    {
-                            //        EasyLogManager.Logger.Error($"添加失败");
-                            //    }
-                            //}
-                            //catch (Exception ex)
-                            //{
-                            //    EasyLogManager.Logger.Error(ex.ToString());
-                            //}
-                        }
-
                     }
-
                 }
             }
             Save();
@@ -768,6 +626,47 @@ namespace Aria2Fast.Service
                     SubscriptionModel.RemoveAt(i);
                     break; //只删除一个
                 }
+            }
+        }
+
+
+        private async Task<SyndicationFeed> LoadSyndicationFeedAsync(string url)
+        {
+            try
+            {
+                XmlReader reader;
+                SyndicationFeed feed;
+
+                if (AppConfig.Instance.ConfigData.SubscriptionProxyOpen && !string.IsNullOrEmpty(AppConfig.Instance.ConfigData.SubscriptionProxy))
+                {
+                    var proxyUrl = AppConfig.Instance.ConfigData.SubscriptionProxy;
+                    var proxy = new WebProxy(proxyUrl);
+                    var handler = new HttpClientHandler() { Proxy = proxy };
+                    var client = new HttpClient(handler);
+
+                    client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
+                    var response = await client.GetAsync(url);
+
+                    reader = XmlReader.Create(await response.Content.ReadAsStreamAsync());
+                    feed = SyndicationFeed.Load(reader);
+                    reader.Close();
+                }
+                else
+                {
+                    var client = new HttpClient();
+                    client.Timeout = TimeSpan.FromSeconds(kTimeOutSec);
+                    var response = await client.GetAsync(url);
+                    reader = XmlReader.Create(await response.Content.ReadAsStreamAsync());
+                    feed = SyndicationFeed.Load(reader);
+                    reader.Close();
+                }
+
+                return feed;
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error($"无法访问订阅：{url} \n {ex}");
+                return null;
             }
         }
 
