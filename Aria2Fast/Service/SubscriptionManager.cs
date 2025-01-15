@@ -364,10 +364,10 @@ namespace Aria2Fast.Service
                                     return;
                                 }
 
-                                EasyLogManager.Logger.Info($"添加下载{subject} {link.Uri} {savePath}");
+                                EasyLogManager.Logger.Info($"添加订阅下载 {subject} {link.Uri} {savePath}");
                                 var aria2Result = await Aria2ApiManager.Instance.DownloadBtFileUrl(downloadUrl, savePath);
 
-                                EasyLogManager.Logger.Info($"添加下载完毕");
+                                //EasyLogManager.Logger.Info($"添加下载完毕");
 
                                 if (aria2Result.IsSuccessed)
                                 {
@@ -390,7 +390,7 @@ namespace Aria2Fast.Service
                             }
                             catch (Exception ex)
                             {
-                                EasyLogManager.Logger.Error(ex.ToString());
+                                EasyLogManager.Logger.Error($"添加失败{subject} {link.Uri} {savePath} {ex}" + ex);
                             }
                         }
                     }
