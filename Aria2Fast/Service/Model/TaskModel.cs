@@ -27,8 +27,8 @@ namespace Aria2Fast.Service.Model
                 //{
                 //    return true;
                 //}
-                if (!string.IsNullOrWhiteSpace(Data.InfoHash) && 
-                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.ContainsKey(Data.InfoHash))
+                if (!string.IsNullOrWhiteSpace(Data.InfoHash) &&
+                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.Any(a => a.Key.Contains(Data.InfoHash)))
                 {
                     return true;
                 }
@@ -79,11 +79,20 @@ namespace Aria2Fast.Service.Model
                     //    return name;
                     //}
 
-                    var name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.InfoHash!];
+                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.TryGetValue(Data.InfoHash!, out string name);
                     if (!string.IsNullOrWhiteSpace(name))
                     {
                         return name;
                     }
+                    else
+                    {
+                        var kv = SubscriptionManager.Instance.TaskUrlToSubscriptionName.FirstOrDefault(a => a.Key.Contains(Data.InfoHash));
+                        if (!string.IsNullOrWhiteSpace(kv.Value))
+                        {
+                            return kv.Value;
+                        }
+                    }
+ 
 
                     return ShowName;
 
