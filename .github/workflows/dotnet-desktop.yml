@@ -70,10 +70,19 @@ jobs:
           echo "##[set-output name=tag;]$tagStr"
           Rename-Item -Path .\Aria2Fast.zip -NewName $newName
         shell: powershell 
-      
+
+
+
       - name: Create a Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "Aria2Fast-${{ steps.processTag.outputs.tag }}.zip"
           prerelease: ${{ steps.prerelease.outputs.status }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+            name: |
+                Aria2Fast-*
+                binary-file
+                output
