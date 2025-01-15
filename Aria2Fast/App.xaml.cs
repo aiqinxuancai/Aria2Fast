@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui;
+using System.Threading;
 
 namespace Aria2Fast
 {
@@ -23,6 +24,11 @@ namespace Aria2Fast
     /// </summary>
     public partial class App : Application
     {
+        private const string MutexName = "Aria2Fast_Process_Mutex";
+
+        private Mutex _mutex;
+
+
         private static readonly IHost _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration(c =>
             {
@@ -62,23 +68,65 @@ namespace Aria2Fast
             TextOptions.TextFormattingModeProperty.OverrideMetadata(typeof(Window),
                 new FrameworkPropertyMetadata(TextFormattingMode.Display, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
         }
+
         public static void ExitAria2Fast()
         {
             if (Aria2Fast.MainWindow.Instance != null)
             {
                 Aria2Fast.MainWindow.Instance.Close();
             }
-            App.Current.Shutdown();
+
+            SubscriptionManager.Instance.Stop();
+
+            Application.Current.Shutdown();
+
+            // 启动一个任务，1 秒后强制退出
+            Task.Run(() =>
+            {
+                Thread.Sleep(1000); // 等待 1 秒
+                Environment.Exit(0); // 强制退出
+            });
+
         }
 
-
-        App()
+        protected override void OnStartup(StartupEventArgs e)
         {
-            //TODO 检查多开
+            bool isNewInstance;
+            _mutex = new Mutex(true, MutexName, out isNewInstance);
 
+            if (!isNewInstance)
+            {
+                // 弹出一个消息框询问用户是否继续执行
+                MessageBoxResult result = MessageBox.Show(
+                    "Aria2Fast已经在运行中，是否继续启动新的进程？",
+                    "提示",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
 
+                if (result == MessageBoxResult.No)
+                {
+                    // 用户选择“否”，退出应用程序
+                    Shutdown();
+                    return;
+                }
+                // 用户选择“是”，继续执行
+            }
+
+            // 继续启动应用程序
+            base.OnStartup(e);
+
+            // 其他初始化代码
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             DispatcherUnhandledException += Current_DispatcherUnhandledException;
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // 释放互斥体
+            _mutex?.ReleaseMutex();
+            _mutex?.Close();
+
+            base.OnExit(e);
         }
 
 
