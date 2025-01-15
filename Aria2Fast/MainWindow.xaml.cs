@@ -214,6 +214,17 @@ namespace Aria2Fast
         {
             _needExit = true;
             this.Close();
+            //TODO 退出进程
+            SubscriptionManager.Instance.Stop();
+
+            Application.Current.Shutdown();
+
+            // 启动一个任务，1 秒后强制退出
+            Task.Run(() =>
+            {
+                Thread.Sleep(1000); // 等待 1 秒
+                Environment.Exit(0); // 强制退出
+            });
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
