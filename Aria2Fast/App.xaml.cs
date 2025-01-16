@@ -106,7 +106,7 @@ namespace Aria2Fast
                 if (result == MessageBoxResult.No)
                 {
                     // 用户选择“否”，退出应用程序
-                    Shutdown();
+                    ExitAria2Fast();
                     return;
                 }
                 // 用户选择“是”，继续执行
