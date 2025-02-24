@@ -73,7 +73,7 @@ namespace Aria2Fast.Service.Model
             {
                 if (FromSubscription)
                 {
-                    var name = (string)SubscriptionManager.Instance.TaskUrlToSubscriptionName[Data.Gid];
+                    SubscriptionManager.Instance.TaskUrlToSubscriptionName.TryGetValue(Data.Gid, out var name);
                     if (!string.IsNullOrWhiteSpace(name))
                     {
                         return name;
