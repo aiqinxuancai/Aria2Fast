@@ -10,7 +10,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:utils="clr-namespace:Aria2Fast.Utils"
     Title="Aria2FastSetting"
-    d:DesignHeight="800"
+    d:DesignHeight="1500"
     d:DesignWidth="800"
     ScrollViewer.CanContentScroll="False"
     mc:Ignorable="d">
@@ -22,7 +22,7 @@
 
 
     <Grid>
-        <ScrollViewer>
+        <ScrollViewer Cursor="IBeam">
             <StackPanel Margin="10,10,6,6">
                 <TextBlock
                     VerticalAlignment="Center"
@@ -84,20 +84,29 @@
 
                                 </Grid>
                                 <StackPanel Margin="0,10,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="远程Aria2地址" />
+                                        <ui:TextBox
+                                            Height="32"
+                                            MinWidth="400"
+                                            Margin="0,5,0,0"
+                                            IsEnabled="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal, Converter={StaticResource NegationConverter}}"
+                                            PlaceholderText="远程Aria2地址"
+                                            Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Node.URL}" />
+                                    </StackPanel>
 
-                                    <ui:TextBox
-                                        MinWidth="400"
-                                        Margin="0,5,0,0"
-                                        IsEnabled="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal, Converter={StaticResource NegationConverter}}"
-                                        PlaceholderText="远程Aria2地址"
-                                        Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Node.URL}" />
 
-                                    <ui:TextBox
-                                        MinWidth="400"
-                                        Margin="0,5,0,0"
-                                        IsEnabled="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal, Converter={StaticResource NegationConverter}}"
-                                        PlaceholderText="远程Aria2Token"
-                                        Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Node.Token}" />
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Text="远程Aria2 Token" />
+                                        <ui:TextBox
+                                            Height="32"
+                                            MinWidth="400"
+                                            Margin="0,5,0,0"
+                                            IsEnabled="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal, Converter={StaticResource NegationConverter}}"
+                                            PlaceholderText="远程Aria2 Token"
+                                            Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Node.Token}" />
+                                    </StackPanel>
+
                                 </StackPanel>
 
                             </StackPanel>
@@ -107,46 +116,46 @@
 
                 <ui:Card Margin="0,10,0,0">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel
-                            Grid.Column="0"
-                            Width="744"
-                            HorizontalAlignment="Left"
-                            Orientation="Horizontal">
-                            <StackPanel>
-                                <TextBlock Text="使用PushDeer推送任务完成" />
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    Margin="0,10,0,0"
-                                    PlaceholderText="PushDeerKey"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.PushDeerKey}" />
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:ToggleSwitch
+                                    Grid.Column="1"
+                                    Content="使用PushDeer推送任务完成"
+                                    IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.PushDeerOpen}" />
                             </StackPanel>
+
+                            <ui:TextBox
+                                Height="32"
+                                MinWidth="400"
+                                Margin="0,10,0,0"
+                                PlaceholderText="PushDeerKey"
+                                Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.PushDeerKey}" />
                         </StackPanel>
-                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.PushDeerOpen}" />
+
+
                     </Grid>
                 </ui:Card>
 
                 <ui:Card Margin="0,10,0,0">
-
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel>
-                                <TextBlock Text="使用代理访问订阅" />
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    Margin="0,10,0,0"
-                                    PlaceholderText="http://127.0.0.1:1080"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.SubscriptionProxy}" />
+
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:ToggleSwitch
+                                    Grid.Column="1"
+                                    Content="使用代理访问订阅"
+                                    IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.SubscriptionProxyOpen}" />
                             </StackPanel>
+
+                            <ui:TextBox
+                                Height="32"
+                                MinWidth="400"
+                                Margin="0,10,0,0"
+                                PlaceholderText="http://127.0.0.1:1080"
+                                Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.SubscriptionProxy}" />
                         </StackPanel>
-                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.SubscriptionProxyOpen}" />
+
+
                     </Grid>
 
                 </ui:Card>
@@ -156,58 +165,87 @@
                     FontSize="18"
                     Text="实验功能" />
                 <ui:Card Margin="0,10,0,0">
-
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel>
-                                <Label
-                                    Content="AI功能"
-                                    FontSize="16"
-                                    Foreground="#FF393939" />
-                                <Label Content="使用ChatGPT来提取剧集名称" />
-
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    PlaceholderText="模型名"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIModelName}" />
-
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    Margin="0,10,0,0"
-                                    PlaceholderText="OpenAI Token"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIKey}" />
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    Margin="0,10,0,0"
-                                    PlaceholderText="代理地址（可选）"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIProxy}" />
-
-                                <Label Margin="0,10,0,0" Content="使用第三方转发服务的Host" />
-                                <ui:TextBox
-                                    MinWidth="400"
-                                    PlaceholderText="https://api.openai.com/"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIHost}" />
-
-                                <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
-                                    <ui:HyperlinkButton
-                                        x:Name="LinkAIKEY"
-                                        Click="LinkAIKEY_Click"
-                                        Content="gptapi.us" />
-
-                                </StackPanel>
-                            </StackPanel>
+                        <StackPanel>
+                            <ui:ToggleSwitch
+                                Grid.Column="1"
+                                Content="使用AI来提取剧集名称"
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIOpen}" />
                         </StackPanel>
-
-                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIOpen}" />
                     </Grid>
 
                 </ui:Card>
 
+                <TextBlock
+                    Margin="0,10,0,0"
+                    VerticalAlignment="Center"
+                    FontSize="18"
+                    Text="AI配置" />
 
+                <ui:Card x:Name="card" Margin="0,10,0,0">
+
+                    <Grid>
+
+                        <StackPanel Height="{Binding ActualWidth, ElementName=card, Mode=OneWay}">
+                            <StackPanel>
+                                <TextBlock Text="模型名" />
+                                <ui:TextBox
+                                    Height="32"
+                                    Margin="0,5,0,0"
+                                    Padding="10,5,10,5"
+                                    PlaceholderText="模型名"
+                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIModelName}" />
+                            </StackPanel>
+
+
+                            <StackPanel Margin="0,10,0,0">
+                                <TextBlock Text="API秘钥" />
+                                <ui:TextBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    Padding="10,5,10,5"
+                                    PlaceholderText="API秘钥"
+                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIKey}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0">
+                                <TextBlock Text="HTTP代理地址（可选）" />
+                                <ui:TextBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    Padding="10,5,10,5"
+                                    PlaceholderText="例子：https://aihubmix.com"
+                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIProxy}" />
+
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0">
+                                <TextBlock Text="API地址" />
+                                <ui:TextBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    Padding="10,5,10,5"
+                                    PlaceholderText="API地址"
+                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIHost}" />
+
+                            </StackPanel>
+
+
+
+                            <StackPanel Margin="0,15,0,0" Orientation="Horizontal">
+                                <TextBlock VerticalAlignment="Center" Text="推荐转发站点：" />
+                                <ui:HyperlinkButton Click="LinkAIKEYAIHUBMIX_Click" Content="aihubmix.com" />
+                            </StackPanel>
+                        </StackPanel>
+
+
+
+                    </Grid>
+
+                </ui:Card>
                 <StackPanel Margin="0,10,0,0" />
 
                 <!--<StackPanel Margin="0,10,0,0" Orientation="Horizontal">

@@ -50,6 +50,12 @@ namespace Aria2Fast.View
             BrowserHelper.OpenUrlBrowser("https://www.gptapi.us/register?aff=J99N");
         }
 
+        //aihubmix.com
+        private async void LinkAIKEYAIHUBMIX_Click(object sender, RoutedEventArgs e)
+        {
+            BrowserHelper.OpenUrlBrowser("https://aihubmix.com?aff=eeX5");
+        }
+
         private async void LinkAPI2D_Click(object sender, RoutedEventArgs e)
         {
             BrowserHelper.OpenUrlBrowser("https://api2d.com/r/211572");
