@@ -22,7 +22,7 @@
 
 
     <Grid>
-        <ScrollViewer Cursor="IBeam">
+        <ScrollViewer>
             <StackPanel Margin="10,10,6,6">
                 <TextBlock
                     VerticalAlignment="Center"
