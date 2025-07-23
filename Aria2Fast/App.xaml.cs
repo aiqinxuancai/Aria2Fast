@@ -122,9 +122,18 @@ namespace Aria2Fast
 
         protected override void OnExit(ExitEventArgs e)
         {
-            // 释放互斥体
-            _mutex?.ReleaseMutex();
-            _mutex?.Close();
+            try
+            {
+                // 释放互斥体
+                _mutex?.ReleaseMutex();
+                _mutex?.Close();
+
+            } catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+                //MessageBox.Show(ex?.Message + Environment.NewLine + ex?.InnerException?.ToString(), "Error#3", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
 
             base.OnExit(e);
         }

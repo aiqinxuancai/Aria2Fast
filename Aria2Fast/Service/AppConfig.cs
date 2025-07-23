@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using PropertyChanged;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -51,7 +52,9 @@ namespace Aria2Fast.Service
                         Aria2ApiManager.Instance.UpdateLocalAria2();
                         Aria2ApiManager.Instance.UpdateRpcAndTest();
 
-                    } }
+                    } },
+
+                    { nameof(CurrentRemoteAria2NodeIndex), () => Aria2ApiManager.Instance.UpdateRpcAndTest() }
 
                 };
             this.PropertyChanged += AppConfigData_PropertyChanged;
@@ -134,7 +137,7 @@ namespace Aria2Fast.Service
                 {
                     return Aria2ApiManager.Instance.LocalAria2Node;
                 }
-                return RemoteAria2Node;
+                return SelectedRemoteAria2Node;
             }
         }
 
@@ -182,23 +185,43 @@ namespace Aria2Fast.Service
         /// </summary>
         public bool Aria2UseLocal { get; set; } = true;
 
-        private Aria2Node _remoteAria2Node;
+        public int CurrentRemoteAria2NodeIndex { get; set; } = 0;
 
-        public Aria2Node RemoteAria2Node
+        public Aria2Node SelectedRemoteAria2Node
         {
-            get => _remoteAria2Node;
+            get
+            {
+                if (RemoteAria2Nodes.Count > CurrentRemoteAria2NodeIndex)
+                {
+                    return RemoteAria2Nodes[CurrentRemoteAria2NodeIndex];
+                }
+                return null;
+            }
+        }
+
+        private ObservableCollection<Aria2Node> _remoteAria2Nodes = new();
+
+        public ObservableCollection<Aria2Node> RemoteAria2Nodes
+        {
+            get => _remoteAria2Nodes;
             set
             {
-                if (_remoteAria2Node != null)
+                if (_remoteAria2Nodes != null)
                 {
-                    ((INotifyPropertyChanged)_remoteAria2Node).PropertyChanged -= Aria2Node_PropertyChanged;
+                    foreach(var node in _remoteAria2Nodes)
+                    {
+                        ((INotifyPropertyChanged)node).PropertyChanged -= Aria2Node_PropertyChanged;
+                    }
                 }
 
-                _remoteAria2Node = value;
+                _remoteAria2Nodes = value;
 
-                if (_remoteAria2Node != null)
+                if (_remoteAria2Nodes != null)
                 {
-                    ((INotifyPropertyChanged)_remoteAria2Node).PropertyChanged += Aria2Node_PropertyChanged;
+                    foreach (var node in _remoteAria2Nodes)
+                    {
+                        ((INotifyPropertyChanged)node).PropertyChanged += Aria2Node_PropertyChanged;
+                    }
                 }
             }
         }
@@ -207,8 +230,10 @@ namespace Aria2Fast.Service
         {
             Aria2ApiManager.Instance.UpdateRpcAndTest();
             //通知上层 触发一次PropertyChanged
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoteAria2Node)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoteAria2Nodes)));
         }
+
+        
 
 
     }
@@ -291,18 +316,19 @@ namespace Aria2Fast.Service
                     ConfigData.AddSubscriptionFilterList.Add(new SubscriptionFilterModel() { Filter = "简日" });
                 }
 
-                if (ConfigData.RemoteAria2Node == null)
+                if (ConfigData.RemoteAria2Nodes == null || ConfigData.RemoteAria2Nodes.Count == 0)
                 {
-                    ConfigData.RemoteAria2Node = new Aria2Node();
+                    ConfigData.RemoteAria2Nodes = new ObservableCollection<Aria2Node>();
+                    ConfigData.RemoteAria2Nodes.Add(new Aria2Node() { Name="默认"});
                 }
 
                 if (!string.IsNullOrWhiteSpace(ConfigData.Aria2Rpc))
                 {
-                    ConfigData.RemoteAria2Node.URL = ConfigData.Aria2Rpc;
+                    ConfigData.RemoteAria2Nodes[0].URL = ConfigData.Aria2Rpc;
                 }
                 if (!string.IsNullOrWhiteSpace(ConfigData.Aria2Token))
                 {
-                    ConfigData.RemoteAria2Node.Token = ConfigData.Aria2Token;
+                    ConfigData.RemoteAria2Nodes[0].Token = ConfigData.Aria2Token;
                 }
                 ConfigData.Init();
             }

@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using Aria2Fast.Service;
 using Aria2Fast.Utils;
 
+using Aria2Fast.Service.Model;
+
 namespace Aria2Fast.View
 {
     /// <summary>
@@ -36,6 +38,21 @@ namespace Aria2Fast.View
             //                AccountTextBlock.Text = r.Account;
             //            });
 
+        }
+
+        private void AddRemoteAria2_Click(object sender, RoutedEventArgs e)
+        {
+            AppConfig.Instance.ConfigData.RemoteAria2Nodes.Add(new Aria2Node() { Name="新增"});
+            AppConfig.Instance.Save();
+        }
+
+        private void RemoveRemoteAria2_Click(object sender, RoutedEventArgs e)
+        {
+            if (AppConfig.Instance.ConfigData.CurrentRemoteAria2NodeIndex >= 0 && AppConfig.Instance.ConfigData.CurrentRemoteAria2NodeIndex < AppConfig.Instance.ConfigData.RemoteAria2Nodes.Count)
+            {
+                AppConfig.Instance.ConfigData.RemoteAria2Nodes.RemoveAt(AppConfig.Instance.ConfigData.CurrentRemoteAria2NodeIndex);
+                AppConfig.Instance.Save();
+            }
         }
 
         private void BadgeNewVersion_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
