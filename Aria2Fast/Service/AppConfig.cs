@@ -390,7 +390,7 @@ namespace Aria2Fast.Service
                 lock (_lock)
                 {
                     var data = JsonConvert.SerializeObject(ConfigData);
-                    Debug.WriteLine($"存储配置{Thread.CurrentThread.ManagedThreadId} {data}");
+                    Debug.WriteLine($"存储配置 {_configPath} {Thread.CurrentThread.ManagedThreadId} {data}");
                     File.WriteAllText(_configPath, data);
                 }
             }
