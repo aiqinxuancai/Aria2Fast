@@ -50,6 +50,15 @@ namespace Aria2Fast.View
         {
             if (sender is Button button && button.CommandParameter is Aria2Node node)
             {
+                if (node != null)
+                {
+                    if (AppConfig.Instance.ConfigData.SelectedRemoteAria2Node.Equals(node))
+                    {
+                        MainWindow.Instance.ShowSnackbar("错误", $"无法删除当前正在使用的节点");
+                        return;
+                    }
+                }
+
                 AppConfig.Instance.ConfigData.RemoteAria2Nodes.Remove(node);
                 AppConfig.Instance.Save();
             }

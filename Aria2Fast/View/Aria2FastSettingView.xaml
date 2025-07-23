@@ -88,6 +88,24 @@
                                     <StackPanel>
                                         <TextBlock Text="远程Aria2列表" />
                                         <ui:ListView Margin="0,5,0,0" ItemsSource="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Nodes}">
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Setter Property="BorderBrush" Value="Transparent" />
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="ListViewItem">
+                                                                <Border
+                                                                    Background="{TemplateBinding Background}"
+                                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                                                    <ContentPresenter />
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
                                             <ui:ListView.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid>
@@ -97,6 +115,16 @@
                                                             <ColumnDefinition Width="180" />
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
+
+
+                                                        <Ellipse
+                                                            Grid.Column="0"
+                                                            Width="10"
+                                                            Height="10"
+                                                            VerticalAlignment="Center"
+                                                            Fill="Transparent"
+                                                            Stroke="#20000000"
+                                                            StrokeThickness="1" />
 
                                                         <Ellipse
                                                             Grid.Column="0"
