@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -42,15 +43,28 @@ namespace Aria2Fast.View
 
         private void AddRemoteAria2_Click(object sender, RoutedEventArgs e)
         {
-            AppConfig.Instance.ConfigData.RemoteAria2Nodes.Add(new Aria2Node() { Name="新增"});
+            AppConfig.Instance.ConfigData.RemoteAria2Nodes.Add(new Aria2Node());
             AppConfig.Instance.Save();
         }
 
         private void RemoveRemoteAria2_Click(object sender, RoutedEventArgs e)
         {
-            if (AppConfig.Instance.ConfigData.CurrentRemoteAria2NodeIndex >= 0 && AppConfig.Instance.ConfigData.CurrentRemoteAria2NodeIndex < AppConfig.Instance.ConfigData.RemoteAria2Nodes.Count)
+            if (sender is Button button && button.CommandParameter is Aria2Node node)
             {
-                AppConfig.Instance.ConfigData.RemoteAria2Nodes.RemoveAt(AppConfig.Instance.ConfigData.CurrentRemoteAria2NodeIndex);
+                AppConfig.Instance.ConfigData.RemoteAria2Nodes.Remove(node);
+                AppConfig.Instance.Save();
+            }
+        }
+
+        private void ApplyRemoteAria2_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.CommandParameter is Aria2Node node)
+            {
+                var index = AppConfig.Instance.ConfigData.RemoteAria2Nodes.IndexOf(node);
+                if (index != -1)
+                {
+                    AppConfig.Instance.ConfigData.CurrentRemoteAria2NodeIndex = index;
+                }
                 AppConfig.Instance.Save();
             }
         }
@@ -78,9 +92,12 @@ namespace Aria2Fast.View
             BrowserHelper.OpenUrlBrowser("https://api2d.com/r/211572");
         }
 
+
+
         private void HomePageTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             BrowserHelper.OpenUrlBrowser("https://github.com/aiqinxuancai/Aria2Fast");
         }
     }
 }
+

@@ -22,6 +22,11 @@ namespace Aria2Fast.Service
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private Dictionary<string, Action> _propertyChangedActions;
 
         public AppConfigData()
@@ -185,7 +190,17 @@ namespace Aria2Fast.Service
         /// </summary>
         public bool Aria2UseLocal { get; set; } = true;
 
-        public int CurrentRemoteAria2NodeIndex { get; set; } = 0;
+        public int CurrentRemoteAria2NodeIndex
+        {
+            get => _currentRemoteAria2NodeIndex;
+            set
+            {
+                _currentRemoteAria2NodeIndex = value;
+                OnPropertyChanged(nameof(CurrentRemoteAria2NodeIndex));
+                OnPropertyChanged(nameof(SelectedRemoteAria2Node));
+            }
+        }
+        private int _currentRemoteAria2NodeIndex = 0;
 
         public Aria2Node SelectedRemoteAria2Node
         {
@@ -208,7 +223,8 @@ namespace Aria2Fast.Service
             {
                 if (_remoteAria2Nodes != null)
                 {
-                    foreach(var node in _remoteAria2Nodes)
+                    _remoteAria2Nodes.CollectionChanged -= RemoteAria2Nodes_CollectionChanged;
+                    foreach (var node in _remoteAria2Nodes)
                     {
                         ((INotifyPropertyChanged)node).PropertyChanged -= Aria2Node_PropertyChanged;
                     }
@@ -218,6 +234,7 @@ namespace Aria2Fast.Service
 
                 if (_remoteAria2Nodes != null)
                 {
+                    _remoteAria2Nodes.CollectionChanged += RemoteAria2Nodes_CollectionChanged;
                     foreach (var node in _remoteAria2Nodes)
                     {
                         ((INotifyPropertyChanged)node).PropertyChanged += Aria2Node_PropertyChanged;
@@ -226,9 +243,29 @@ namespace Aria2Fast.Service
             }
         }
 
-        private void Aria2Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void RemoteAria2Nodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (Aria2Node item in e.NewItems)
+                {
+                    ((INotifyPropertyChanged)item).PropertyChanged += Aria2Node_PropertyChanged;
+                }
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (Aria2Node item in e.OldItems)
+                {
+                    ((INotifyPropertyChanged)item).PropertyChanged -= Aria2Node_PropertyChanged;
+                }
+            }
+        }
+
+        public void Aria2Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Aria2ApiManager.Instance.UpdateRpcAndTest();
+            AppConfig.Instance.Save();
             //通知上层 触发一次PropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoteAria2Nodes)));
         }
@@ -319,7 +356,14 @@ namespace Aria2Fast.Service
                 if (ConfigData.RemoteAria2Nodes == null || ConfigData.RemoteAria2Nodes.Count == 0)
                 {
                     ConfigData.RemoteAria2Nodes = new ObservableCollection<Aria2Node>();
-                    ConfigData.RemoteAria2Nodes.Add(new Aria2Node() { Name="默认"});
+                    ConfigData.RemoteAria2Nodes.Add(new Aria2Node());
+                }
+                else
+                {
+                    foreach (var node in ConfigData.RemoteAria2Nodes)
+                    {
+                        ((INotifyPropertyChanged)node).PropertyChanged += ConfigData.Aria2Node_PropertyChanged;
+                    }
                 }
 
                 if (!string.IsNullOrWhiteSpace(ConfigData.Aria2Rpc))
