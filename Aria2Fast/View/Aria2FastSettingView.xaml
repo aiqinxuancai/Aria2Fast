@@ -87,19 +87,23 @@
                                 <StackPanel Margin="0,10,0,0">
                                     <StackPanel>
                                         <TextBlock Text="远程Aria2列表" />
-                                        <ListView
-                                            Margin="0,5,0,0"
-                                            ItemsSource="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Nodes}">
-                                            <ListView.ItemTemplate>
+                                        <ui:ListView Margin="0,5,0,0" ItemsSource="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Nodes}">
+                                            <ui:ListView.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="30" />
                                                             <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="180" />
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
 
-                                                        <Ellipse Width="10" Height="10" Fill="Blue" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                        <Ellipse
+                                                            Grid.Column="0"
+                                                            Width="10"
+                                                            Height="10"
+                                                            VerticalAlignment="Center"
+                                                            Fill="#2DB7F5">
                                                             <Ellipse.Style>
                                                                 <Style TargetType="Ellipse">
                                                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -112,21 +116,36 @@
                                                             </Ellipse.Style>
                                                         </Ellipse>
 
-                                                        <StackPanel Grid.Column="1">
-                                                            <TextBlock Text="地址" />
-                                                            <ui:TextBox Text="{Binding URL, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,0" />
-                                                            <TextBlock Text="Token" Margin="0,10,0,0" />
-                                                            <ui:TextBox Text="{Binding Token, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,0" />
-                                                        </StackPanel>
 
-                                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                            <Button Margin="5,0,0,0" Click="ApplyRemoteAria2_Click" Content="使用" CommandParameter="{Binding}" />
-                                                            <Button Margin="5,0,0,0" Click="RemoveRemoteAria2_Click" Content="删除" CommandParameter="{Binding}" />
+                                                        <ui:TextBox
+                                                            Grid.Column="1"
+                                                            Margin="5,0,0,0"
+                                                            Text="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
+                                                        <ui:TextBox
+                                                            Grid.Column="2"
+                                                            Margin="5,0,0,0"
+                                                            Text="{Binding Token, UpdateSourceTrigger=PropertyChanged}" />
+
+
+                                                        <StackPanel
+                                                            Grid.Column="3"
+                                                            VerticalAlignment="Center"
+                                                            Orientation="Horizontal">
+                                                            <Button
+                                                                Margin="5,0,0,0"
+                                                                Click="ApplyRemoteAria2_Click"
+                                                                CommandParameter="{Binding}"
+                                                                Content="使用" />
+                                                            <Button
+                                                                Margin="5,0,0,0"
+                                                                Click="RemoveRemoteAria2_Click"
+                                                                CommandParameter="{Binding}"
+                                                                Content="删除" />
                                                         </StackPanel>
                                                     </Grid>
                                                 </DataTemplate>
-                                            </ListView.ItemTemplate>
-                                        </ListView>
+                                            </ui:ListView.ItemTemplate>
+                                        </ui:ListView>
                                         <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
                                             <Button Click="AddRemoteAria2_Click" Content="新增" />
                                         </StackPanel>

@@ -1,4 +1,7 @@
 ﻿
+using Aria2Fast.Service;
+using Aria2Fast.Service.Model;
+using Aria2Fast.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +17,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Aria2Fast.Service;
-using Aria2Fast.Utils;
-
-using Aria2Fast.Service.Model;
 
 namespace Aria2Fast.View
 {
@@ -60,6 +59,15 @@ namespace Aria2Fast.View
         {
             if (sender is Button button && button.CommandParameter is Aria2Node node)
             {
+                if (node != null)
+                {
+                    if (!Uri.TryCreate(node.URL, new UriCreationOptions(), out Uri fullUri))
+                    {
+                        MainWindow.Instance.ShowSnackbar("错误", $"无法应用节点 {node.URL}");
+                        return;
+                    }
+                }
+
                 var index = AppConfig.Instance.ConfigData.RemoteAria2Nodes.IndexOf(node);
                 if (index != -1)
                 {
