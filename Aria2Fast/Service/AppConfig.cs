@@ -286,7 +286,7 @@ namespace Aria2Fast.Service
 
         public AppConfigData ConfigData { set; get; } = new AppConfigData();
 
-        private string _configPath = Path.Combine(Directory.GetCurrentDirectory(), @"Config.json");
+        private string _configPath = Path.Combine(Directory.GetCurrentDirectory(), @"Aria2FastConfig.json");
 
         private object _lock = new object();
 
@@ -295,6 +295,12 @@ namespace Aria2Fast.Service
 
         private AppConfig()
         {
+            var oldConfig = Path.Combine(Directory.GetCurrentDirectory(), @"Config.json");
+            if (File.Exists(oldConfig))
+            {
+                File.Move(oldConfig, _configPath);
+            }
+
             Init();
             Debug.WriteLine(_configPath);
         }

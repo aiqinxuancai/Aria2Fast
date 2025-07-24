@@ -38,7 +38,7 @@ namespace Aria2Fast.Utils
                     bitmap.Freeze();
 
                     //cache.Set(cacheKey, bitmap, new CacheItemPolicy());
-                    Debug.WriteLine($"[缓存]{cacheKey}");
+                    //Debug.WriteLine($"[缓存]{cacheKey}");
                 }
             });
 
