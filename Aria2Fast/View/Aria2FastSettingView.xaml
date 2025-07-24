@@ -9,6 +9,7 @@
     xmlns:service="clr-namespace:Aria2Fast.Service"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:utils="clr-namespace:Aria2Fast.Utils"
+    xmlns:wpfutils="clr-namespace:Aria2Fast.Utils"
     Title="Aria2FastSetting"
     d:DesignHeight="1500"
     d:DesignWidth="800"
@@ -149,10 +150,12 @@
                                                             Grid.Column="1"
                                                             Margin="5,0,0,0"
                                                             Text="{Binding URL, UpdateSourceTrigger=PropertyChanged}" />
-                                                        <ui:TextBox
+                                                        <ui:PasswordBox
                                                             Grid.Column="2"
                                                             Margin="5,0,0,0"
-                                                            Text="{Binding Token, UpdateSourceTrigger=PropertyChanged}" />
+                                                            wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                                            wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Token, Mode=TwoWay}"
+                                                            />
 
 
                                                         <StackPanel

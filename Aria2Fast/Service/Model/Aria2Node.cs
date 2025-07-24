@@ -16,7 +16,15 @@ namespace Aria2Fast.Service.Model
 
         public string URL { get; set; }
 
-        public string Token { get; set; }
+        //public string Token { get; set; }
+
+
+        private string _Token = "";
+        public string Token
+        {
+            get => _Token;
+            set => _Token = value;
+        }
 
     }
 }

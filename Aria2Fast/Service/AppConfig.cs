@@ -265,7 +265,7 @@ namespace Aria2Fast.Service
         public void Aria2Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Aria2ApiManager.Instance.UpdateRpcAndTest();
-            AppConfig.Instance.Save();
+            AppConfig.Instance?.Save();
             //通知上层 触发一次PropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoteAria2Nodes)));
         }
