@@ -1,21 +1,22 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Aria2Fast.Service;
+using Aria2Fast.Services;
+using Aria2Fast.Utils;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using Aria2Fast.Service;
-using Aria2Fast.Utils;
 using TiktokenSharp;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui;
-using System.Threading;
 
 namespace Aria2Fast
 {
@@ -69,22 +70,25 @@ namespace Aria2Fast
                 new FrameworkPropertyMetadata(TextFormattingMode.Display, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
         }
 
-        public static void ExitAria2Fast()
+        public static async Task ExitAria2Fast()
         {
+            Debug.WriteLine("ExitAria2Fast");
+            await GameAnalyticsManager.Instance.ShutdownAsync();
+
             if (Aria2Fast.MainWindow.Instance != null)
             {
                 Aria2Fast.MainWindow.Instance.Close();
             }
-
+            Debug.WriteLine("ExitAria2Fast#2");
             SubscriptionManager.Instance.Stop();
 
-            Application.Current.Shutdown();
-
             // 启动一个任务，1 秒后强制退出
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 Thread.Sleep(1000); // 等待 1 秒
+                Debug.WriteLine("强制退出");
                 Environment.Exit(0); // 强制退出
+                
             });
 
         }

@@ -1,14 +1,23 @@
 ﻿
-using Newtonsoft.Json.Linq;
+using Aria2Fast.Service;
+using Aria2Fast.Service.Model;
+using Aria2Fast.Services;
+using Aria2Fast.Utils;
+using Aria2Fast.View;
+using Aria2Fast.View.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,17 +29,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Aria2Fast.Service;
-using Aria2Fast.Utils;
-using Aria2Fast.View.Model;
-using System.Threading;
-using Wpf.Ui.Controls;
-using System.Reactive.Linq;
-using Aria2Fast.Service.Model;
-using Wpf.Ui.Appearance;
 using Wpf.Ui;
-using Aria2Fast.View;
-using System.Reactive.Concurrency;
+using Wpf.Ui.Appearance;
+using Wpf.Ui.Controls;
 
 namespace Aria2Fast
 {
@@ -128,6 +129,7 @@ namespace Aria2Fast
 
             Aria2ApiManager.Instance.Init();
             MikanManager.Instance.MikanStart(false);
+            GameAnalyticsManager.Instance.InitializeAsync(AppConfig.Instance.ConfigData.ClientId);
         }
 
         private void InitNavigationViewItem()
@@ -213,12 +215,15 @@ namespace Aria2Fast
         private void TaskbarExitMenu_Click(object sender, RoutedEventArgs e)
         {
             _needExit = true;
-            this.Close();
+            this.Hide();
+            // this.Close();
             //TODO 退出进程
-
-            App.ExitAria2Fast();
-
-
+           
+            Task.Run(async () =>
+            {
+                await App.ExitAria2Fast();
+            });
+           
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -226,11 +231,7 @@ namespace Aria2Fast
             if (!_needExit)
             {
                 e.Cancel = true;
-
-                // 自己处理
                 this.Hide();
-                //弹出提示
-                //MyNotifyIcon.
             }
         }
 
