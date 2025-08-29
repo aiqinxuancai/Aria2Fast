@@ -20,6 +20,7 @@
     Icon="icon.ico"
     Loaded="MetroWindow_Loaded"
     Unloaded="MetroWindow_Unloaded"
+    StateChanged="Window_StateChanged"
     WindowStartupLocation="CenterScreen"
     WindowStyle="SingleBorderWindow"
     mc:Ignorable="d">
@@ -139,12 +140,15 @@
         <tray:NotifyIcon
             x:Name="MyNotifyIcon"
             Grid.Row="0"
-            FocusOnLeftClick="True"
             Icon="icon.ico"
+            LeftClick="MyNotifyIcon_LeftClick"
             MenuOnRightClick="True"
             TooltipText="Aria2Fast">
             <tray:NotifyIcon.Menu>
                 <ContextMenu>
+                    <MenuItem
+                        Header="显示主界面"
+                        Click="ShowWindowMenuItem_Click" />
                     <MenuItem
                         Name="TaskbarExitMenu"
                         Click="TaskbarExitMenu_Click"

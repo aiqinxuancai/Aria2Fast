@@ -276,5 +276,29 @@ namespace Aria2Fast
         }
 
         
+    private void ShowWindow()
+        {
+            this.Show();
+            this.WindowState = WindowState.Normal;
+            this.Activate();
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Minimized)
+            {
+                this.Hide();
+            }
+        }
+
+        private void MyNotifyIcon_LeftClick(object sender, RoutedEventArgs e)
+        {
+            ShowWindow();
+        }
+
+        private void ShowWindowMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ShowWindow();
+        }
     }
 }

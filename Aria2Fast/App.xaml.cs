@@ -11,10 +11,12 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using TiktokenSharp;
 using Wpf.Ui;
 
@@ -72,14 +74,25 @@ namespace Aria2Fast
 
         public static async Task ExitAria2Fast()
         {
-            Debug.WriteLine("ExitAria2Fast");
+            Debug.WriteLine("开始退出");
             await GameAnalyticsManager.Instance.ShutdownAsync();
 
             if (Aria2Fast.MainWindow.Instance != null)
             {
-                Aria2Fast.MainWindow.Instance.Close();
+                Debug.WriteLine("销毁主窗口");
+                try
+                {
+                    Aria2Fast.MainWindow.Instance.Dispatcher.BeginInvoke(new Action(() => {
+                        Aria2Fast.MainWindow.Instance.Close();
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"销毁主窗口错误{ex}");
+                }
+                
             }
-            Debug.WriteLine("ExitAria2Fast#2");
+            Debug.WriteLine("开始停止订阅器#2");
             SubscriptionManager.Instance.Stop();
 
             // 启动一个任务，1 秒后强制退出
