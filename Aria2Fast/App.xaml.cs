@@ -98,7 +98,7 @@ namespace Aria2Fast
             // 启动一个任务，1 秒后强制退出
             await Task.Run(() =>
             {
-                Thread.Sleep(1000); // 等待 1 秒
+                Thread.Sleep(2000); // 等待 1 秒
                 Debug.WriteLine("强制退出");
                 Environment.Exit(0); // 强制退出
                 
