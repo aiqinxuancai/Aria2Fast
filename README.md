@@ -26,4 +26,12 @@ Aria2的Windows轻量下载客户端，支持BT、HTTP下载及动漫订阅，�
   
 ## UI截图
 
+<img src="./docs/images/1.png" alt="Aria2Fast">
 
+<img src="./docs/images/2.png" alt="Aria2Fast">
+
+<img src="./docs/images/3.png" alt="Aria2Fast">
+
+<img src="./docs/images/4.png" alt="Aria2Fast">
+
+<img src="./docs/images/5.png" alt="Aria2Fast">
