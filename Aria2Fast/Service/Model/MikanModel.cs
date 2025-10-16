@@ -46,6 +46,24 @@ namespace Aria2Fast.Service.Model
             }
         }
 
+        /// <summary>
+        /// 有多少个订阅源
+        /// </summary>
+        public int UpdateTodayRssTotalCount
+        {
+            get
+            {
+                if (Rss == null)
+                {
+                    return 0;
+                }
+                return Rss!.Count();
+            }
+        }
+
+        /// <summary>
+        /// 有多少个订阅源今天更新了
+        /// </summary>
         public int UpdateTodayRssCount
         {
             get

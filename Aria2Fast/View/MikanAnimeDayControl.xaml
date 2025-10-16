@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Aria2Fast.View"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -15,6 +16,7 @@
         <contver:WidthMinusConverter x:Key="WidthMinusConverter" />
         <contver:IntVisibilityConverter x:Key="IntVisibilityConverter" />
         <contver:ImageUrlToBitmapConverter x:Key="ImageUrlToBitmapConverter" />
+        <contver:InRangeToVisibilityConverter x:Key="InRangeToVisibilityConverter" />
 
     </UserControl.Resources>
 
@@ -54,13 +56,12 @@
 
                             <Border Background="#05000000" CornerRadius="6">
                                 <Grid>
-                                   
+
                                     <Image
                                         Width="140"
                                         Height="200"
                                         Opacity="0"
                                         RenderOptions.BitmapScalingMode="HighQuality"
-                                        
                                         Source="{Binding ImageCache, IsAsync=True}"
                                         Stretch="UniformToFill">
                                         <Image.Clip>
@@ -92,32 +93,119 @@
                                     </Image>
 
                                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                                        <Border
+                                        <Grid
+                                            Height="18"
+                                            Margin="0,5,5,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top">
+                                            <Grid.Visibility>
+                                                <MultiBinding Converter="{StaticResource InRangeToVisibilityConverter}">
+                                                    <Binding Path="UpdateTodayRssTotalCount" />
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:Int32>5</sys:Int32>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:Int32>6</sys:Int32>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                </MultiBinding>
+                                            </Grid.Visibility>
+                                            <Border Background="#EE4266" CornerRadius="8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect
+                                                        BlurRadius="8"
+                                                        Opacity="0.8"
+                                                        ShadowDepth="0"
+                                                        Color="Black" />
+                                                </Border.Effect>
+                                            </Border>
+                                            <TextBlock
+                                                Margin="5,0,5,0"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Foreground="White"
+                                                Text="Hot" />
+                                        </Grid>
+                                        <Grid
+                                            Height="18"
+                                            Margin="0,5,5,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top">
+                                            <Grid.Visibility>
+                                                <MultiBinding Converter="{StaticResource InRangeToVisibilityConverter}">
+                                                    <Binding Path="UpdateTodayRssTotalCount" />
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:Int32>7</sys:Int32>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:Int32>100</sys:Int32>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                </MultiBinding>
+                                            </Grid.Visibility>
+                                            <Border Background="#450693" CornerRadius="8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect
+                                                        BlurRadius="8"
+                                                        Opacity="0.8"
+                                                        ShadowDepth="0"
+                                                        Color="Black" />
+                                                </Border.Effect>
+                                            </Border>
+                                            <TextBlock
+                                                Margin="5,0,5,0"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Foreground="White"
+                                                Text="Hot" />
+                                        </Grid>
+
+                                        <Grid
                                             Height="18"
                                             Margin="0,5,5,0"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Top"
-                                            Background="#EE4266"
-                                            CornerRadius="8"
                                             Visibility="{Binding UpdateTodayRssCount, Converter={StaticResource IntVisibilityConverter}}">
+                                            <Border Background="#EE4266" CornerRadius="8">
+                                                <Border.Effect>
+                                                    <DropShadowEffect
+                                                        BlurRadius="8"
+                                                        Opacity="0.8"
+                                                        ShadowDepth="0"
+                                                        Color="Black" />
+                                                </Border.Effect>
+                                            </Border>
                                             <TextBlock
                                                 Margin="5,0,5,0"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Foreground="White"
                                                 Text="{Binding UpdateTodayRssCount}" />
-                                        </Border>
+                                        </Grid>
+
 
                                     </StackPanel>
-                                    <Border
+                                    <Grid
                                         Height="18"
                                         Margin="0,0,5,5"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Bottom"
-                                        Background="#AD88C6"
-                                        CornerRadius="8"
-                                        Opacity="0.9"
                                         Visibility="{Binding NewEpisode, Converter={StaticResource IntVisibilityConverter}}">
+                                        <Border Background="#4C763B" CornerRadius="8">
+                                            <Border.Effect>
+                                                <DropShadowEffect
+                                                    BlurRadius="8"
+                                                    Opacity="0.8"
+                                                    ShadowDepth="0"
+                                                    Color="Black" />
+                                            </Border.Effect>
+                                        </Border>
                                         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                             <TextBlock
                                                 Margin="5,0,0,0"
@@ -138,8 +226,7 @@
                                                 Foreground="White"
                                                 Text="集" />
                                         </StackPanel>
-
-                                    </Border>
+                                    </Grid>
                                 </Grid>
 
                             </Border>
