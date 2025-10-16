@@ -26,14 +26,4 @@ Aria2的Windows轻量下载客户端，支持BT、HTTP下载及动漫订阅，�
   
 ## UI截图
 
-![image](https://github.com/aiqinxuancai/Aria2Fast/assets/4475018/03c0495d-3f99-4a54-aee7-9a5001f2963e)
 
-![image](https://github.com/aiqinxuancai/Aria2Fast/assets/4475018/94e41fd8-e7bc-4b55-b7a8-e78278e32627)
-
-![image](https://github.com/aiqinxuancai/Aria2Fast/assets/4475018/7fd305dc-7ba5-4f93-830c-50875e386672)
-
-![image](https://github.com/aiqinxuancai/Aria2Fast/assets/4475018/92c1c1f2-5321-4c3b-96d9-1a5ac80173ec)
-
-![image](https://github.com/aiqinxuancai/Aria2Fast/assets/4475018/8ae06dc6-44fc-4d05-b4d4-03c0da71e664)
-
-![image](https://github.com/aiqinxuancai/Aria2Fast/assets/4475018/f5ebcc88-cb0b-4d29-bab0-5d6770f65b2f)
