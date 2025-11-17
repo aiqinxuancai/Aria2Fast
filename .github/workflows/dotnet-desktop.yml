@@ -17,7 +17,7 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '9.0.x'
 
       - name: Determine Pre-release Status
         id: prerelease
@@ -47,12 +47,12 @@ jobs:
         run:  dotnet publish -c Release -r win-x64 --self-contained=true
       - run: powershell curl https://github.com/aiqinxuancai/DotNetDllPathPatcherWPF/releases/download/v0.0.15/DotNetDllPathPatcherCMD.zip -o DotNetDllPathPatcherCMD.zip
       - run: powershell Expand-Archive -Path .\DotNetDllPathPatcherCMD.zip -DestinationPath .\DotNetDllPathPatcherCMD
-      - run: powershell .\DotNetDllPathPatcherCMD\publish\DotNetDllPathPatcherCMD.exe $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net10.0-windows\win-x64\publish\Aria2Fast.exe
+      - run: powershell .\DotNetDllPathPatcherCMD\publish\DotNetDllPathPatcherCMD.exe $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net9.0-windows\win-x64\publish\Aria2Fast.exe
       # 下载并解压aria2
       - name: Download and Extract Aria2
         run: |
           $tempDir = "$env:GITHUB_WORKSPACE\aria2_temp"
-          $ariaPath = "$env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net10.0-windows\win-x64\publish\Aria2"
+          $ariaPath = "$env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net9.0-windows\win-x64\publish\Aria2"
           New-Item -ItemType Directory -Force -Path $ariaPath
           Invoke-WebRequest -Uri "https://github.com/aria2/aria2/releases/download/release-1.37.0/aria2-1.37.0-win-64bit-build1.zip" -OutFile "aria2.zip"
           Expand-Archive -Path "aria2.zip" -DestinationPath $tempDir
@@ -60,7 +60,7 @@ jobs:
           Remove-Item -Path $tempDir -Recurse -Force
         shell: powershell
       - name: Compress
-        run: powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net10.0-windows\win-x64\publish -DestinationPath .\Aria2Fast.zip
+        run: powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\Aria2Fast\bin\Release\net9.0-windows\win-x64\publish -DestinationPath .\Aria2Fast.zip
       - name: Process tag and rename file
         id: processTag
         run: |
