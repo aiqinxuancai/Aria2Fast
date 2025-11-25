@@ -35,7 +35,7 @@ namespace Aria2Fast.Service
 
         public const string kMikanCacheFile = "MikanCache.json";
 
-        public const string kUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0";
+        public const string kUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0";
 
         private static readonly MikanManager instance = new MikanManager();
 
@@ -341,43 +341,70 @@ namespace Aria2Fast.Service
             try
             {
                 var items = new List<object>();
-                var table = div.SelectSingleNode("following-sibling::table[1]"); // 获取当前 div 下方的第一个 table
+
+                // 修改点 1: 现在的 table 被包裹在 class="episode-table" 的 div 中
+                // 原代码: var table = div.SelectSingleNode("following-sibling::table[1]");
+                var tableContainer = div.SelectSingleNode("following-sibling::div[contains(@class, 'episode-table')][1]");
+                var table = tableContainer?.SelectSingleNode(".//table");
+
                 if (table != null)
                 {
-                    // 仅获取所有的 tr，不特定 tbody
-                    var rows = table.SelectNodes(".//tr[not(ancestor::thead)]"); // 获取所有不属于 thead 祖先的 tr 元素
+                    var rows = table.SelectNodes(".//tr[not(ancestor::thead)]");
                     if (rows != null)
                     {
-                        // 从索引1开始遍历，跳过表头行
-                        for (int i = 0; i < rows.Count; i++)
+                        foreach (var row in rows)
                         {
-                            var row = rows[i];
-                            // 下面的代码与您原来的保持一致
-                            var title = HtmlEntity.DeEntitize(row.SelectSingleNode(".//td[1]").InnerText.Trim());
-                            var size = HtmlEntity.DeEntitize(row.SelectSingleNode(".//td[2]").InnerText.Trim());
-                            var updated = HtmlEntity.DeEntitize(row.SelectSingleNode(".//td[3]").InnerText.Trim());
-                            var downloadLink = row.SelectSingleNode(".//td[4]/a").GetAttributeValue("href", string.Empty).Trim();
-                            var magnetLink = row.SelectSingleNode(".//td[1]/a[@class='js-magnet magnet-link']").GetAttributeValue("data-clipboard-text", string.Empty).Trim();
+                            // 修改点 2: 列索引发生了变化。
+                            // 新结构: 
+                            // td[1]: Checkbox
+                            // td[2]: 标题 (a.magnet-link-wrap) 和 磁力链接按钮
+                            // td[3]: 大小
+                            // td[4]: 更新时间
+                            // td[5]: 下载链接 (.torrent)
 
-                            items.Add(new
+                            // 获取标题 (注意：现在标题在 td[2] 下的 a 标签中)
+                            var titleNode = row.SelectSingleNode(".//td[2]/a[contains(@class, 'magnet-link-wrap')]");
+                            var title = HtmlEntity.DeEntitize(titleNode?.InnerText.Trim() ?? "");
+
+                            // 获取大小 (td[3])
+                            var sizeNode = row.SelectSingleNode(".//td[3]");
+                            var size = HtmlEntity.DeEntitize(sizeNode?.InnerText.Trim() ?? "");
+
+                            // 获取更新时间 (td[4])
+                            var updatedNode = row.SelectSingleNode(".//td[4]");
+                            var updated = HtmlEntity.DeEntitize(updatedNode?.InnerText.Trim() ?? "");
+
+                            // 获取下载链接 (td[5])
+                            var downloadLinkNode = row.SelectSingleNode(".//td[5]/a");
+                            var downloadLink = downloadLinkNode?.GetAttributeValue("href", string.Empty).Trim();
+
+                            // 获取磁力链接 (在 td[2] 下的另一个 a 标签中)
+                            var magnetLinkNode = row.SelectSingleNode(".//td[2]/a[contains(@class, 'js-magnet')]");
+                            var magnetLink = magnetLinkNode?.GetAttributeValue("data-clipboard-text", string.Empty).Trim();
+
+                            // 只有当标题不为空时才添加，避免添加空行
+                            if (!string.IsNullOrEmpty(title))
                             {
-                                title = title,
-                                size = size,
-                                updated = updated,
-                                downloadLink = $"{downloadLink}",
-                                magnetLink = $"{magnetLink}"
-                            });
+                                items.Add(new
+                                {
+                                    title = title,
+                                    size = size,
+                                    updated = updated,
+                                    downloadLink = $"{downloadLink}", // 如果这里不是完整链接，可能需要拼接域名，但在 Mikan 通常是相对路径
+                                    magnetLink = $"{magnetLink}"
+                                });
+                            }
                         }
                     }
                 }
 
                 return items;
-            } 
-            catch { 
-            
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("GetRssItems Error: " + ex.Message);
                 return new List<object>();
             }
-
         }
     }
 }
