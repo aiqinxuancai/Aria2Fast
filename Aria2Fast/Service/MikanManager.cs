@@ -95,10 +95,12 @@ namespace Aria2Fast.Service
                             {
                                 var pageUrl = $"{anime.Url}";
                                 var animeHtml = await pageUrl.WithHeader("User-Agent", kUserAgent).WithHeader("Referer", kMikanIndex).GetStringAsync();
-                                var animeRss = AnimePage(animeHtml);
-                                List<MikanAnimeRss> rssList = JsonConvert.DeserializeObject<List<MikanAnimeRss>>(animeRss);
+                                var rssList = AnimePage(animeHtml);
                                 anime.Rss = rssList;
-                                Debug.WriteLine(animeRss);
+                                if (rssList.Count > 0)
+                                {
+                                    anime.Summary = rssList[0].Summary;
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -106,6 +108,12 @@ namespace Aria2Fast.Service
                             }
                         }
                     }
+
+                    // 后台异步获取 TMDB 信息，不阻塞主流程
+                    _ = Task.Run(async () =>
+                    {
+                        //await LoadTmdbInfoInBackground(weekList);
+                    });
 
                     File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));
                 }
@@ -269,24 +277,33 @@ namespace Aria2Fast.Service
         }
 
 
-        public string AnimePage(string htmlContent)
+        public List<MikanAnimeRss> AnimePage(string htmlContent)
         {
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(htmlContent);
 
+            string summary = string.Empty;
+            // 定位 class="header2-desc" 的 p 标签
+            var summaryNode = htmlDoc.DocumentNode.SelectSingleNode("//p[contains(@class, 'header2-desc')]");
+            if (summaryNode != null)
+            {
+                // HtmlEntity.DeEntitize 用于处理 &nbsp; 等特殊字符
+                summary = HtmlEntity.DeEntitize(summaryNode.InnerText.Trim());
+            }
+
             var divs = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'subgroup-text')]");
-            var subgroupInfoList = new List<object>();
+            var subgroupInfoList = new List<MikanAnimeRss>();
 
             if (divs == null)
             {
-                return "[]";
+                return subgroupInfoList;
             }
 
             foreach (var div in divs)
             {
                 var subgroupNames = new List<string>();
 
-                // 检查是否有超链接
+                // 尝试获取直接的链接名称 (旧逻辑保留)
                 var anchors = div.SelectNodes(".//a[contains(@class, 'material-dropdown-menu__link')]");
                 if (anchors != null)
                 {
@@ -297,15 +314,25 @@ namespace Aria2Fast.Service
                 }
                 else
                 {
-                    // 检查是否有直接作为文本的字幕组名称
-                    var textNode = div.SelectSingleNode(".//text()[normalize-space(.)]");
-                    if (textNode != null)
+                    // 修改点 3: 适配新的 HTML 结构,名称通常是 div 下的第一个非 rss class 的 a 标签
+                    // HTML 示例: <a href="..." target="_blank" style="...">LoliHouse</a>
+                    var nameAnchor = div.SelectSingleNode(".//a[not(contains(@class, 'mikan-rss'))]");
+                    if (nameAnchor != null)
                     {
-                        subgroupNames.Add(HtmlEntity.DeEntitize(textNode.InnerText.Trim()));
+                        subgroupNames.Add(HtmlEntity.DeEntitize(nameAnchor.InnerText.Trim()));
+                    }
+                    else
+                    {
+                        // 如果没有 a 标签，再尝试获取纯文本 (兜底)
+                        var textNode = div.SelectSingleNode(".//text()[normalize-space(.)]");
+                        if (textNode != null)
+                        {
+                            subgroupNames.Add(HtmlEntity.DeEntitize(textNode.InnerText.Trim()));
+                        }
                     }
                 }
 
-                // 将所有找到的名称用 '/' 连接为一个字符串
+                // 将所有找到的名称用 '-' 连接为一个字符串
                 var name = string.Join("-", subgroupNames);
 
                 var relativeUrlNode = div.SelectSingleNode(".//a[contains(@class, 'mikan-rss')]");
@@ -314,7 +341,6 @@ namespace Aria2Fast.Service
                     continue; // 如果没有找到rss链接节点则继续下一个循环
                 }
                 var relativeUrl = relativeUrlNode.GetAttributeValue("href", string.Empty).Trim();
-                var absoluteUrl = $"{relativeUrl}";
 
                 // 如果没有找到任何名字，可能需要特殊处理
                 if (string.IsNullOrWhiteSpace(name))
@@ -323,27 +349,26 @@ namespace Aria2Fast.Service
                     continue;
                 }
 
-                List<object> items = GetRssItems(div);
+                List<MikanAnimeRssItem> items = GetRssItems(div);
 
-                subgroupInfoList.Add(new
+                subgroupInfoList.Add(new MikanAnimeRss
                 {
-                    name = name,
-                    url = $"{kMikanIndex}{absoluteUrl}",
-                    items = items
+                    Name = name,
+                    Url = $"{kMikanIndex}{relativeUrl}",
+                    Summary = summary,
+                    Items = items
                 });
             }
 
-            return JsonConvert.SerializeObject(subgroupInfoList, Formatting.Indented);
+            return subgroupInfoList;
         }
 
-        private static List<object> GetRssItems(HtmlNode div)
+        private static List<MikanAnimeRssItem> GetRssItems(HtmlNode div)
         {
             try
             {
-                var items = new List<object>();
+                var items = new List<MikanAnimeRssItem>();
 
-                // 修改点 1: 现在的 table 被包裹在 class="episode-table" 的 div 中
-                // 原代码: var table = div.SelectSingleNode("following-sibling::table[1]");
                 var tableContainer = div.SelectSingleNode("following-sibling::div[contains(@class, 'episode-table')][1]");
                 var table = tableContainer?.SelectSingleNode(".//table");
 
@@ -354,7 +379,7 @@ namespace Aria2Fast.Service
                     {
                         foreach (var row in rows)
                         {
-                            // 修改点 2: 列索引发生了变化。
+  
                             // 新结构: 
                             // td[1]: Checkbox
                             // td[2]: 标题 (a.magnet-link-wrap) 和 磁力链接按钮
@@ -385,13 +410,13 @@ namespace Aria2Fast.Service
                             // 只有当标题不为空时才添加，避免添加空行
                             if (!string.IsNullOrEmpty(title))
                             {
-                                items.Add(new
+                                items.Add(new MikanAnimeRssItem
                                 {
-                                    title = title,
-                                    size = size,
-                                    updated = updated,
-                                    downloadLink = $"{downloadLink}", // 如果这里不是完整链接，可能需要拼接域名，但在 Mikan 通常是相对路径
-                                    magnetLink = $"{magnetLink}"
+                                    Title = title,
+                                    Size = size,
+                                    Updated = updated,
+                                    DownloadLink = downloadLink ?? string.Empty,
+                                    MagnetLink = magnetLink ?? string.Empty
                                 });
                             }
                         }
@@ -403,7 +428,66 @@ namespace Aria2Fast.Service
             catch (Exception ex)
             {
                 Debug.WriteLine("GetRssItems Error: " + ex.Message);
-                return new List<object>();
+                return new List<MikanAnimeRssItem>();
+            }
+        }
+
+        /// <summary>
+        /// 后台加载 TMDB 信息
+        /// </summary>
+        private async Task LoadTmdbInfoInBackground(List<MikanAnimeDay> weekList)
+        {
+            try
+            {
+                Debug.WriteLine("[TMDB] 开始后台加载 TMDB 信息");
+                int loadedCount = 0;
+                int totalCount = weekList.Sum(day => day.Anime.Count);
+
+                foreach (var item in weekList)
+                {
+                    foreach (var anime in item.Anime)
+                    {
+                        try
+                        {
+                            // 先检查缓存
+                            var tmdbInfo = await TmdbManager.Instance.SearchAnimeAsync(anime.Name, useCache: true);
+                            if (tmdbInfo != null)
+                            {
+                                anime.TmdbInfo = tmdbInfo;
+                                loadedCount++;
+
+                                // 通知 UI 更新（触发属性变更）
+                                anime.OnPropertyChanged(nameof(anime.TmdbInfo));
+                                anime.OnPropertyChanged(nameof(anime.BestSummary));
+
+                                Debug.WriteLine($"[TMDB] 已加载 {loadedCount}/{totalCount}: {anime.Name}");
+                            }
+
+                            // 避免请求过快，稍微延迟
+                            await Task.Delay(250);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"[TMDB] 获取 {anime.Name} 信息失败: {ex.Message}");
+                        }
+                    }
+                }
+
+                Debug.WriteLine($"[TMDB] 后台加载完成，成功加载 {loadedCount}/{totalCount} 条");
+
+                // 保存更新后的缓存
+                try
+                {
+                    File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[TMDB] 保存缓存失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[TMDB] 后台加载失败: {ex.Message}");
             }
         }
     }

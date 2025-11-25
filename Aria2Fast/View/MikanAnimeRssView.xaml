@@ -17,6 +17,53 @@
         <contver:SubscriptionToColorConverterWithTitle x:Key="SubscriptionToColorConverterWithTitle" />
         <contver:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
 
+        <Style x:Key="AutoHideScrollViewer" TargetType="{x:Type ScrollViewer}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid>
+                            <ScrollContentPresenter />
+                            <ScrollBar
+                                x:Name="PART_VerticalScrollBar"
+                                HorizontalAlignment="Right"
+                                Maximum="{TemplateBinding ScrollableHeight}"
+                                Opacity="0"
+                                Orientation="Vertical"
+                                ViewportSize="{TemplateBinding ViewportHeight}"
+                                Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                Value="{TemplateBinding VerticalOffset}" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="PART_VerticalScrollBar"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1"
+                                                Duration="0:0:0.2" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="PART_VerticalScrollBar"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0"
+                                                Duration="0:0:0.5" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Page.Resources>
 
     <Grid>
@@ -28,6 +75,7 @@
             <StackPanel Orientation="Horizontal">
                 <Border CornerRadius="6">
                     <Image
+                        x:Name="AnimeImage"
                         Width="140"
                         Height="200"
                         HorizontalAlignment="Left"
@@ -43,12 +91,52 @@
                     </Image>
                 </Border>
 
-                <TextBlock
-                    Margin="10,0,0,0"
-                    FontSize="16"
-                    FontWeight="Bold"
-                    Text="{Binding Name}"
-                    TextTrimming="CharacterEllipsis" />
+
+                <StackPanel Margin="10,0,0,0">
+                    <TextBlock
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Text="{Binding Name}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="Wrap" />
+
+                    <ScrollViewer
+                        Margin="0,10,0,0"
+                        MaxHeight="{Binding ActualHeight, ElementName=AnimeImage}"
+                        Style="{StaticResource AutoHideScrollViewer}"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <TextBlock
+                                FontSize="13"
+                                Text="{Binding BestSummary}"
+                                TextWrapping="Wrap" />
+
+                            <!-- TMDB 评分信息 -->
+                            <StackPanel
+                                Margin="0,10,0,0"
+                                Orientation="Horizontal"
+                                Visibility="{Binding TmdbInfo, Converter={StaticResource BoolVisibilityConverter}}">
+                                <TextBlock
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Foreground="#FFD700"
+                                    Text="★" />
+                                <TextBlock
+                                    Margin="5,0,0,0"
+                                    FontSize="12"
+                                    Text="{Binding TmdbInfo.VoteAverage, StringFormat={}{0:F1}}" />
+                                <TextBlock
+                                    Margin="5,0,0,0"
+                                    FontSize="11"
+                                    Opacity="0.7"
+                                    Text="{Binding TmdbInfo.VoteCount, StringFormat=({0} 评价)}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+
+
             </StackPanel>
 
             <ItemsControl Margin="-5,5,0,0" ItemsSource="{Binding Rss}">

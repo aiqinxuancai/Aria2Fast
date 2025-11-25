@@ -33,6 +33,35 @@ namespace Aria2Fast.Service.Model
         public string Url { get; set; }
         public string Image { get; set; }
 
+        public string Summary { get; set; }
+
+        /// <summary>
+        /// TMDB 信息（如果有）
+        /// </summary>
+        public TmdbAnimeInfo? TmdbInfo { get; set; }
+
+        /// <summary>
+        /// 获取最佳简介（优先 TMDB 中文简介，其次 HTML 简介）
+        /// </summary>
+        public string BestSummary
+        {
+            get
+            {
+                // 优先使用 TMDB 的中文简介
+                if (TmdbInfo != null && !string.IsNullOrWhiteSpace(TmdbInfo.OverviewZh))
+                {
+                    return TmdbInfo.OverviewZh;
+                }
+                // 其次使用 TMDB 的英文简介
+                if (TmdbInfo != null && !string.IsNullOrWhiteSpace(TmdbInfo.OverviewEn))
+                {
+                    return TmdbInfo.OverviewEn;
+                }
+                // 最后使用 HTML 抓取的简介
+                return Summary ?? string.Empty;
+            }
+        }
+
         public List<MikanAnimeRss> Rss { get; set; }
 
         //TODO 返回最新的集数int，寻找24小时内更新的字幕组获取集数，并且最新更新时间大于24小时的其他
@@ -137,6 +166,8 @@ namespace Aria2Fast.Service.Model
     {
         public string Name { get; set; }
         public string Url { get; set; }
+
+        public string Summary { get; set; }
 
         private List<MikanAnimeRssItem> _items { get; set; }
 
