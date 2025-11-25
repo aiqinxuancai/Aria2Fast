@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(dotnet add:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(del \"D:\\git\\Aria2Fast\\Aria2Fast\\Service\\TmdbApiKey.local.cs.template\")"
     ],
     "deny": [],
     "ask": []

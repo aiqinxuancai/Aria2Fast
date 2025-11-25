@@ -22,11 +22,51 @@ namespace Aria2Fast.Service
         public static TmdbManager Instance => _instance ??= new TmdbManager();
 
         private const string kTmdbApiBase = "https://api.themoviedb.org/3";
-        // 使用公共只读 API Key（类似 Jellyfin/Emby 的做法）
-        // 用户可以替换为自己的 Key 以获得更高的请求限制
-        private const string kTmdbApiKey = "8d6d91941230c398d3a4f755e8469886"; // 默认公共 Key
-        private const string kCacheFileName = "tmdb_cache.json";
+
+        // TMDB API Key 配置说明:
+        // - GitHub Actions 编译: 从 GitHub Secrets 注入真实 Key
+        // - 本地开发: 在 GetApiKey() 中从 TMDBConfig.json 读取
+        // - 源码占位符: {TMDB_API_KEY} 会被 CI/CD 替换
+        private const string kTmdbApiKeyDefault = "{TMDB_API_KEY}"; // 由 GitHub Actions 替换
+        private const string kCacheFileName = "TMDBCache.json";
+        private const string kConfigFileName = "TMDBConfig.json";
         private static readonly string kCacheFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, kCacheFileName);
+        private static readonly string kConfigFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, kConfigFileName);
+
+        /// <summary>
+        /// 获取 TMDB API Key（支持用户自定义）
+        /// </summary>
+        private string GetApiKey()
+        {
+            try
+            {
+                // 尝试从配置文件读取用户自定义的 Key
+                if (File.Exists(kConfigFilePath))
+                {
+                    var config = JsonConvert.DeserializeObject<TmdbConfig>(File.ReadAllText(kConfigFilePath));
+                    if (config != null && !string.IsNullOrWhiteSpace(config.ApiKey))
+                    {
+                        Debug.WriteLine("[TMDB] 使用用户自定义 API Key");
+                        return config.ApiKey;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[TMDB] 读取配置失败: {ex.Message}");
+            }
+
+            // 检查默认 Key 是否为占位符（本地开发未替换）
+            if (string.IsNullOrWhiteSpace(kTmdbApiKeyDefault))
+            {
+                Debug.WriteLine("[TMDB] ⚠️ API Key 未配置！请在 TMDBConfig.json 中设置 ApiKey");
+                // 本地开发时，返回空字符串会导致 API 调用失败，但不会崩溃
+                return string.Empty;
+            }
+
+            // 降级使用默认 Key（GitHub Actions 注入的）
+            return kTmdbApiKeyDefault;
+        }
 
         private TmdbCache _cache;
         private readonly object _cacheLock = new object();
@@ -118,7 +158,7 @@ namespace Aria2Fast.Service
                 var searchResult = await searchUrl
                     .SetQueryParams(new
                     {
-                        api_key = kTmdbApiKey,
+                        api_key = GetApiKey(),
                         query = cleanName,
                         language = "zh-CN"
                     })
@@ -187,7 +227,7 @@ namespace Aria2Fast.Service
                 var detailResult = await detailUrl
                     .SetQueryParams(new
                     {
-                        api_key = kTmdbApiKey,
+                        api_key = GetApiKey(),
                         language = language
                     })
                     .GetStringAsync();
@@ -210,11 +250,11 @@ namespace Aria2Fast.Service
                 var overview = detailJson["overview"]?.Value<string>() ?? string.Empty;
                 if (language.StartsWith("zh"))
                 {
-                    animeInfo.OverviewZh = overview;
+                    animeInfo.OverviewZh = overview.Trim();
                 }
                 else
                 {
-                    animeInfo.OverviewEn = overview;
+                    animeInfo.OverviewEn = overview.Trim();
                 }
 
                 return animeInfo;
@@ -300,6 +340,51 @@ namespace Aria2Fast.Service
             {
                 return $"缓存总数: {_cache.Cache.Count}";
             }
+        }
+
+        /// <summary>
+        /// 设置自定义 API Key
+        /// </summary>
+        /// <param name="apiKey">TMDB API Key，为空则使用默认 Key</param>
+        public void SetCustomApiKey(string apiKey)
+        {
+            try
+            {
+                var config = new TmdbConfig
+                {
+                    ApiKey = apiKey ?? string.Empty,
+                    Version = 1
+                };
+
+                var json = JsonConvert.SerializeObject(config, Formatting.Indented);
+                File.WriteAllText(kConfigFilePath, json);
+                Debug.WriteLine($"[TMDB] API Key 配置已保存");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[TMDB] 保存 API Key 失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 获取当前使用的 API Key 类型（用于调试）
+        /// </summary>
+        public string GetCurrentApiKeyType()
+        {
+            try
+            {
+                if (File.Exists(kConfigFilePath))
+                {
+                    var config = JsonConvert.DeserializeObject<TmdbConfig>(File.ReadAllText(kConfigFilePath));
+                    if (config != null && !string.IsNullOrWhiteSpace(config.ApiKey))
+                    {
+                        return "自定义 Key";
+                    }
+                }
+            }
+            catch { }
+
+            return "默认公共 Key";
         }
     }
 }

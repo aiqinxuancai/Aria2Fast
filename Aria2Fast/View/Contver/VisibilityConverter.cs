@@ -14,10 +14,18 @@ namespace Aria2Fast.View.Contver
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null || (bool)value == false)
+            if (value == null)
             {
                 return Visibility.Collapsed;
             }
+
+            // 如果是布尔类型，检查其值
+            if (value is bool boolValue)
+            {
+                return boolValue ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            // 对于其他对象类型，只要不为 null 就显示
             return Visibility.Visible;
         }
 

@@ -72,8 +72,13 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Top">
 
-            <StackPanel Orientation="Horizontal">
-                <Border CornerRadius="6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" CornerRadius="6">
                     <Image
                         x:Name="AnimeImage"
                         Width="140"
@@ -91,8 +96,7 @@
                     </Image>
                 </Border>
 
-
-                <StackPanel Margin="10,0,0,0">
+                <StackPanel Grid.Column="1" Margin="10,0,10,0">
                     <TextBlock
                         FontSize="16"
                         FontWeight="Bold"
@@ -135,9 +139,7 @@
                         </StackPanel>
                     </ScrollViewer>
                 </StackPanel>
-
-
-            </StackPanel>
+            </Grid>
 
             <ItemsControl Margin="-5,5,0,0" ItemsSource="{Binding Rss}">
                 <ItemsControl.ItemsPanel>

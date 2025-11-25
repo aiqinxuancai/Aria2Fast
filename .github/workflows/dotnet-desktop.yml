@@ -39,6 +39,8 @@ jobs:
         run: powershell -Command "(gc $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs) -replace '{VERSION}', '$env:GITHUB_REF_NAME' | Out-File $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs"
       - name: Set Build
         run: powershell -Command "(gc $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs) -replace '{BUILD}', '$env:GITHUB_RUN_NUMBER' | Out-File $env:GITHUB_WORKSPACE\Aria2Fast\Utils\ActionVersion.cs"
+      - name: Inject TMDB API Key
+        run: powershell -Command "(gc $env:GITHUB_WORKSPACE\Aria2Fast\Service\TmdbManager.cs) -replace '\{TMDB_API_KEY\}', '${{ secrets.TMDB_API_KEY }}' | Out-File -Encoding UTF8 $env:GITHUB_WORKSPACE\Aria2Fast\Service\TmdbManager.cs"
       - name: Build
         run: dotnet build --no-restore
       - name: Test

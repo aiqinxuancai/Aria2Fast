@@ -15,6 +15,7 @@ using System.Reactive.Subjects;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -87,10 +88,19 @@ namespace Aria2Fast.Service
 
                     Debug.WriteLine(indexJson);
 
-                    foreach (var item in weekList)
+                    // 收集所有动漫到一个列表
+                    var allAnime = weekList.SelectMany(day => day.Anime).ToList();
+                    Debug.WriteLine($"[Mikan] 开始并发获取 {allAnime.Count} 个动漫页面");
+
+                    // 使用 SemaphoreSlim 控制并发数（建议 5-10 个并发）
+                    var semaphore = new SemaphoreSlim(5, 5);
+                    var tasks = new List<Task>();
+
+                    foreach (var anime in allAnime)
                     {
-                        foreach (var anime in item.Anime)
+                        tasks.Add(Task.Run(async () =>
                         {
+                            await semaphore.WaitAsync();
                             try
                             {
                                 var pageUrl = $"{anime.Url}";
@@ -101,18 +111,27 @@ namespace Aria2Fast.Service
                                 {
                                     anime.Summary = rssList[0].Summary;
                                 }
+                                Debug.WriteLine($"[Mikan] 已获取: {anime.Name}");
                             }
                             catch (Exception ex)
                             {
-                                Debug.WriteLine(ex);
+                                Debug.WriteLine($"[Mikan] 获取失败 {anime.Name}: {ex.Message}");
                             }
-                        }
+                            finally
+                            {
+                                semaphore.Release();
+                            }
+                        }));
                     }
+
+                    // 等待所有任务完成
+                    await Task.WhenAll(tasks);
+                    Debug.WriteLine($"[Mikan] 所有页面获取完成");
 
                     // 后台异步获取 TMDB 信息，不阻塞主流程
                     _ = Task.Run(async () =>
                     {
-                        //await LoadTmdbInfoInBackground(weekList);
+                        await LoadTmdbInfoInBackground(weekList);
                     });
 
                     File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));

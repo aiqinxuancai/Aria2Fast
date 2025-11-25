@@ -50,12 +50,12 @@ namespace Aria2Fast.Service.Model
                 // 优先使用 TMDB 的中文简介
                 if (TmdbInfo != null && !string.IsNullOrWhiteSpace(TmdbInfo.OverviewZh))
                 {
-                    return TmdbInfo.OverviewZh;
+                    return TmdbInfo.OverviewZh.Trim();
                 }
                 // 其次使用 TMDB 的英文简介
                 if (TmdbInfo != null && !string.IsNullOrWhiteSpace(TmdbInfo.OverviewEn))
                 {
-                    return TmdbInfo.OverviewEn;
+                    return TmdbInfo.OverviewEn.Trim();
                 }
                 // 最后使用 HTML 抓取的简介
                 return Summary ?? string.Empty;

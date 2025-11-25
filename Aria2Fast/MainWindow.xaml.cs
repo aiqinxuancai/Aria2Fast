@@ -101,7 +101,7 @@ namespace Aria2Fast
 
             ActionVersion.CheckVersion();
             SubscriptionManager.Instance.OnSubscriptionProgressChanged += SubscriptionManager_OnSubscriptionProgressChanged;
-            GAHelper.Instance.RequestPageView($"启动到主界面{ActionVersion.Version}");
+
 
 
             Aria2ApiManager.Instance.EventReceived

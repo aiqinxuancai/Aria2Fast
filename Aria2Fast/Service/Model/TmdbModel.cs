@@ -115,4 +115,21 @@ namespace Aria2Fast.Service.Model
         /// </summary>
         public int Version { get; set; } = 1;
     }
+
+    /// <summary>
+    /// TMDB 配置（用户可自定义 API Key）
+    /// </summary>
+    public class TmdbConfig
+    {
+        /// <summary>
+        /// 用户自定义的 TMDB API Key
+        /// 如果为空，则使用默认的公共 Key
+        /// </summary>
+        public string ApiKey { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 配置版本
+        /// </summary>
+        public int Version { get; set; } = 1;
+    }
 }
