@@ -300,7 +300,7 @@ namespace Aria2Fast.Service
                 return;
             }
             Subscribing = true;
-            EasyLogManager.Logger.Info("开始检查订阅");
+            //EasyLogManager.Logger.Info("开始检查订阅");
 
             var copyList = new List<SubscriptionModel>(SubscriptionModel);
             OnSubscriptionProgressChanged?.Invoke(0, copyList.Count, string.Empty);
@@ -312,7 +312,7 @@ namespace Aria2Fast.Service
             }
 
             OnSubscriptionProgressChanged?.Invoke(copyList.Count, copyList.Count, string.Empty);
-            EasyLogManager.Logger.Info("订阅检查完毕");
+            //EasyLogManager.Logger.Info("订阅检查完毕");
             Subscribing = false;
         }
 

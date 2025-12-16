@@ -29,6 +29,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
@@ -45,6 +46,11 @@ namespace Aria2Fast
         private CancellationTokenSource _tokenTaskListSource = new CancellationTokenSource();
 
         private bool _needExit = false;
+
+        private const string TaskbarCreatedMessageName = "TaskbarCreated";
+        private uint _taskbarCreatedMessage;
+        private HwndSource? _mainHwndSource;
+        private HwndSourceHook? _mainHwndSourceHook;
 
         public IList<object> NavigationItems { set; get; } = new ObservableCollection<object>()
         {
@@ -73,10 +79,13 @@ namespace Aria2Fast
         public MainWindow()
         {
             DataContext = this;
-           
+
             InitializeComponent();
             SystemThemeWatcher.Watch(this);
             Instance = this;
+
+            SourceInitialized += MainWindow_SourceInitialized;
+            Closed += MainWindow_Closed;
 
             IntPtr hWnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
             Win11Style.LoadWin11Style(hWnd);
@@ -86,7 +95,7 @@ namespace Aria2Fast
 
         ~MainWindow()
         {
-
+            EasyLogManager.Logger.Info("主界面销毁");
         }
 
         private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
@@ -94,6 +103,7 @@ namespace Aria2Fast
             InitNavigationViewItem();
 
 
+            EnsureNotifyIconRegistered("MetroWindow_Loaded");
 
             ApplicationThemeManager.Apply(ApplicationTheme.Light);
 
@@ -130,6 +140,128 @@ namespace Aria2Fast
             Aria2ApiManager.Instance.Init();
             MikanManager.Instance.MikanStart(false);
             GameAnalyticsManager.Instance.InitializeAsync(AppConfig.Instance.ConfigData.ClientId);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern uint RegisterWindowMessage(string lpString);
+
+        private void MainWindow_SourceInitialized(object? sender, EventArgs e)
+        {
+            try
+            {
+                var hwnd = new WindowInteropHelper(this).Handle;
+                _mainHwndSource = HwndSource.FromHwnd(hwnd);
+                if (_mainHwndSource is null)
+                {
+                    return;
+                }
+
+                _taskbarCreatedMessage = RegisterWindowMessage(TaskbarCreatedMessageName);
+                _mainHwndSourceHook ??= WndProc;
+                _mainHwndSource.AddHook(_mainHwndSourceHook);
+
+                EnsureNotifyIconRegistered("SourceInitialized");
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+            }
+        }
+
+        private void MainWindow_Closed(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (_mainHwndSource is not null && _mainHwndSourceHook is not null)
+                {
+                    _mainHwndSource.RemoveHook(_mainHwndSourceHook);
+                }
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+            }
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (_taskbarCreatedMessage != 0 && msg == unchecked((int)_taskbarCreatedMessage))
+            {
+                // Explorer / 任务栏重启后系统会广播 TaskbarCreated，需重新注册托盘图标
+                Dispatcher.BeginInvoke(
+                    DispatcherPriority.Background,
+                    new Action(() => RecreateNotifyIcon("TaskbarCreated")));
+            }
+
+            return IntPtr.Zero;
+        }
+
+        private void EnsureNotifyIconRegistered(string reason)
+        {
+            try
+            {
+                if (MyNotifyIcon is null)
+                {
+                    return;
+                }
+
+                var hwnd = new WindowInteropHelper(this).Handle;
+                _mainHwndSource ??= HwndSource.FromHwnd(hwnd);
+
+                if (_mainHwndSource is not null)
+                {
+                    MyNotifyIcon.HookWindow = _mainHwndSource;
+                }
+
+                MyNotifyIcon.ParentHandle = hwnd;
+
+                if (!MyNotifyIcon.IsRegistered)
+                {
+                    MyNotifyIcon.Register();
+                    EasyLogManager.Logger.Info($"托盘图标已注册 ({reason})");
+                }
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+            }
+        }
+
+        private void RecreateNotifyIcon(string reason)
+        {
+            try
+            {
+                if (MyNotifyIcon is null)
+                {
+                    return;
+                }
+
+                var hwnd = new WindowInteropHelper(this).Handle;
+                _mainHwndSource ??= HwndSource.FromHwnd(hwnd);
+
+                if (_mainHwndSource is not null)
+                {
+                    MyNotifyIcon.HookWindow = _mainHwndSource;
+                }
+
+                MyNotifyIcon.ParentHandle = hwnd;
+
+                try
+                {
+                    MyNotifyIcon.Unregister();
+                }
+                catch
+                {
+                    // ignore - best effort
+                }
+
+                MyNotifyIcon.Register();
+                EasyLogManager.Logger.Info($"托盘图标已重建 ({reason})");
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+            }
         }
 
         private void InitNavigationViewItem()
@@ -275,8 +407,8 @@ namespace Aria2Fast
             
         }
 
-        
-    private void ShowWindow()
+
+        private void ShowWindow()
         {
             this.Show();
             this.WindowState = WindowState.Normal;
