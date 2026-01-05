@@ -55,6 +55,24 @@ namespace Aria2Fast.Service.Model
         public override Events Type { get; set; } = Events.MikanListLoaded;
     }
 
+    public record MikanListProgressEvent : Aria2Event
+    {
+        public int Current { get; set; }
+        public int Total { get; set; }
+        public string Name { get; set; } = string.Empty;
+
+        public override Events Type { get; set; } = Events.MikanListProgressEvent;
+    }
+
+    public record MikanAiProgressEvent : Aria2Event
+    {
+        public int Current { get; set; }
+        public int Total { get; set; }
+        public string Name { get; set; } = string.Empty;
+
+        public override Events Type { get; set; } = Events.MikanAiProgressEvent;
+    }
+
     public enum Events
     {
         /// <summary>
@@ -88,5 +106,19 @@ namespace Aria2Fast.Service.Model
         [Description("MikanListLoaded")]
         [EnumMember(Value = "MikanListLoaded")]
         MikanListLoaded,
+
+        /// <summary>
+        /// Mikan列表加载进度
+        /// </summary>
+        [Description("MikanListProgressEvent")]
+        [EnumMember(Value = "MikanListProgressEvent")]
+        MikanListProgressEvent,
+
+        /// <summary>
+        /// Mikan AI请求进度
+        /// </summary>
+        [Description("MikanAiProgressEvent")]
+        [EnumMember(Value = "MikanAiProgressEvent")]
+        MikanAiProgressEvent,
     }
 }

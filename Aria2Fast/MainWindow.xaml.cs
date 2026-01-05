@@ -111,6 +111,19 @@ namespace Aria2Fast
 
             ActionVersion.CheckVersion();
             SubscriptionManager.Instance.OnSubscriptionProgressChanged += SubscriptionManager_OnSubscriptionProgressChanged;
+            MikanManager.Instance.EventReceived
+                .OfType<MikanListProgressEvent>()
+                .SubscribeOnMainThread(async r =>
+                {
+                    UpdateMikanListProgress(r);
+                });
+
+            MikanManager.Instance.EventReceived
+                .OfType<MikanAiProgressEvent>()
+                .SubscribeOnMainThread(async r =>
+                {
+                    UpdateAiProgress(r);
+                });
 
 
 
@@ -300,6 +313,52 @@ namespace Aria2Fast
 
                 RssStatusTextBlock.Text = @$"({now + 1}/{max}) {currentRssName}";
 
+            }));
+        }
+
+        private void UpdateMikanListProgress(MikanListProgressEvent progress)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (progress.Total <= 0)
+                {
+                    MikanListStatusBorder.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
+                if (progress.Current >= progress.Total && string.IsNullOrWhiteSpace(progress.Name))
+                {
+                    MikanListStatusBorder.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
+                MikanListStatusBorder.Visibility = Visibility.Visible;
+
+                var current = Math.Min(progress.Current, progress.Total);
+                MikanListStatusTextBlock.Text = $"列表 ({current}/{progress.Total}) {progress.Name}";
+            }));
+        }
+
+        private void UpdateAiProgress(MikanAiProgressEvent progress)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (progress.Total <= 0)
+                {
+                    AiStatusBorder.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
+                if (progress.Current >= progress.Total && string.IsNullOrWhiteSpace(progress.Name))
+                {
+                    AiStatusBorder.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
+                AiStatusBorder.Visibility = Visibility.Visible;
+
+                var current = Math.Min(progress.Current, progress.Total);
+                AiStatusTextBlock.Text = $"AI ({current}/{progress.Total}) {progress.Name}";
             }));
         }
 

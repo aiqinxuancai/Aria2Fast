@@ -75,6 +75,8 @@ namespace Aria2Fast.Service
             try
             {
                 IsLoading = true;
+                PublishMikanListProgress(0, 0, string.Empty);
+                PublishAiProgress(0, 0, string.Empty);
                 
                 if (force || !File.Exists(kMikanCacheFile))
                 {
@@ -97,6 +99,8 @@ namespace Aria2Fast.Service
                     // 使用 SemaphoreSlim 控制并发数（建议 5-10 个并发）
                     var semaphore = new SemaphoreSlim(5, 5);
                     var tasks = new List<Task>();
+                    int processedCount = 0;
+                    PublishMikanListProgress(0, allAnime.Count, string.Empty);
 
                     foreach (var anime in allAnime)
                     {
@@ -121,6 +125,8 @@ namespace Aria2Fast.Service
                             }
                             finally
                             {
+                                var current = Interlocked.Increment(ref processedCount);
+                                PublishMikanListProgress(current, allAnime.Count, anime.Name ?? string.Empty);
                                 semaphore.Release();
                             }
                         }));
@@ -129,6 +135,7 @@ namespace Aria2Fast.Service
                     // 等待所有任务完成
                     await Task.WhenAll(tasks);
                     Debug.WriteLine($"[Mikan] 所有页面获取完成");
+                    PublishMikanListProgress(allAnime.Count, allAnime.Count, string.Empty);
 
                     // 后台异步获取 TMDB 信息，不阻塞主流程
                     _ = Task.Run(async () =>
@@ -146,19 +153,11 @@ namespace Aria2Fast.Service
 
                     ImageCacheUtils.PreloadImageCache();
 
-                    if (AppConfig.Instance.ConfigData.OpenAISummaryTranslateOpen)
+                    if (AppConfig.Instance.ConfigData.OpenAISummaryTranslateOpen || AppConfig.Instance.ConfigData.OpenAIAiReviewOpen)
                     {
                         _ = Task.Run(async () =>
                         {
-                            await LoadSummaryTranslationInBackground(weekList);
-                        });
-                    }
-
-                    if (AppConfig.Instance.ConfigData.OpenAIAiReviewOpen)
-                    {
-                        _ = Task.Run(async () =>
-                        {
-                            await LoadAiReviewInBackground(weekList);
+                            await LoadAiTasksInBackground(weekList);
                         });
                     }
                 }
@@ -480,6 +479,13 @@ namespace Aria2Fast.Service
                 int loadedCount = 0;
                 int totalCount = weekList.Sum(day => day.Anime.Count);
                 var allAnime = weekList.SelectMany(day => day.Anime).ToList();
+                int processedCount = 0;
+                bool aiEnabled = (AppConfig.Instance.ConfigData.OpenAISummaryTranslateOpen || AppConfig.Instance.ConfigData.OpenAIAiReviewOpen) && AiProviderClient.HasApiKey();
+
+                if (aiEnabled)
+                {
+                    PublishAiProgress(0, totalCount, string.Empty);
+                }
 
                 await RunWithConcurrencyAsync(allAnime, kAiMaxConcurrency, async anime =>
                 {
@@ -513,9 +519,21 @@ namespace Aria2Fast.Service
                     {
                         Debug.WriteLine($"[TMDB] 获取 {anime.Name} 信息失败: {ex.Message}");
                     }
+                    finally
+                    {
+                        var current = Interlocked.Increment(ref processedCount);
+                        if (aiEnabled)
+                        {
+                            PublishAiProgress(current, totalCount, anime.Name ?? string.Empty);
+                        }
+                    }
                 });
 
                 Debug.WriteLine($"[TMDB] 后台加载完成，成功加载 {loadedCount}/{totalCount} 条");
+                if (aiEnabled)
+                {
+                    PublishAiProgress(totalCount, totalCount, string.Empty);
+                }
 
                 // 保存更新后的缓存
                 try
@@ -717,6 +735,78 @@ namespace Aria2Fast.Service
             }).ToList();
 
             await Task.WhenAll(tasks);
+        }
+
+        private async Task LoadAiTasksInBackground(List<MikanAnimeDay> weekList)
+        {
+            try
+            {
+                if (!AiProviderClient.HasApiKey())
+                {
+                    return;
+                }
+
+                Debug.WriteLine("[AI] 开始后台处理AI任务");
+                int totalCount = weekList.Sum(day => day.Anime.Count);
+                int processedCount = 0;
+                var allAnime = weekList.SelectMany(day => day.Anime).ToList();
+
+                PublishAiProgress(0, totalCount, string.Empty);
+
+                await RunWithConcurrencyAsync(allAnime, kAiMaxConcurrency, async anime =>
+                {
+                    if (AppConfig.Instance.ConfigData.OpenAISummaryTranslateOpen)
+                    {
+                        await TryTranslateAnimeSummaryAsync(anime);
+                    }
+
+                    if (AppConfig.Instance.ConfigData.OpenAIAiReviewOpen)
+                    {
+                        await TryGenerateAiReviewAsync(anime);
+                    }
+
+                    var current = Interlocked.Increment(ref processedCount);
+                    PublishAiProgress(current, totalCount, anime.Name ?? string.Empty);
+
+                    await Task.Delay(250);
+                });
+
+                Debug.WriteLine($"[AI] 后台AI任务完成，已处理 {processedCount}/{totalCount} 条");
+                PublishAiProgress(totalCount, totalCount, string.Empty);
+
+                try
+                {
+                    File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[AI] 保存缓存失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[AI] 后台AI任务失败: {ex.Message}");
+            }
+        }
+
+        private void PublishMikanListProgress(int current, int total, string name)
+        {
+            _eventReceivedSubject.OnNext(new MikanListProgressEvent
+            {
+                Current = current,
+                Total = total,
+                Name = name ?? string.Empty
+            });
+        }
+
+        private void PublishAiProgress(int current, int total, string name)
+        {
+            _eventReceivedSubject.OnNext(new MikanAiProgressEvent
+            {
+                Current = current,
+                Total = total,
+                Name = name ?? string.Empty
+            });
         }
     }
 }
