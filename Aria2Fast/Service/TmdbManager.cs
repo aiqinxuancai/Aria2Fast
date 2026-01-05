@@ -248,6 +248,10 @@ namespace Aria2Fast.Service
                 };
 
                 var overview = detailJson["overview"]?.Value<string>() ?? string.Empty;
+                // 移除每行开头的制表符和空格
+                var lines = overview.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
+                overview = string.Join(Environment.NewLine, lines.Select(line => line.TrimStart()));
+
                 if (language.StartsWith("zh"))
                 {
                     animeInfo.OverviewZh = overview.Trim();
