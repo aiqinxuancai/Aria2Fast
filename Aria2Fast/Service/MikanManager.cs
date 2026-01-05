@@ -38,6 +38,8 @@ namespace Aria2Fast.Service
 
         public const string kUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0";
 
+        private const int kAiMaxConcurrency = 5;
+
         private static readonly MikanManager instance = new MikanManager();
 
         public static MikanManager Instance => instance;
@@ -477,43 +479,41 @@ namespace Aria2Fast.Service
                 Debug.WriteLine("[TMDB] 开始后台加载 TMDB 信息");
                 int loadedCount = 0;
                 int totalCount = weekList.Sum(day => day.Anime.Count);
+                var allAnime = weekList.SelectMany(day => day.Anime).ToList();
 
-                foreach (var item in weekList)
+                await RunWithConcurrencyAsync(allAnime, kAiMaxConcurrency, async anime =>
                 {
-                    foreach (var anime in item.Anime)
+                    try
                     {
-                        try
+                        // 先检查缓存
+                        var tmdbInfo = await TmdbManager.Instance.SearchAnimeAsync(anime.Name, useCache: true);
+                        if (tmdbInfo != null)
                         {
-                            // 先检查缓存
-                            var tmdbInfo = await TmdbManager.Instance.SearchAnimeAsync(anime.Name, useCache: true);
-                            if (tmdbInfo != null)
-                            {
-                                anime.TmdbInfo = tmdbInfo;
-                                loadedCount++;
+                            anime.TmdbInfo = tmdbInfo;
+                            var current = Interlocked.Increment(ref loadedCount);
 
-                                // 通知 UI 更新（触发属性变更）
-                                anime.OnPropertyChanged(nameof(anime.TmdbInfo));
-                                anime.OnPropertyChanged(nameof(anime.BestSummary));
+                            // 通知 UI 更新（触发属性变更）
+                            anime.OnPropertyChanged(nameof(anime.TmdbInfo));
+                            anime.OnPropertyChanged(nameof(anime.BestSummary));
 
-                                Debug.WriteLine($"[TMDB] 已加载 {loadedCount}/{totalCount}: {anime.Name}");
-                            }
-
-                            if (tmdbInfo == null || (string.IsNullOrWhiteSpace(tmdbInfo.OverviewZh) && string.IsNullOrWhiteSpace(tmdbInfo.OverviewEn)))
-                            {
-                                await TryTranslateAnimeSummaryAsync(anime);
-                            }
-
-                            await TryGenerateAiReviewAsync(anime);
-
-                            // 避免请求过快，稍微延迟
-                            await Task.Delay(250);
+                            Debug.WriteLine($"[TMDB] 已加载 {current}/{totalCount}: {anime.Name}");
                         }
-                        catch (Exception ex)
+
+                        if (tmdbInfo == null || (string.IsNullOrWhiteSpace(tmdbInfo.OverviewZh) && string.IsNullOrWhiteSpace(tmdbInfo.OverviewEn)))
                         {
-                            Debug.WriteLine($"[TMDB] 获取 {anime.Name} 信息失败: {ex.Message}");
+                            await TryTranslateAnimeSummaryAsync(anime);
                         }
+
+                        await TryGenerateAiReviewAsync(anime);
+
+                        // 避免请求过快，稍微延迟
+                        await Task.Delay(250);
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[TMDB] 获取 {anime.Name} 信息失败: {ex.Message}");
+                    }
+                });
 
                 Debug.WriteLine($"[TMDB] 后台加载完成，成功加载 {loadedCount}/{totalCount} 条");
 
@@ -633,20 +633,18 @@ namespace Aria2Fast.Service
                 Debug.WriteLine("[AI] 开始后台生成动漫简评");
                 int totalCount = weekList.Sum(day => day.Anime.Count);
                 int reviewedCount = 0;
+                var allAnime = weekList.SelectMany(day => day.Anime).ToList();
 
-                foreach (var item in weekList)
+                await RunWithConcurrencyAsync(allAnime, kAiMaxConcurrency, async anime =>
                 {
-                    foreach (var anime in item.Anime)
+                    await TryGenerateAiReviewAsync(anime);
+                    if (!string.IsNullOrWhiteSpace(anime.AiReviewText))
                     {
-                        await TryGenerateAiReviewAsync(anime);
-                        if (!string.IsNullOrWhiteSpace(anime.AiReviewText))
-                        {
-                            reviewedCount++;
-                        }
-
-                        await Task.Delay(250);
+                        Interlocked.Increment(ref reviewedCount);
                     }
-                }
+
+                    await Task.Delay(250);
+                });
 
                 Debug.WriteLine($"[AI] 后台简评完成，已处理 {reviewedCount}/{totalCount} 条");
 
@@ -672,20 +670,18 @@ namespace Aria2Fast.Service
                 Debug.WriteLine("[AI] 开始后台翻译动漫简介");
                 int totalCount = weekList.Sum(day => day.Anime.Count);
                 int translatedCount = 0;
+                var allAnime = weekList.SelectMany(day => day.Anime).ToList();
 
-                foreach (var item in weekList)
+                await RunWithConcurrencyAsync(allAnime, kAiMaxConcurrency, async anime =>
                 {
-                    foreach (var anime in item.Anime)
+                    await TryTranslateAnimeSummaryAsync(anime);
+                    if (!string.IsNullOrWhiteSpace(anime.SummaryTranslated))
                     {
-                        await TryTranslateAnimeSummaryAsync(anime);
-                        if (!string.IsNullOrWhiteSpace(anime.SummaryTranslated))
-                        {
-                            translatedCount++;
-                        }
-
-                        await Task.Delay(250);
+                        Interlocked.Increment(ref translatedCount);
                     }
-                }
+
+                    await Task.Delay(250);
+                });
 
                 Debug.WriteLine($"[AI] 后台翻译完成，已处理 {translatedCount}/{totalCount} 条");
 
@@ -702,6 +698,25 @@ namespace Aria2Fast.Service
             {
                 Debug.WriteLine($"[AI] 后台翻译失败: {ex.Message}");
             }
+        }
+
+        private static async Task RunWithConcurrencyAsync(IEnumerable<MikanAnime> allAnime, int maxConcurrency, Func<MikanAnime, Task> handler)
+        {
+            using var semaphore = new SemaphoreSlim(maxConcurrency, maxConcurrency);
+            var tasks = allAnime.Select(async anime =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    await handler(anime);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }).ToList();
+
+            await Task.WhenAll(tasks);
         }
     }
 }

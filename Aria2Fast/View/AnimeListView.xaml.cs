@@ -87,7 +87,8 @@ namespace Aria2Fast.View
             {
                 AnimeSummaryTranslatorManager.ClearCache();
                 AnimeAiReviewManager.ClearCache();
-                MainWindow.Instance.ShowSnackbar("完成", "AI缓存已清空，正在刷新");
+                TmdbManager.Instance.ClearCache();
+                MainWindow.Instance.ShowSnackbar("完成", "AI/TMDB缓存已清空，正在刷新");
             }
             catch (Exception ex)
             {
