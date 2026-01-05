@@ -35,6 +35,8 @@ namespace Aria2Fast.Service.Model
 
         public string Summary { get; set; }
 
+        public string SummaryTranslated { get; set; }
+
         /// <summary>
         /// TMDB 信息（如果有）
         /// </summary>
@@ -56,6 +58,10 @@ namespace Aria2Fast.Service.Model
                 if (TmdbInfo != null && !string.IsNullOrWhiteSpace(TmdbInfo.OverviewEn))
                 {
                     return TmdbInfo.OverviewEn.Trim();
+                }
+                if (!string.IsNullOrWhiteSpace(SummaryTranslated))
+                {
+                    return SummaryTranslated.Trim();
                 }
                 // 最后使用 HTML 抓取的简介
                 return Summary ?? string.Empty;

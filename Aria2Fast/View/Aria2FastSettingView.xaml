@@ -244,6 +244,11 @@
                                 Grid.Column="1"
                                 Content="使用AI来提取剧集名称"
                                 IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIOpen}" />
+                            <ui:ToggleSwitch
+                                Margin="0,6,0,0"
+                                Grid.Column="1"
+                                Content="使用AI翻译动漫简介"
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAISummaryTranslateOpen}" />
                         </StackPanel>
                     </Grid>
 

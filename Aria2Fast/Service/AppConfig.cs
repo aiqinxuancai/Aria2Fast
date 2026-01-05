@@ -125,6 +125,8 @@ namespace Aria2Fast.Service
 
         public bool OpenAIOpen { get; set; } = false;
 
+        public bool OpenAISummaryTranslateOpen { get; set; } = false;
+
 
         /// <summary>
         /// 用于第三方转发服务的实现

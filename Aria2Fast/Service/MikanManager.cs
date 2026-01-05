@@ -143,6 +143,14 @@ namespace Aria2Fast.Service
                     Master.AnimeDays = weekList;
 
                     ImageCacheUtils.PreloadImageCache();
+
+                    if (AppConfig.Instance.ConfigData.OpenAISummaryTranslateOpen)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            await LoadSummaryTranslationInBackground(weekList);
+                        });
+                    }
                 }
                 else
                 {
@@ -482,6 +490,11 @@ namespace Aria2Fast.Service
                                 Debug.WriteLine($"[TMDB] 已加载 {loadedCount}/{totalCount}: {anime.Name}");
                             }
 
+                            if (tmdbInfo == null || (string.IsNullOrWhiteSpace(tmdbInfo.OverviewZh) && string.IsNullOrWhiteSpace(tmdbInfo.OverviewEn)))
+                            {
+                                await TryTranslateAnimeSummaryAsync(anime);
+                            }
+
                             // 避免请求过快，稍微延迟
                             await Task.Delay(250);
                         }
@@ -507,6 +520,92 @@ namespace Aria2Fast.Service
             catch (Exception ex)
             {
                 Debug.WriteLine($"[TMDB] 后台加载失败: {ex.Message}");
+            }
+        }
+
+        private static async Task TryTranslateAnimeSummaryAsync(MikanAnime anime)
+        {
+            if (!AppConfig.Instance.ConfigData.OpenAISummaryTranslateOpen)
+            {
+                return;
+            }
+
+            if (anime == null || string.IsNullOrWhiteSpace(anime.Summary) || !string.IsNullOrWhiteSpace(anime.SummaryTranslated))
+            {
+                return;
+            }
+
+            if (anime.TmdbInfo != null && (!string.IsNullOrWhiteSpace(anime.TmdbInfo.OverviewZh) || !string.IsNullOrWhiteSpace(anime.TmdbInfo.OverviewEn)))
+            {
+                return;
+            }
+
+            if (AnimeSummaryTranslatorManager.TryGetCachedTranslation(anime.Summary, out var cached))
+            {
+                if (!string.IsNullOrWhiteSpace(cached))
+                {
+                    anime.SummaryTranslated = cached;
+                    anime.OnPropertyChanged(nameof(anime.SummaryTranslated));
+                    anime.OnPropertyChanged(nameof(anime.BestSummary));
+                }
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.OpenAIKey))
+            {
+                return;
+            }
+
+            if (!AnimeSummaryTranslatorManager.IsLikelyJapanese(anime.Summary))
+            {
+                return;
+            }
+
+            var translated = await AnimeSummaryTranslatorManager.TranslateToChineseAsync(anime.Summary);
+            if (!string.IsNullOrWhiteSpace(translated))
+            {
+                anime.SummaryTranslated = translated;
+                anime.OnPropertyChanged(nameof(anime.SummaryTranslated));
+                anime.OnPropertyChanged(nameof(anime.BestSummary));
+            }
+        }
+
+        private async Task LoadSummaryTranslationInBackground(List<MikanAnimeDay> weekList)
+        {
+            try
+            {
+                Debug.WriteLine("[AI] 开始后台翻译动漫简介");
+                int totalCount = weekList.Sum(day => day.Anime.Count);
+                int translatedCount = 0;
+
+                foreach (var item in weekList)
+                {
+                    foreach (var anime in item.Anime)
+                    {
+                        await TryTranslateAnimeSummaryAsync(anime);
+                        if (!string.IsNullOrWhiteSpace(anime.SummaryTranslated))
+                        {
+                            translatedCount++;
+                        }
+
+                        await Task.Delay(250);
+                    }
+                }
+
+                Debug.WriteLine($"[AI] 后台翻译完成，已处理 {translatedCount}/{totalCount} 条");
+
+                try
+                {
+                    File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[AI] 保存缓存失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[AI] 后台翻译失败: {ex.Message}");
             }
         }
     }
