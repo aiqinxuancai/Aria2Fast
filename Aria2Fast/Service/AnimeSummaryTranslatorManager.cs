@@ -1,4 +1,3 @@
-using ChatGPTSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -64,24 +63,12 @@ namespace Aria2Fast.Service
                 return cached;
             }
 
-            string modelName = "gpt-4o-mini";
-            if (!string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.OpenAIModelName))
-            {
-                modelName = AppConfig.Instance.ConfigData.OpenAIModelName;
-            }
-
-            var client = new ChatGPTClient(AppConfig.Instance.ConfigData.OpenAIKey, modelName, timeoutSeconds: 60, proxyUri: AppConfig.Instance.ConfigData.OpenAIProxy);
-            if (!string.IsNullOrEmpty(AppConfig.Instance.ConfigData.OpenAIHost))
-            {
-                client.Settings.APIURL = AppConfig.Instance.ConfigData.OpenAIHost;
-            }
-
             try
             {
-                var result = await client.SendMessage(text, systemPrompt: kSystemMessage);
-                if (!string.IsNullOrWhiteSpace(result.Response))
+                var responseText = await AiProviderClient.SendAsync(text, kSystemMessage);
+                if (!string.IsNullOrWhiteSpace(responseText))
                 {
-                    JObject root = JObject.Parse(result.Response);
+                    JObject root = JObject.Parse(responseText);
                     var summary = (string)root["summary"];
                     if (!string.IsNullOrWhiteSpace(summary))
                     {
@@ -140,6 +127,26 @@ namespace Aria2Fast.Service
             {
                 _cache[source] = translation;
                 SaveCache();
+            }
+        }
+
+        public static void ClearCache()
+        {
+            lock (_cacheLock)
+            {
+                _cache.Clear();
+            }
+
+            try
+            {
+                if (File.Exists(kCacheFilePath))
+                {
+                    File.Delete(kCacheFilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex.ToString());
             }
         }
     }

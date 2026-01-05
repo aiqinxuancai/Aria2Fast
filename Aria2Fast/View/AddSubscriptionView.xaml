@@ -202,7 +202,7 @@
                             Margin="8,0,0,0"
                             FontSize="12"
                             Foreground="#99000000"
-                            Text="注：需要先在设置中填写OpenAIKey才可使用" />
+                            Text="注：需要先在设置中填写AI Key才可使用" />
                     </StackPanel>
                     <ui:ToggleSwitch
                         x:Name="AutoDirSwitch"

@@ -16,6 +16,8 @@
         <contver:WidthMinusConverter x:Key="WidthMinusConverter" />
         <contver:SubscriptionToColorConverterWithTitle x:Key="SubscriptionToColorConverterWithTitle" />
         <contver:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
+        <contver:StringVisibilityConverter x:Key="StringVisibilityConverter" />
+        <contver:EmptyStringVisibilityConverter x:Key="EmptyStringVisibilityConverter" />
 
         <Style x:Key="AutoHideScrollViewer" TargetType="{x:Type ScrollViewer}">
             <Setter Property="Template">
@@ -81,8 +83,8 @@
                 <Border Grid.Column="0" CornerRadius="6">
                     <Image
                         x:Name="AnimeImage"
-                        Width="140"
-                        Height="200"
+                        Width="160"
+                        Height="230"
                         HorizontalAlignment="Left"
                         RenderOptions.BitmapScalingMode="HighQuality"
                         Source="{Binding ImageCache}"
@@ -91,34 +93,99 @@
                             <RectangleGeometry
                                 RadiusX="6"
                                 RadiusY="6"
-                                Rect="0,0,140,200" />
+                                Rect="0,0,160,230" />
                         </Image.Clip>
                     </Image>
                 </Border>
 
-                <StackPanel Grid.Column="1" Margin="10,0,10,0">
+                <Grid Grid.Column="1" Margin="14,0,10,0" Height="{Binding ActualHeight, ElementName=AnimeImage}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
                     <TextBlock
-                        FontSize="16"
+                        Grid.Row="0"
+                        FontSize="17"
                         FontWeight="Bold"
                         Text="{Binding Name}"
                         TextTrimming="CharacterEllipsis"
                         TextWrapping="Wrap" />
 
-                    <ScrollViewer
-                        Margin="0,10,0,0"
-                        MaxHeight="{Binding ActualHeight, ElementName=AnimeImage}"
-                        Style="{StaticResource AutoHideScrollViewer}"
-                        VerticalScrollBarVisibility="Auto"
-                        HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel>
-                            <TextBlock
-                                FontSize="13"
-                                Text="{Binding BestSummary}"
-                                TextWrapping="Wrap" />
+                    <Grid Grid.Row="1">
+                        <Grid
+                            Visibility="{Binding BestSummary, Converter={StaticResource StringVisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                            <!-- TMDB 评分信息 -->
-                            <StackPanel
+                            <ScrollViewer
+                                Grid.Row="0"
+                                Margin="0,8,0,0"
+                                Style="{StaticResource AutoHideScrollViewer}"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Disabled">
+                                <StackPanel>
+                                <TextBlock
+                                    FontSize="14"
+                                    Text="{Binding BestSummary}"
+                                    TextWrapping="Wrap" />
+
+                                    <!-- TMDB 评分信息 -->
+                                    <StackPanel
+                                        Margin="0,10,0,0"
+                                        Orientation="Horizontal"
+                                        Visibility="{Binding TmdbInfo, Converter={StaticResource BoolVisibilityConverter}}">
+                                        <TextBlock
+                                            FontSize="12"
+                                            FontWeight="Bold"
+                                            Foreground="#FFD700"
+                                            Text="★" />
+                                        <TextBlock
+                                            Margin="5,0,0,0"
+                                            FontSize="12"
+                                            Text="{Binding TmdbInfo.VoteAverage, StringFormat={}{0:F1}}" />
+                                        <TextBlock
+                                            Margin="5,0,0,0"
+                                            FontSize="11"
+                                            Opacity="0.7"
+                                            Text="{Binding TmdbInfo.VoteCount, StringFormat=({0} 评价)}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <Border
+                                Grid.Row="1"
                                 Margin="0,10,0,0"
+                                Padding="10"
+                                Background="#F5F7FA"
+                                BorderBrush="#11000000"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Visibility="{Binding AiReviewText, Converter={StaticResource StringVisibilityConverter}}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontWeight="Bold" Text="AI简评" />
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            FontSize="12"
+                                            Foreground="#FF6B00"
+                                            Text="{Binding AiReviewScore, StringFormat=评分 {0:F1}/10}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        FontSize="12"
+                                        Opacity="0.9"
+                                        Text="{Binding AiReviewText}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <StackPanel
+                            Visibility="{Binding BestSummary, Converter={StaticResource EmptyStringVisibilityConverter}}">
+                            <StackPanel
+                                Margin="0,8,0,0"
                                 Orientation="Horizontal"
                                 Visibility="{Binding TmdbInfo, Converter={StaticResource BoolVisibilityConverter}}">
                                 <TextBlock
@@ -136,9 +203,35 @@
                                     Opacity="0.7"
                                     Text="{Binding TmdbInfo.VoteCount, StringFormat=({0} 评价)}" />
                             </StackPanel>
+
+                            <Border
+                                Margin="0,10,0,0"
+                                Padding="10"
+                                Background="#F5F7FA"
+                                BorderBrush="#11000000"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Visibility="{Binding AiReviewText, Converter={StaticResource StringVisibilityConverter}}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontWeight="Bold" Text="AI简评" />
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            FontSize="12"
+                                            Foreground="#FF6B00"
+                                            Text="{Binding AiReviewScore, StringFormat=评分 {0:F1}/10}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Margin="0,6,0,0"
+                                        FontSize="12"
+                                        Opacity="0.9"
+                                        Text="{Binding AiReviewText}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </ScrollViewer>
-                </StackPanel>
+                    </Grid>
+                </Grid>
             </Grid>
 
             <ItemsControl Margin="-5,5,0,0" ItemsSource="{Binding Rss}">

@@ -30,6 +30,7 @@ namespace Aria2Fast.View
             InitializeComponent();
 
             GetListButton.IsEnabled = !MikanManager.Instance.IsLoading;
+            ClearAiCacheButton.IsEnabled = !MikanManager.Instance.IsLoading;
 
             //IsLoading
             MikanManager.Instance.EventReceived
@@ -39,6 +40,7 @@ namespace Aria2Fast.View
                     //刷新订阅？
                     this.DataContext = MikanManager.Instance;
                     GetListButton.IsEnabled = true;
+                    ClearAiCacheButton.IsEnabled = true;
                 });
         }
 
@@ -74,6 +76,26 @@ namespace Aria2Fast.View
 
             await MikanManager.Instance.MikanStart(true);
 
+        }
+
+        private async void ClearAiCacheButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearAiCacheButton.IsEnabled = false;
+            GetListButton.IsEnabled = false;
+
+            try
+            {
+                AnimeSummaryTranslatorManager.ClearCache();
+                AnimeAiReviewManager.ClearCache();
+                MainWindow.Instance.ShowSnackbar("完成", "AI缓存已清空，正在刷新");
+            }
+            catch (Exception ex)
+            {
+                MainWindow.Instance.ShowSnackbar("失败", "清空AI缓存失败");
+                EasyLogManager.Logger.Error(ex);
+            }
+
+            await MikanManager.Instance.MikanStart(true);
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)

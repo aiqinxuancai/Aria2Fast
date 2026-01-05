@@ -47,6 +47,13 @@
                 Click="GetListButton_Click"
                 Content="刷新列表"
                 IsEnabled="{Binding IsLoading}" />
+
+            <Button
+                x:Name="ClearAiCacheButton"
+                Width="110"
+                Margin="10,0,0,0"
+                Click="ClearAiCacheButton_Click"
+                Content="清空AI缓存" />
         </StackPanel>
 
 

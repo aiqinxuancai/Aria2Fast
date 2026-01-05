@@ -367,6 +367,7 @@ FodyWeavers.xsd
 TMDBConfig.json
 TMDBCache.json
 AnimeSummaryTranslateCache.json
+AnimeAiReviewCache.json
 
 # 本地开发的 TMDB Key 配置
 **/TmdbApiKey.local.cs

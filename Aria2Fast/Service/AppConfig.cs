@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Converters;
 using System.Reflection;
 using System.Diagnostics;
 using PropertyChanged;
@@ -119,6 +120,23 @@ namespace Aria2Fast.Service
         /// </summary>
         public string OpenAIKey { get; set; } = string.Empty;
 
+        [JsonConverter(typeof(StringEnumConverter))]
+        public AiProviderType AiProvider { get; set; } = AiProviderType.DeepSeek;
+
+        public string DeepSeekKey { get; set; } = string.Empty;
+
+        public string MiniMaxKey { get; set; } = string.Empty;
+
+        public string GeminiKey { get; set; } = string.Empty;
+
+        public string AihubmixKey { get; set; } = string.Empty;
+
+        public string AihubmixModelName { get; set; } = string.Empty;
+
+        public string OpenRouterKey { get; set; } = string.Empty;
+
+        public string OpenRouterModelName { get; set; } = string.Empty;
+
         public string OpenAIProxy { get; set; } = string.Empty;
 
         public string OpenAIModelName { get; set; } = "gpt-4o-mini";
@@ -126,6 +144,8 @@ namespace Aria2Fast.Service
         public bool OpenAIOpen { get; set; } = false;
 
         public bool OpenAISummaryTranslateOpen { get; set; } = false;
+
+        public bool OpenAIAiReviewOpen { get; set; } = false;
 
 
         /// <summary>

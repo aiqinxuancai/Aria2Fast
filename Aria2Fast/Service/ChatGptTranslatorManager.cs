@@ -1,5 +1,4 @@
 ﻿
-using ChatGPTSharp;
 using Flurl.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -48,48 +47,30 @@ namespace Aria2Fast.Service
         /// <returns></returns>
         public static async Task<string> GetEpisode(string s)
         {
-            string modelName = "gpt-4o-mini";
-
-            if (!string.IsNullOrWhiteSpace( AppConfig.Instance.ConfigData.OpenAIModelName))
+            try
             {
-                modelName = AppConfig.Instance.ConfigData.OpenAIModelName;
-            }
+                s = $"{s}";
 
-
-            var client = new ChatGPTClient(AppConfig.Instance.ConfigData.OpenAIKey, modelName, timeoutSeconds: 60, proxyUri: AppConfig.Instance.ConfigData.OpenAIProxy);
-
-            if (!string.IsNullOrEmpty(AppConfig.Instance.ConfigData.OpenAIHost))
-            {
-                client.Settings.APIURL = AppConfig.Instance.ConfigData.OpenAIHost;
-            }
-
-            if (client != null)
-            {
-                try
+                if (_cache.TryGetValue(s, out var r))
                 {
-                    s = $"{s}";
-
-                    if (_cache.TryGetValue(s, out var r))
-                    {
-                        return r;
-                    }
-
-                    var result = await client.SendMessage(s, systemPrompt: kSystemMessage);
-
-                    if (!string.IsNullOrEmpty(result.Response))
-                    {
-                        JObject root = JObject.Parse(result.Response);
-                        var title = (string)root["title"];
-                        _cache[s] = title;
-                        return title;
-                    }
-
-                    return string.Empty;
+                    return r;
                 }
-                catch (Exception ex)
+
+                var responseText = await AiProviderClient.SendAsync(s, kSystemMessage);
+
+                if (!string.IsNullOrEmpty(responseText))
                 {
-                    EasyLogManager.Logger.Error(ex.ToString());
+                    JObject root = JObject.Parse(responseText);
+                    var title = (string)root["title"];
+                    _cache[s] = title;
+                    return title;
                 }
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex.ToString());
             }
             return string.Empty;
         }

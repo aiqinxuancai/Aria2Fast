@@ -20,6 +20,8 @@
     <Page.Resources>
         <converter:NegationConverter x:Key="NegationConverter" />
         <converter:IsSelectedAria2NodeConverter x:Key="IsSelectedAria2NodeConverter" />
+        <converter:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converter:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
     </Page.Resources>
 
 
@@ -249,6 +251,11 @@
                                 Grid.Column="1"
                                 Content="使用AI翻译动漫简介"
                                 IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAISummaryTranslateOpen}" />
+                            <ui:ToggleSwitch
+                                Margin="0,6,0,0"
+                                Grid.Column="1"
+                                Content="使用AI生成动漫简评"
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIAiReviewOpen}" />
                         </StackPanel>
                     </Grid>
 
@@ -266,6 +273,153 @@
 
                         <StackPanel Height="{Binding ActualWidth, ElementName=card, Mode=OneWay}">
                             <StackPanel>
+                                <TextBlock Text="AI提供方" />
+                                <WrapPanel Margin="0,5,0,0">
+                                    <RadioButton
+                                        Content="DeepSeek"
+                                        GroupName="AiProvider"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=DeepSeek}" />
+                                    <RadioButton
+                                        Margin="10,0,0,0"
+                                        Content="OpenAI"
+                                        GroupName="AiProvider"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OpenAI}" />
+                                    <RadioButton
+                                        Margin="10,0,0,0"
+                                        Content="MiniMax"
+                                        GroupName="AiProvider"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=MiniMax}" />
+                                    <RadioButton
+                                        Margin="10,0,0,0"
+                                        Content="Gemini"
+                                        GroupName="AiProvider"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Gemini}" />
+                                    <RadioButton
+                                        Margin="10,0,0,0"
+                                        Content="Aihubmix"
+                                        GroupName="AiProvider"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Aihubmix}" />
+                                    <RadioButton
+                                        Margin="10,0,0,0"
+                                        Content="OpenRouter"
+                                        GroupName="AiProvider"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=OpenRouter}" />
+                                    <RadioButton
+                                        Margin="10,0,0,0"
+                                        Content="自定义"
+                                        GroupName="AiProvider"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Custom}" />
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=OpenAI}">
+                                <TextBlock Text="OpenAI API Key" />
+                                <ui:PasswordBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                    wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIKey, Mode=TwoWay}" />
+                                <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.7" Text="默认模型：gpt-4o-mini" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=DeepSeek}">
+                                <TextBlock Text="DeepSeek API Key" />
+                                <StackPanel>
+                                    <ui:PasswordBox
+                                        Height="32"
+                                        MinWidth="400"
+                                        Margin="0,5,0,0"
+                                        wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                        wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.DeepSeekKey, Mode=TwoWay}" />
+                                    <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.7" Text="默认模型：deepseek-chat" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=MiniMax}">
+                                <TextBlock Text="MiniMax API Key" />
+                                <StackPanel>
+                                    <ui:PasswordBox
+                                        Height="32"
+                                        MinWidth="400"
+                                        Margin="0,5,0,0"
+                                        wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                        wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.MiniMaxKey, Mode=TwoWay}" />
+                                    <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.7" Text="默认模型：MiniMax-M2.1" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Gemini}">
+                                <TextBlock Text="Gemini API Key" />
+                                <StackPanel>
+                                    <ui:PasswordBox
+                                        Height="32"
+                                        MinWidth="400"
+                                        Margin="0,5,0,0"
+                                        wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                        wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.GeminiKey, Mode=TwoWay}" />
+                                    <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.7" Text="默认模型：gemini-2.5-flash" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Aihubmix}">
+                                <TextBlock Text="Aihubmix API Key" />
+                                <StackPanel>
+                                    <ui:PasswordBox
+                                        Height="32"
+                                        MinWidth="400"
+                                        Margin="0,5,0,0"
+                                        wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                        wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AihubmixKey, Mode=TwoWay}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Aihubmix}">
+                                <TextBlock Text="Aihubmix 模型名" />
+                                <ui:TextBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    Padding="10,5,10,5"
+                                    PlaceholderText="例如：gpt-4o-mini"
+                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AihubmixModelName}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=OpenRouter}">
+                                <TextBlock Text="OpenRouter API Key" />
+                                <StackPanel>
+                                    <ui:PasswordBox
+                                        Height="32"
+                                        MinWidth="400"
+                                        Margin="0,5,0,0"
+                                        wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                        wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenRouterKey, Mode=TwoWay}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=OpenRouter}">
+                                <TextBlock Text="OpenRouter 模型名" />
+                                <ui:TextBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    Padding="10,5,10,5"
+                                    PlaceholderText="例如：openai/gpt-4o-mini"
+                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenRouterModelName}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Custom}">
+                                <TextBlock Text="自定义 API Key" />
+                                <ui:PasswordBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                    wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIKey, Mode=TwoWay}" />
+                            </StackPanel>
+
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Custom}">
                                 <TextBlock Text="模型名" />
                                 <ui:TextBox
                                     Height="32"
@@ -275,21 +429,7 @@
                                     Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIModelName}" />
                             </StackPanel>
 
-
-                            <StackPanel Margin="0,10,0,0">
-                                <TextBlock Text="API秘钥" />
-                                <ui:TextBox
-                                    Height="32"
-                                    MinWidth="400"
-                                    Margin="0,5,0,0"
-                                    Padding="10,5,10,5"
-                                    PlaceholderText="API Key"
-                                    Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIKey}" />
-                            </StackPanel>
-
-
-
-                            <StackPanel Margin="0,10,0,0">
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Custom}">
                                 <TextBlock Text="API地址" />
                                 <ui:TextBox
                                     Height="32"
@@ -301,8 +441,10 @@
 
                             </StackPanel>
 
+                            <Separator Margin="0,10,0,0" />
+
                             <StackPanel Margin="0,10,0,0">
-                                <TextBlock Text="HTTP代理地址（可选，）" />
+                                <TextBlock Text="HTTP代理地址（可选）" />
                                 <ui:TextBox
                                     Height="32"
                                     MinWidth="400"
@@ -310,10 +452,9 @@
                                     Padding="10,5,10,5"
                                     PlaceholderText="例子：http://127.0.0.1:1080"
                                     Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.OpenAIProxy}" />
-
                             </StackPanel>
 
-                            <StackPanel Margin="0,15,0,0" Orientation="Horizontal">
+                            <StackPanel Margin="0,15,0,0" Orientation="Horizontal" Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiProvider, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Custom}">
                                 <TextBlock VerticalAlignment="Center" Text="推荐转发站点：" />
                                 <ui:HyperlinkButton Click="LinkAIKEYAIHUBMIX_Click" Content="aihubmix.com" />
                             </StackPanel>

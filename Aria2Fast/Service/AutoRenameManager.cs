@@ -1,5 +1,4 @@
-﻿using ChatGPTSharp;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,37 +51,27 @@ namespace Aria2Fast.Service
 
         public static async Task<List<RenameModel>> GetNewNames(List<string> fileNames)
         {
-            var client = new ChatGPTClient(AppConfig.Instance.ConfigData.OpenAIKey, timeoutSeconds: 60, proxyUri: AppConfig.Instance.ConfigData.OpenAIProxy);
-
-            if (!string.IsNullOrEmpty(AppConfig.Instance.ConfigData.OpenAIHost))
+            try
             {
-                client.Settings.APIURL = AppConfig.Instance.ConfigData.OpenAIHost;
+                var msg = string.Join("\n", fileNames);
+                var responseText = await AiProviderClient.SendAsync(msg, kSystemMessage);
+
+                if (!string.IsNullOrEmpty(responseText))
+                {
+                    var token = JToken.Parse(responseText);
+                    List<RenameModel> objs = token.ToObject<List<RenameModel>>();
+                    return objs ?? new List<RenameModel>();
+                }
+
+                return new List<RenameModel>();
             }
-
-            if (client != null)
+            catch (Exception ex)
             {
-                try
-                {
-                    var msg = string.Join("\n", fileNames);
-                    var result = await client.SendMessage(msg, systemPrompt: kSystemMessage);
-
-                    if (!string.IsNullOrEmpty(result.Response))
-                    {
-                        JObject root = JObject.Parse(result.Response);
-                        
-                        List<RenameModel> objs = root.ToObject<List<RenameModel>>();
-                        return objs;
-                    }
-
-                    return new List<RenameModel>();
-                }
-                catch (Exception ex)
-                {
-                    EasyLogManager.Logger.Error(ex.ToString());
-                }
+                EasyLogManager.Logger.Error(ex.ToString());
             }
             return new List<RenameModel>();
         }
 
     }
 }
+

@@ -37,6 +37,10 @@ namespace Aria2Fast.Service.Model
 
         public string SummaryTranslated { get; set; }
 
+        public string AiReviewText { get; set; } = string.Empty;
+
+        public double AiReviewScore { get; set; }
+
         /// <summary>
         /// TMDB 信息（如果有）
         /// </summary>

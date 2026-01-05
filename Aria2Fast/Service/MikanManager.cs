@@ -151,6 +151,14 @@ namespace Aria2Fast.Service
                             await LoadSummaryTranslationInBackground(weekList);
                         });
                     }
+
+                    if (AppConfig.Instance.ConfigData.OpenAIAiReviewOpen)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            await LoadAiReviewInBackground(weekList);
+                        });
+                    }
                 }
                 else
                 {
@@ -495,6 +503,8 @@ namespace Aria2Fast.Service
                                 await TryTranslateAnimeSummaryAsync(anime);
                             }
 
+                            await TryGenerateAiReviewAsync(anime);
+
                             // 避免请求过快，稍微延迟
                             await Task.Delay(250);
                         }
@@ -551,7 +561,7 @@ namespace Aria2Fast.Service
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.OpenAIKey))
+            if (!AiProviderClient.HasApiKey())
             {
                 return;
             }
@@ -567,6 +577,91 @@ namespace Aria2Fast.Service
                 anime.SummaryTranslated = translated;
                 anime.OnPropertyChanged(nameof(anime.SummaryTranslated));
                 anime.OnPropertyChanged(nameof(anime.BestSummary));
+            }
+        }
+
+        private static async Task TryGenerateAiReviewAsync(MikanAnime anime)
+        {
+            if (!AppConfig.Instance.ConfigData.OpenAIAiReviewOpen)
+            {
+                return;
+            }
+
+            if (!AiProviderClient.HasApiKey())
+            {
+                return;
+            }
+
+            if (anime == null || !string.IsNullOrWhiteSpace(anime.AiReviewText))
+            {
+                return;
+            }
+
+            var summary = anime.TmdbInfo?.OverviewZh;
+            if (string.IsNullOrWhiteSpace(summary))
+            {
+                summary = anime.TmdbInfo?.OverviewEn;
+            }
+            if (string.IsNullOrWhiteSpace(summary))
+            {
+                summary = anime.SummaryTranslated;
+            }
+            if (string.IsNullOrWhiteSpace(summary))
+            {
+                summary = anime.Summary;
+            }
+
+            if (string.IsNullOrWhiteSpace(summary) && string.IsNullOrWhiteSpace(anime.Name))
+            {
+                return;
+            }
+
+            var item = await AnimeAiReviewManager.GetReviewAsync(anime.Name ?? string.Empty, summary ?? string.Empty, anime.TmdbInfo);
+            if (item != null && !string.IsNullOrWhiteSpace(item.Review))
+            {
+                anime.AiReviewText = item.Review;
+                anime.AiReviewScore = item.Score;
+                anime.OnPropertyChanged(nameof(anime.AiReviewText));
+                anime.OnPropertyChanged(nameof(anime.AiReviewScore));
+            }
+        }
+
+        private async Task LoadAiReviewInBackground(List<MikanAnimeDay> weekList)
+        {
+            try
+            {
+                Debug.WriteLine("[AI] 开始后台生成动漫简评");
+                int totalCount = weekList.Sum(day => day.Anime.Count);
+                int reviewedCount = 0;
+
+                foreach (var item in weekList)
+                {
+                    foreach (var anime in item.Anime)
+                    {
+                        await TryGenerateAiReviewAsync(anime);
+                        if (!string.IsNullOrWhiteSpace(anime.AiReviewText))
+                        {
+                            reviewedCount++;
+                        }
+
+                        await Task.Delay(250);
+                    }
+                }
+
+                Debug.WriteLine($"[AI] 后台简评完成，已处理 {reviewedCount}/{totalCount} 条");
+
+                try
+                {
+                    File.WriteAllText(kMikanCacheFile, JsonConvert.SerializeObject(Master.AnimeDays));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[AI] 保存缓存失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[AI] 后台简评失败: {ex.Message}");
             }
         }
 
