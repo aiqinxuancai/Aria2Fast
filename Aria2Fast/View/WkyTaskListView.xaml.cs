@@ -448,6 +448,7 @@ namespace Aria2Fast.View
                 }
 
                 var renameCount = 0;
+                var renameResults = new List<string>();
                 foreach (var pair in gidToFiles)
                 {
                     foreach (var srcPath in pair.Value)
@@ -472,11 +473,20 @@ namespace Aria2Fast.View
                         if (success)
                         {
                             renameCount++;
+                            renameResults.Add($"{oldName} -> {newName}");
                         }
                     }
                 }
 
-                MainWindow.Instance.ShowSnackbar("完成", $"已重命名{renameCount}个文件");
+                if (renameCount > 0)
+                {
+                    var content = string.Join("\n", renameResults);
+                    await MainWindow.Instance.ShowMessageBox($"重命名完成({renameCount})", content, null, null, null, null, "确定");
+                }
+                else
+                {
+                    MainWindow.Instance.ShowSnackbar("提示", "未产生重命名结果");
+                }
             }
             catch (Exception ex)
             {
