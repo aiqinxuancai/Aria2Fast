@@ -295,6 +295,195 @@ namespace Aria2Fast.View
             }
         }
 
+        private async void MenuShowCompletedFiles_Click(object sender, RoutedEventArgs e)
+        {
+            MainDataGrid.SelectedItem = null;
+            try
+            {
+                if (!AppConfig.Instance.ConfigData.Aria2UseLocal)
+                {
+                    MainWindow.Instance.ShowSnackbar("无法操作", "仅支持本地Aria2模式");
+                    return;
+                }
+
+                var completedItems = _selectedItems
+                    .Where(a => a.Data.Status == Aria2ApiManager.KARIA2_STATUS_COMPLETE)
+                    .ToList();
+                if (completedItems.Count == 0)
+                {
+                    MainWindow.Instance.ShowSnackbar("无法操作", "仅支持已完成任务");
+                    return;
+                }
+
+                var files = new List<string>();
+                foreach (var item in completedItems)
+                {
+                    var completedFiles = await Aria2ApiManager.Instance.GetCompletedFilesAsync(item.Data.Gid);
+                    if (completedFiles != null && completedFiles.Count > 0)
+                    {
+                        foreach (var file in completedFiles)
+                        {
+                            if (string.IsNullOrWhiteSpace(file))
+                            {
+                                continue;
+                            }
+
+                            var name = System.IO.Path.GetFileName(file);
+                            files.Add(string.IsNullOrWhiteSpace(name) ? file : name);
+                        }
+                    }
+                }
+
+                if (files.Count == 0)
+                {
+                    MainWindow.Instance.ShowSnackbar("提示", "未获取到已完成文件");
+                    return;
+                }
+
+                var content = string.Join("\n", files);
+                await MainWindow.Instance.ShowMessageBox($"已完成文件名({files.Count})", content, null, null, null, null, "确定");
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+            }
+        }
+
+        private async void MenuAiRenameCompletedFiles_Click(object sender, RoutedEventArgs e)
+        {
+            MainDataGrid.SelectedItem = null;
+            try
+            {
+                if (!AppConfig.Instance.ConfigData.Aria2UseLocal)
+                {
+                    MainWindow.Instance.ShowSnackbar("无法操作", "仅支持本地Aria2模式");
+                    return;
+                }
+
+                if (!AiProviderClient.HasApiKey())
+                {
+                    MainWindow.Instance.ShowSnackbar("无法操作", "未配置AI Key");
+                    return;
+                }
+
+                var completedItems = _selectedItems
+                    .Where(a => a.Data.Status == Aria2ApiManager.KARIA2_STATUS_COMPLETE)
+                    .ToList();
+                if (completedItems.Count == 0)
+                {
+                    MainWindow.Instance.ShowSnackbar("无法操作", "仅支持已完成任务");
+                    return;
+                }
+
+                var gidToFiles = new Dictionary<string, List<string>>();
+                var inputNames = new List<string>();
+                foreach (var item in completedItems)
+                {
+                    var completedFiles = await Aria2ApiManager.Instance.GetCompletedFilesAsync(item.Data.Gid);
+                    if (completedFiles == null || completedFiles.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var fileList = completedFiles
+                        .Where(a => !string.IsNullOrWhiteSpace(a))
+                        .Distinct()
+                        .ToList();
+                    if (fileList.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    gidToFiles[item.Data.Gid] = fileList;
+                    foreach (var file in fileList)
+                    {
+                        var name = System.IO.Path.GetFileName(file);
+                        if (!string.IsNullOrWhiteSpace(name))
+                        {
+                            inputNames.Add(name);
+                        }
+                    }
+                }
+
+                inputNames = inputNames.Distinct().ToList();
+                if (inputNames.Count == 0)
+                {
+                    MainWindow.Instance.ShowSnackbar("提示", "未获取到已完成文件");
+                    return;
+                }
+
+                var renameModels = await AutoRenameManager.GetNewNames(inputNames);
+                if (renameModels == null || renameModels.Count == 0)
+                {
+                    MainWindow.Instance.ShowSnackbar("失败", "AI未返回有效结果");
+                    return;
+                }
+
+                var renameMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var model in renameModels)
+                {
+                    if (string.IsNullOrWhiteSpace(model.Old) || string.IsNullOrWhiteSpace(model.New))
+                    {
+                        continue;
+                    }
+
+                    var oldName = model.Old.Trim();
+                    var newName = model.New.Trim();
+                    if (!renameMap.ContainsKey(oldName))
+                    {
+                        var normalizedNewName = System.IO.Path.GetFileName(newName);
+                        var oldExt = System.IO.Path.GetExtension(oldName);
+                        if (string.IsNullOrWhiteSpace(System.IO.Path.GetExtension(normalizedNewName)) && !string.IsNullOrWhiteSpace(oldExt))
+                        {
+                            normalizedNewName += oldExt;
+                        }
+                        renameMap.Add(oldName, normalizedNewName);
+                    }
+                }
+
+                if (renameMap.Count == 0)
+                {
+                    MainWindow.Instance.ShowSnackbar("失败", "AI未返回有效结果");
+                    return;
+                }
+
+                var renameCount = 0;
+                foreach (var pair in gidToFiles)
+                {
+                    foreach (var srcPath in pair.Value)
+                    {
+                        var oldName = System.IO.Path.GetFileName(srcPath);
+                        if (string.IsNullOrWhiteSpace(oldName))
+                        {
+                            continue;
+                        }
+
+                        if (!renameMap.TryGetValue(oldName, out var newName))
+                        {
+                            continue;
+                        }
+
+                        if (string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        var success = await Aria2ApiManager.Instance.RenameCompletedFileAsync(pair.Key, srcPath, newName);
+                        if (success)
+                        {
+                            renameCount++;
+                        }
+                    }
+                }
+
+                MainWindow.Instance.ShowSnackbar("完成", $"已重命名{renameCount}个文件");
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+            }
+        }
+
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
             MainWindow.Instance.RootNavigation.Navigate(typeof(AddTaskView), null);
@@ -326,6 +515,7 @@ namespace Aria2Fast.View
             //contextMenu.Visibility
             if (_selectedItems.Count > 0)
             {
+                var allCompleted = _selectedItems.All(a => a.Data.Status == Aria2ApiManager.KARIA2_STATUS_COMPLETE);
                 //展示继续下载
                 var showRestartMenu = _selectedItems.Any(a =>
                 {
@@ -358,6 +548,17 @@ namespace Aria2Fast.View
                         contextMenu.Items.Add(menuOpenPath);
                     }
 
+                    if (allCompleted)
+                    {
+                        MenuItem menuShowCompletedFiles = new MenuItem() { Header = "查看下载文件名" };
+                        menuShowCompletedFiles.Click += MenuShowCompletedFiles_Click;
+                        contextMenu.Items.Add(menuShowCompletedFiles);
+
+                        MenuItem menuAiRenameCompletedFiles = new MenuItem() { Header = "AI更名为Jellyfin格式" };
+                        menuAiRenameCompletedFiles.Click += MenuAiRenameCompletedFiles_Click;
+                        contextMenu.Items.Add(menuAiRenameCompletedFiles);
+                    }
+
                 }
 
                 if (showRestartMenu)
@@ -372,6 +573,10 @@ namespace Aria2Fast.View
                     MenuItem menuStop = new MenuItem() { Header = "暂停" };
                     menuStop.Click += MenuStop_Click;
                     contextMenu.Items.Add(menuStop);
+                    contextMenu.Items.Add(new Separator());
+                }
+                else if (AppConfig.Instance.ConfigData.Aria2UseLocal && allCompleted)
+                {
                     contextMenu.Items.Add(new Separator());
                 }
 

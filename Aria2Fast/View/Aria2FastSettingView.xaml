@@ -69,17 +69,22 @@
                                 <Grid>
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
-                                            <ui:ToggleSwitch
-                                                Grid.Column="1"
-                                                Content="使用Aria2本机下载"
-                                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal}" />
+                                            <RadioButton
+                                                Content="本机Aria2"
+                                                GroupName="Aria2Mode"
+                                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal, Mode=TwoWay}" />
+                                            <RadioButton
+                                                Margin="12,0,0,0"
+                                                Content="远程RPC"
+                                                GroupName="Aria2Mode"
+                                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal, Converter={StaticResource NegationConverter}, Mode=TwoWay}" />
 
                                             <TextBlock
-                                                Margin="10,1,0,0"
+                                                Margin="12,1,0,0"
                                                 VerticalAlignment="Center"
                                                 FontSize="13"
                                                 Foreground="#99000000"
-                                                Text="关闭后可填写远程RPC地址" />
+                                                Text="选择远程RPC后可填写远程地址" />
 
                                         </StackPanel>
 
@@ -88,6 +93,16 @@
 
                                 </Grid>
                                 <StackPanel Margin="0,10,0,0">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.Aria2UseLocal}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
                                     <StackPanel>
                                         <TextBlock Text="远程Aria2列表" />
                                         <ui:ListView Margin="0,5,0,0" ItemsSource="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.RemoteAria2Nodes}">

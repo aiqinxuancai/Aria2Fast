@@ -341,7 +341,8 @@ namespace Aria2Fast.View.Contver
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            bool b = (bool)value;
+            return !b;
         }
     }
 }

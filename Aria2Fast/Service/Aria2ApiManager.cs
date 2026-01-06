@@ -544,9 +544,14 @@ namespace Aria2Fast.Service
                             TaskList.RemoveAt(TaskList.Count - 1);
                         }
                     }
-                    tasks = tasks.OrderByDescending(a => a.Status == KARIA2_STATUS_PAUSED).ToArray();
-                    tasks = tasks.OrderByDescending(a => a.Status == KARIA2_STATUS_WAITING).ToArray();
-                    tasks = tasks.OrderByDescending(a => a.Status == KARIA2_STATUS_ACTIVE).ToArray();
+                    // 先按状态排序，再按开始时间排序（最新的在前，空值/0不处理排在后面）
+                    tasks = tasks
+                        .OrderByDescending(a => a.Status == KARIA2_STATUS_ACTIVE)
+                        .ThenByDescending(a => a.Status == KARIA2_STATUS_WAITING)
+                        .ThenByDescending(a => a.Status == KARIA2_STATUS_PAUSED)
+                        .ThenByDescending(a => a.StartTime > 0) // 有startTime的排前面
+                        .ThenByDescending(a => a.StartTime) // 按startTime降序
+                        .ToArray();
                     for (int i = 0; i < tasks.Count; i++)
                     {
                         TaskList[i].Data = tasks[i];
@@ -581,6 +586,42 @@ namespace Aria2Fast.Service
                 Debug.WriteLine($"删除下载结果：{gid}");
                 await _client.RemoveDownloadResultAsync(gid);
                 return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return false;
+            }
+        }
+
+        public async Task<IList<string>> GetCompletedFilesAsync(string gid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(gid))
+                {
+                    return new List<string>();
+                }
+
+                return await _client.GetCompletedFilesAsync(gid, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return new List<string>();
+            }
+        }
+
+        public async Task<bool> RenameCompletedFileAsync(string gid, string srcPath, string destName)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(gid) || string.IsNullOrWhiteSpace(srcPath) || string.IsNullOrWhiteSpace(destName))
+                {
+                    return false;
+                }
+
+                return await _client.RenameCompletedFileAsync(gid, srcPath, destName, CancellationToken.None);
             }
             catch (Exception ex)
             {

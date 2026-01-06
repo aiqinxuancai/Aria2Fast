@@ -81,7 +81,9 @@ namespace Aria2Fast
             DataContext = this;
 
             InitializeComponent();
-            SystemThemeWatcher.Watch(this);
+            ApplicationThemeManager.Apply(this);
+            //ApplicationThemeManager.Apply(ApplicationTheme.Light);
+           
             Instance = this;
 
             SourceInitialized += MainWindow_SourceInitialized;
@@ -105,7 +107,7 @@ namespace Aria2Fast
 
             EnsureNotifyIconRegistered("MetroWindow_Loaded");
 
-            ApplicationThemeManager.Apply(ApplicationTheme.Light);
+           
 
             RootNavigation.Navigate(typeof(WkyTaskListView));
 
