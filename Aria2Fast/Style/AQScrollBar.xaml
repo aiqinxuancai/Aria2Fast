@@ -46,7 +46,7 @@
     <!--  ScrollBars  -->
     <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
         <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
-        <Setter Property="Foreground" Value="#8C8C8C" />
+        <Setter Property="Foreground" Value="{DynamicResource App.ScrollbarThumbBrush}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Width" Value="8" />
         <Setter Property="Margin" Value="0,5,0,5" />

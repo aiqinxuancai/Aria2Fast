@@ -9,6 +9,7 @@
     Title="AddTaskView"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -49,7 +50,7 @@
                     AcceptsReturn="True"
                     AllowDrop="True"
                     Background="Transparent"
-                    BorderBrush="#00CCCCCC"
+                    BorderBrush="{DynamicResource App.SeparatorBrush}"
                     Drop="UrlTextBox_Drop"
                     PlaceholderText="输入下载地址（多行多个）或拖放BT文件"
                     PreviewDragOver="UrlTextBox_PreviewDragOver"
@@ -105,7 +106,7 @@
         </Grid>
         <Grid
             x:Name="MaskGrid"
-            Background="#10000000"
+            Background="{DynamicResource App.OverlayMaskBrush}"
             Visibility="Collapsed">
             <ui:ProgressRing IsIndeterminate="True" />
         </Grid>

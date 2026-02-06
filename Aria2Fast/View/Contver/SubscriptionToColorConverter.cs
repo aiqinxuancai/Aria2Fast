@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -11,13 +12,12 @@ namespace Aria2Fast.View.Contver
 {
     public class SubscriptionToColorConverter : IValueConverter
     {
-        private static SolidColorBrush _green = (SolidColorBrush)new BrushConverter().ConvertFromString("#65B741");
-        private static SolidColorBrush _gray = (SolidColorBrush)new BrushConverter().ConvertFromString("#E5E1DA");
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var isSubscribed = (bool)value;
-            return isSubscribed ? _green : _gray;
+            return isSubscribed
+                ? BrushResourceHelper.GetBrush("App.SubscriptionActiveBrush", "#40A02B")
+                : BrushResourceHelper.GetBrush("App.SubscriptionInactiveBrush", "#51576D");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -28,13 +28,12 @@ namespace Aria2Fast.View.Contver
 
     public class SubscriptionToColorConverterWithTitle : IValueConverter
     {
-        private static SolidColorBrush _green = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFFFFF");
-        private static SolidColorBrush _gray = (SolidColorBrush)new BrushConverter().ConvertFromString("#666666");
-
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var isSubscribed = (bool)value;
-            return isSubscribed ? _green : _gray;
+            return isSubscribed
+                ? BrushResourceHelper.GetBrush("App.SubscriptionActiveTextBrush", "#EFF1F5")
+                : BrushResourceHelper.GetBrush("App.SubscriptionInactiveTextBrush", "#A5ADCE");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -60,4 +59,21 @@ namespace Aria2Fast.View.Contver
         }
     }
 
+    internal static class BrushResourceHelper
+    {
+        internal static SolidColorBrush GetBrush(string key, string fallbackHex)
+        {
+            if (Application.Current?.Resources[key] is SolidColorBrush brush)
+            {
+                return brush;
+            }
+
+            if (Application.Current?.Resources[key] is Color color)
+            {
+                return new SolidColorBrush(color);
+            }
+
+            return (SolidColorBrush)new BrushConverter().ConvertFromString(fallbackHex);
+        }
+    }
 }

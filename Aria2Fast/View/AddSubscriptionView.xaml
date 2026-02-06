@@ -9,6 +9,7 @@
     Title="AddSubscriptionView"
     d:DesignHeight="600"
     d:DesignWidth="800"
+    TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     DataContextChanged="Page_DataContextChanged"
     Loaded="Page_Loaded"
     mc:Ignorable="d">
@@ -45,7 +46,7 @@
                 VerticalAlignment="Stretch"
                 AllowDrop="True"
                 Background="Transparent"
-                BorderBrush="#00CCCCCC"
+                BorderBrush="{DynamicResource App.SeparatorBrush}"
                 PlaceholderText="订阅地址"
                 Text=""
                 TextChanged="UrlTextBox_TextChanged"
@@ -67,7 +68,7 @@
                             VerticalAlignment="Center"
                             AllowDrop="True"
                             Background="Transparent"
-                            BorderBrush="#00CCCCCC"
+                            BorderBrush="{DynamicResource App.SeparatorBrush}"
                             PlaceholderText="包含关键字"
                             Text="" />
                         <CheckBox
@@ -98,13 +99,13 @@
                         <DataTemplate>
                             <Border
                                 Margin="3,2,0,0"
-                                Background="#88808695"
+                                Background="{DynamicResource App.BadgeNeutralBrush}"
                                 ClipToBounds="True"
                                 CornerRadius="4"
                                 MouseDown="Border_MouseLeftButtonDown">
                                 <TextBlock
                                     Margin="5,2,5,2"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     Text="{Binding Filter}" />
                             </Border>
                         </DataTemplate>
@@ -173,7 +174,7 @@
                         Grid.Column="2"
                         Padding="10,5,10,5"
                         FontSize="12"
-                        Foreground="#B2000000" />
+                        Foreground="{DynamicResource App.TextSecondaryBrush}" />
 
                 </Grid>
 
@@ -196,12 +197,12 @@
                         <TextBlock
                             Margin="8,0,0,0"
                             FontSize="12"
-                            Foreground="#99000000"
+                            Foreground="{DynamicResource App.TextSecondaryBrush}"
                             Text="如订阅中存在多部剧集，在下载时自动存储在不同文件夹，比如Mikan的个人订阅" />
                         <TextBlock
                             Margin="8,0,0,0"
                             FontSize="12"
-                            Foreground="#99000000"
+                            Foreground="{DynamicResource App.TextSecondaryBrush}"
                             Text="注：需要先在设置中填写AI Key才可使用" />
                     </StackPanel>
                     <ui:ToggleSwitch

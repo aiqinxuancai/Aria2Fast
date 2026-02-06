@@ -13,7 +13,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Windows;
+using System.Windows.Threading;
 using Aria2Fast.Service.Model.SubscriptionModel;
+using Aria2Fast.Utils;
 using Aria2Fast.Service.Model;
 
 namespace Aria2Fast.Service
@@ -60,7 +63,8 @@ namespace Aria2Fast.Service
 
                     } },
 
-                    { nameof(CurrentRemoteAria2NodeIndex), () => Aria2ApiManager.Instance.UpdateRpcAndTest() }
+                    { nameof(CurrentRemoteAria2NodeIndex), () => Aria2ApiManager.Instance.UpdateRpcAndTest() },
+                    { nameof(AppTheme), () => ThemeManager.ApplyTheme(AppTheme) }
 
                 };
             this.PropertyChanged += AppConfigData_PropertyChanged;
@@ -152,6 +156,9 @@ namespace Aria2Fast.Service
         /// 用于第三方转发服务的实现
         /// </summary>
         public string OpenAIHost { get; set; } = string.Empty;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CatppuccinTheme AppTheme { get; set; } = CatppuccinTheme.Default;
 
         //当前客户端ID
         public string ClientId { get; set; } = string.Empty;
@@ -287,7 +294,7 @@ namespace Aria2Fast.Service
         public void Aria2Node_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Aria2ApiManager.Instance.UpdateRpcAndTest();
-            AppConfig.Instance?.Save();
+            AppConfig.Instance?.RequestSave();
             //通知上层 触发一次PropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoteAria2Nodes)));
         }
@@ -311,6 +318,9 @@ namespace Aria2Fast.Service
         private string _configPath = Path.Combine(Directory.GetCurrentDirectory(), @"Aria2FastConfig.json");
 
         private object _lock = new object();
+        private DispatcherTimer? _saveTimer;
+        private readonly object _saveTimerLock = new object();
+        private const int SaveDebounceMs = 300;
 
         
 
@@ -408,7 +418,39 @@ namespace Aria2Fast.Service
 
         private void AppConfigData_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            Save();
+            RequestSave();
+        }
+
+        public void RequestSave()
+        {
+            if (Application.Current?.Dispatcher == null)
+            {
+                Save();
+                return;
+            }
+
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                lock (_saveTimerLock)
+                {
+                    if (_saveTimer == null)
+                    {
+                        _saveTimer = new DispatcherTimer(
+                            TimeSpan.FromMilliseconds(SaveDebounceMs),
+                            DispatcherPriority.Background,
+                            (_, _) =>
+                            {
+                                _saveTimer?.Stop();
+                                Save();
+                            },
+                            Application.Current.Dispatcher);
+                        _saveTimer.Stop();
+                    }
+
+                    _saveTimer.Stop();
+                    _saveTimer.Start();
+                }
+            }));
         }
 
         public void Save()

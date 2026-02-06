@@ -131,6 +131,8 @@ namespace Aria2Fast
             // 继续启动应用程序
             base.OnStartup(e);
 
+            ThemeManager.ApplyTheme(AppConfig.Instance.ConfigData.AppTheme);
+
             // 其他初始化代码
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             DispatcherUnhandledException += Current_DispatcherUnhandledException;

@@ -22,12 +22,21 @@
 
                 <ui:ThemesDictionary Theme="Light" />
                 <ui:ControlsDictionary />
+                <ResourceDictionary Source="pack://application:,,,/Theme/Catppuccin/Default.xaml" />
 
 
             </ResourceDictionary.MergedDictionaries>
 
             <FontFamily x:Key="ContentControlThemeFontFamily">Microsoft Yahei UI,Segoe UI, Lucida Sans Unicode, Verdana</FontFamily>
             <FontFamily x:Key="DFontFamily">Microsoft Yahei UI,Segoe UI, Lucida Sans Unicode, Verdana</FontFamily>
+
+            <Style TargetType="{x:Type Page}">
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
+            </Style>
+
+            <Style TargetType="{x:Type UserControl}">
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
+            </Style>
 
 
             <converter:DownloadSizeContver x:Key="DownloadSizeContver" />

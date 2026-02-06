@@ -14,6 +14,8 @@
     Title="Aria2Fast"
     Width="1200"
     Height="680"
+    Background="{DynamicResource App.PageBackgroundBrush}"
+    TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     d:DataContext="{d:DesignInstance local:MainWindow,
                                      IsDesignTimeCreatable=False}"
     Closing="Window_Closing"
@@ -38,7 +40,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="{DynamicResource App.PageBackgroundBrush}">
         <Grid.Resources>
             <converter:Aria2HostEmptyStringConverter x:Key="Aria2HostEmptyStringConverter" />
         </Grid.Resources>
@@ -117,7 +119,10 @@
                 </ui:NavigationView.MenuItems>-->
 
                 <ui:NavigationView.FooterMenuItems>
-                    <ui:NavigationViewItem x:Name="SettingNavigationItem" TargetPageType="{x:Type view:Aria2FastSettingView}">
+                    <ui:NavigationViewItem
+                        x:Name="SettingNavigationItem"
+                        NavigationCacheMode="Required"
+                        TargetPageType="{x:Type view:Aria2FastSettingView}">
                         <ui:NavigationViewItem.Icon>
                             <ui:SymbolIcon Symbol="Settings24" />
                         </ui:NavigationViewItem.Icon>
@@ -206,7 +211,7 @@
                                     Width="12"
                                     Height="12"
                                     Margin="5,0,0,0"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     IsIndeterminate="True"
                                     Visibility="Collapsed" />
 
@@ -215,7 +220,7 @@
                                     Margin="5,0,5,0"
                                     VerticalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     Text="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.CurrentShowAria2RpcHost, Converter={StaticResource Aria2HostEmptyStringConverter}}" />
                             </StackPanel>
                         </Grid>
@@ -226,7 +231,7 @@
                         x:Name="RssStatusBorder"
                         MinWidth="40"
                         Margin="5,0,0,0"
-                        Background="#2db7f5"
+                        Background="{DynamicResource App.StatusRssBrush}"
                         CornerRadius="4"
                         UseLayoutRounding="False">
                         <Grid>
@@ -237,7 +242,7 @@
                                     Width="12"
                                     Height="12"
                                     Margin="5,0,0,0"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     IsIndeterminate="True" />
 
 
@@ -246,7 +251,7 @@
                                     Margin="5,0,5,0"
                                     VerticalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     Text="" />
                             </StackPanel>
 
@@ -259,7 +264,7 @@
                         x:Name="MikanListStatusBorder"
                         MinWidth="40"
                         Margin="5,0,0,0"
-                        Background="#ffa726"
+                        Background="{DynamicResource App.StatusMikanBrush}"
                         CornerRadius="4"
                         UseLayoutRounding="False"
                         Visibility="Collapsed">
@@ -270,7 +275,7 @@
                                     Width="12"
                                     Height="12"
                                     Margin="5,0,0,0"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     IsIndeterminate="True" />
 
                                 <TextBlock
@@ -278,7 +283,7 @@
                                     Margin="5,0,5,0"
                                     VerticalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     Text="" />
                             </StackPanel>
                         </Grid>
@@ -288,7 +293,7 @@
                         x:Name="AiStatusBorder"
                         MinWidth="40"
                         Margin="5,0,0,0"
-                        Background="#00bcd4"
+                        Background="{DynamicResource App.StatusAiBrush}"
                         CornerRadius="4"
                         UseLayoutRounding="False"
                         Visibility="Collapsed">
@@ -299,7 +304,7 @@
                                     Width="12"
                                     Height="12"
                                     Margin="5,0,0,0"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     IsIndeterminate="True" />
 
                                 <TextBlock
@@ -307,7 +312,7 @@
                                     Margin="5,0,5,0"
                                     VerticalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="White"
+                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                     Text="" />
                             </StackPanel>
                         </Grid>

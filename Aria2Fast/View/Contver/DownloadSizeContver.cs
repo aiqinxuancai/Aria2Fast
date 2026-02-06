@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -11,8 +10,6 @@ using System.Windows.Data;
 using System.Windows.Media;
 using Aria2Fast.Service;
 using Aria2Fast.Utils;
-using Color = System.Windows.Media.Color;
-using ColorConverter = System.Windows.Media.ColorConverter;
 
 namespace Aria2Fast.View.Contver
 {
@@ -83,20 +80,17 @@ namespace Aria2Fast.View.Contver
         {
             //ColorConverter colorConverter = new ColorConverter();
 
-            var color = value switch
+            return value switch
             {
-                Aria2ApiManager.KARIA2_STATUS_ACTIVE => (Color)ColorConverter.ConvertFromString("#2d8cf0"), //"添加中", //蓝色
-                Aria2ApiManager.KARIA2_STATUS_WAITING => (Color)ColorConverter.ConvertFromString("#2d8cf0"),//"等待中", //蓝色
-                Aria2ApiManager.KARIA2_STATUS_PAUSED => (Color)ColorConverter.ConvertFromString("#ff9900"),//"已暂停", //橙色
-                Aria2ApiManager.KARIA2_STATUS_ERROR => (Color)ColorConverter.ConvertFromString("#ed4014"),//"缺少资源", //红色
-                Aria2ApiManager.KARIA2_STATUS_COMPLETE => (Color)ColorConverter.ConvertFromString("#65B741"), //已完成 //绿色
+                Aria2ApiManager.KARIA2_STATUS_ACTIVE => BrushResourceHelper.GetBrush("App.DownloadActiveBrush", "#1E66F5"), //"添加中", //蓝色
+                Aria2ApiManager.KARIA2_STATUS_WAITING => BrushResourceHelper.GetBrush("App.DownloadWaitingBrush", "#1E66F5"),//"等待中", //蓝色
+                Aria2ApiManager.KARIA2_STATUS_PAUSED => BrushResourceHelper.GetBrush("App.DownloadPausedBrush", "#FE640B"),//"已暂停", //橙色
+                Aria2ApiManager.KARIA2_STATUS_ERROR => BrushResourceHelper.GetBrush("App.DownloadErrorBrush", "#D20F39"),//"缺少资源", //红色
+                Aria2ApiManager.KARIA2_STATUS_COMPLETE => BrushResourceHelper.GetBrush("App.DownloadCompleteBrush", "#40A02B"), //已完成 //绿色
                 //Aria2ApiManager.KARIA2_STATUS_REMOVED => "removed",
 
-                _ => (Color)ColorConverter.ConvertFromString("#f8f8f9"), //value, //灰色
+                _ => BrushResourceHelper.GetBrush("App.DownloadDefaultBrush", "#CCD0DA"), //value, //灰色
             };
-
-
-            return new SolidColorBrush(color);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -341,8 +335,12 @@ namespace Aria2Fast.View.Contver
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool b = (bool)value;
-            return !b;
+            if (value is bool b && b)
+            {
+                return false;
+            }
+
+            return Binding.DoNothing;
         }
     }
 }

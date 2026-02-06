@@ -1,0 +1,179 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- App core colors (Default Light) -->
+    <Color x:Key="App.Base">#FAFAFA</Color>
+    <Color x:Key="App.Mantle">#F3F3F3</Color>
+    <Color x:Key="App.Crust">#E6E6E6</Color>
+
+    <Color x:Key="App.Surface0">#FFFFFF</Color>
+    <Color x:Key="App.Surface1">#F9F9F9</Color>
+    <Color x:Key="App.Surface2">#EEEEEE</Color>
+
+    <Color x:Key="App.Overlay0">#DCDEE2</Color>
+    <Color x:Key="App.Overlay1">#C5C8CE</Color>
+    <Color x:Key="App.Overlay2">#B3B7BF</Color>
+
+    <Color x:Key="App.Text">#EE17233D</Color>
+    <Color x:Key="App.Subtext1">#8C8C8C</Color>
+    <Color x:Key="App.Subtext0">#C5C8CE</Color>
+
+    <Color x:Key="App.Accent">#2D8CF0</Color>
+    <Color x:Key="App.AccentSecondary">#2D8CF0</Color>
+    <Color x:Key="App.AccentTertiary">#2D8CF0</Color>
+
+    <Color x:Key="App.Success">#65B741</Color>
+    <Color x:Key="App.Warning">#FF9900</Color>
+    <Color x:Key="App.Danger">#ED4014</Color>
+    <Color x:Key="App.Info">#28C2FF</Color>
+    <Color x:Key="App.Teal">#28C2FF</Color>
+
+    <Color x:Key="App.TextOnAccent">#EEFFFFFF</Color>
+
+    <Color x:Key="App.Border">#DCDEE2</Color>
+    <Color x:Key="App.Card">#FFFFFF</Color>
+    <Color x:Key="App.Control">#FFFFFF</Color>
+
+    <Color x:Key="App.Highlight">#E6E6E6</Color>
+    <Color x:Key="App.HighlightHover">#DCCCCCCC</Color>
+    <Color x:Key="App.HighlightPressed">#C8E6E6E6</Color>
+    <Color x:Key="App.HighlightDisabled">#66E6E6E6</Color>
+
+    <Color x:Key="App.AccentHover">#DC2D8CF0</Color>
+    <Color x:Key="App.AccentPressed">#C82D8CF0</Color>
+    <Color x:Key="App.AccentDisabled">#662D8CF0</Color>
+
+    <Color x:Key="App.SuccessHover">#DC65B741</Color>
+    <Color x:Key="App.SuccessPressed">#C865B741</Color>
+    <Color x:Key="App.SuccessDisabled">#6665B741</Color>
+
+    <Color x:Key="App.WarningHover">#DCFF9900</Color>
+    <Color x:Key="App.WarningPressed">#C8FF9900</Color>
+    <Color x:Key="App.WarningDisabled">#66FF9900</Color>
+
+    <Color x:Key="App.DangerHover">#DCED4014</Color>
+    <Color x:Key="App.DangerPressed">#C8ED4014</Color>
+    <Color x:Key="App.DangerDisabled">#66ED4014</Color>
+
+    <Color x:Key="App.ScrollbarThumb">#8C8C8C</Color>
+    <Color x:Key="App.ScrollbarThumbHover">#6F6F6F</Color>
+    <Color x:Key="App.ScrollbarThumbDrag">#5A5A5A</Color>
+
+    <Color x:Key="App.StatusLinking">#2D8CF0</Color>
+    <Color x:Key="App.StatusError">#ED4014</Color>
+    <Color x:Key="App.StatusSuccess">#65B741</Color>
+    <Color x:Key="App.StatusRss">#28C2FF</Color>
+    <Color x:Key="App.StatusMikan">#FF9900</Color>
+    <Color x:Key="App.StatusAi">#28C2FF</Color>
+
+    <Color x:Key="App.DownloadActive">#2D8CF0</Color>
+    <Color x:Key="App.DownloadWaiting">#2D8CF0</Color>
+    <Color x:Key="App.DownloadPaused">#FF9900</Color>
+    <Color x:Key="App.DownloadError">#ED4014</Color>
+    <Color x:Key="App.DownloadComplete">#65B741</Color>
+    <Color x:Key="App.DownloadDefault">#F8F8F9</Color>
+
+    <Color x:Key="App.SubscriptionActive">#65B741</Color>
+    <Color x:Key="App.SubscriptionInactive">#E5E1DA</Color>
+    <Color x:Key="App.SubscriptionActiveText">#FFFFFF</Color>
+    <Color x:Key="App.SubscriptionInactiveText">#666666</Color>
+    <Color x:Key="App.PageBackground">#FAFAFA</Color>
+    <Color x:Key="App.PanelBackground">#F3F3F3</Color>
+    <Color x:Key="App.CardBackgroundElevated">#FFFFFF</Color>
+    <Color x:Key="App.Separator">#DCDEE2</Color>
+    <Color x:Key="App.TextPrimary">#17233D</Color>
+    <Color x:Key="App.TextSecondary">#8C8C8C</Color>
+    <Color x:Key="App.TextMuted">#C5C8CE</Color>
+    <Color x:Key="App.TextInverse">#FFFFFF</Color>
+    <Color x:Key="App.StateInfo">#28C2FF</Color>
+    <Color x:Key="App.StateSuccess">#65B741</Color>
+    <Color x:Key="App.StateWarning">#FF9900</Color>
+    <Color x:Key="App.StateError">#ED4014</Color>
+    <Color x:Key="App.InteractiveHover">#DCCCCCCC</Color>
+    <Color x:Key="App.InteractivePressed">#C8E6E6E6</Color>
+    <Color x:Key="App.FocusRing">#2D8CF0</Color>
+    <Color x:Key="App.BadgeHot">#ED4014</Color>
+    <Color x:Key="App.BadgeNew">#2D8CF0</Color>
+    <Color x:Key="App.BadgeAI">#28C2FF</Color>
+    <Color x:Key="App.BadgeNeutral">#EEEEEE</Color>
+    <Color x:Key="App.ShadowColor">#33000000</Color>
+    <Color x:Key="App.OverlayMask">#10000000</Color>
+    <Color x:Key="App.TooltipBackground">#FFFFFF</Color>
+    <Color x:Key="App.TooltipInnerBackground">#F9F9F9</Color>
+
+    <!-- App brushes -->
+    <SolidColorBrush x:Key="App.BaseBrush" Color="{StaticResource App.Base}" />
+    <SolidColorBrush x:Key="App.MantleBrush" Color="{StaticResource App.Mantle}" />
+    <SolidColorBrush x:Key="App.CrustBrush" Color="{StaticResource App.Crust}" />
+    <SolidColorBrush x:Key="App.Surface0Brush" Color="{StaticResource App.Surface0}" />
+    <SolidColorBrush x:Key="App.Surface1Brush" Color="{StaticResource App.Surface1}" />
+    <SolidColorBrush x:Key="App.Surface2Brush" Color="{StaticResource App.Surface2}" />
+    <SolidColorBrush x:Key="App.Overlay0Brush" Color="{StaticResource App.Overlay0}" />
+    <SolidColorBrush x:Key="App.Overlay1Brush" Color="{StaticResource App.Overlay1}" />
+    <SolidColorBrush x:Key="App.Overlay2Brush" Color="{StaticResource App.Overlay2}" />
+    <SolidColorBrush x:Key="App.TextBrush" Color="{StaticResource App.Text}" />
+    <SolidColorBrush x:Key="App.Subtext0Brush" Color="{StaticResource App.Subtext0}" />
+    <SolidColorBrush x:Key="App.Subtext1Brush" Color="{StaticResource App.Subtext1}" />
+    <SolidColorBrush x:Key="App.TextOnAccentBrush" Color="{StaticResource App.TextOnAccent}" />
+    <SolidColorBrush x:Key="App.BorderBrush" Color="{StaticResource App.Border}" />
+
+    <SolidColorBrush x:Key="App.AccentBrush" Color="{StaticResource App.Accent}" />
+    <SolidColorBrush x:Key="App.AccentSecondaryBrush" Color="{StaticResource App.AccentSecondary}" />
+    <SolidColorBrush x:Key="App.AccentTertiaryBrush" Color="{StaticResource App.AccentTertiary}" />
+    <SolidColorBrush x:Key="App.SuccessBrush" Color="{StaticResource App.Success}" />
+    <SolidColorBrush x:Key="App.WarningBrush" Color="{StaticResource App.Warning}" />
+    <SolidColorBrush x:Key="App.DangerBrush" Color="{StaticResource App.Danger}" />
+    <SolidColorBrush x:Key="App.InfoBrush" Color="{StaticResource App.Info}" />
+    <SolidColorBrush x:Key="App.TealBrush" Color="{StaticResource App.Teal}" />
+
+    <SolidColorBrush x:Key="App.ScrollbarThumbBrush" Color="{StaticResource App.ScrollbarThumb}" />
+    <SolidColorBrush x:Key="App.ScrollbarThumbHoverBrush" Color="{StaticResource App.ScrollbarThumbHover}" />
+    <SolidColorBrush x:Key="App.ScrollbarThumbDragBrush" Color="{StaticResource App.ScrollbarThumbDrag}" />
+
+    <SolidColorBrush x:Key="App.StatusLinkingBrush" Color="{StaticResource App.StatusLinking}" />
+    <SolidColorBrush x:Key="App.StatusErrorBrush" Color="{StaticResource App.StatusError}" />
+    <SolidColorBrush x:Key="App.StatusSuccessBrush" Color="{StaticResource App.StatusSuccess}" />
+    <SolidColorBrush x:Key="App.StatusRssBrush" Color="{StaticResource App.StatusRss}" />
+    <SolidColorBrush x:Key="App.StatusMikanBrush" Color="{StaticResource App.StatusMikan}" />
+    <SolidColorBrush x:Key="App.StatusAiBrush" Color="{StaticResource App.StatusAi}" />
+
+    <SolidColorBrush x:Key="App.DownloadActiveBrush" Color="{StaticResource App.DownloadActive}" />
+    <SolidColorBrush x:Key="App.DownloadWaitingBrush" Color="{StaticResource App.DownloadWaiting}" />
+    <SolidColorBrush x:Key="App.DownloadPausedBrush" Color="{StaticResource App.DownloadPaused}" />
+    <SolidColorBrush x:Key="App.DownloadErrorBrush" Color="{StaticResource App.DownloadError}" />
+    <SolidColorBrush x:Key="App.DownloadCompleteBrush" Color="{StaticResource App.DownloadComplete}" />
+    <SolidColorBrush x:Key="App.DownloadDefaultBrush" Color="{StaticResource App.DownloadDefault}" />
+
+    <SolidColorBrush x:Key="App.SubscriptionActiveBrush" Color="{StaticResource App.SubscriptionActive}" />
+    <SolidColorBrush x:Key="App.SubscriptionInactiveBrush" Color="{StaticResource App.SubscriptionInactive}" />
+    <SolidColorBrush x:Key="App.SubscriptionActiveTextBrush" Color="{StaticResource App.SubscriptionActiveText}" />
+    <SolidColorBrush x:Key="App.SubscriptionInactiveTextBrush" Color="{StaticResource App.SubscriptionInactiveText}" />
+    <SolidColorBrush x:Key="App.PageBackgroundBrush" Color="{StaticResource App.PageBackground}" />
+    <SolidColorBrush x:Key="App.PanelBackgroundBrush" Color="{StaticResource App.PanelBackground}" />
+    <SolidColorBrush x:Key="App.CardBackgroundElevatedBrush" Color="{StaticResource App.CardBackgroundElevated}" />
+    <SolidColorBrush x:Key="App.SeparatorBrush" Color="{StaticResource App.Separator}" />
+    <SolidColorBrush x:Key="App.TextPrimaryBrush" Color="{StaticResource App.TextPrimary}" />
+    <SolidColorBrush x:Key="App.TextSecondaryBrush" Color="{StaticResource App.TextSecondary}" />
+    <SolidColorBrush x:Key="App.TextMutedBrush" Color="{StaticResource App.TextMuted}" />
+    <SolidColorBrush x:Key="App.TextInverseBrush" Color="{StaticResource App.TextInverse}" />
+    <SolidColorBrush x:Key="App.StateInfoBrush" Color="{StaticResource App.StateInfo}" />
+    <SolidColorBrush x:Key="App.StateSuccessBrush" Color="{StaticResource App.StateSuccess}" />
+    <SolidColorBrush x:Key="App.StateWarningBrush" Color="{StaticResource App.StateWarning}" />
+    <SolidColorBrush x:Key="App.StateErrorBrush" Color="{StaticResource App.StateError}" />
+    <SolidColorBrush x:Key="App.InteractiveHoverBrush" Color="{StaticResource App.InteractiveHover}" />
+    <SolidColorBrush x:Key="App.InteractivePressedBrush" Color="{StaticResource App.InteractivePressed}" />
+    <SolidColorBrush x:Key="App.FocusRingBrush" Color="{StaticResource App.FocusRing}" />
+    <SolidColorBrush x:Key="App.BadgeHotBrush" Color="{StaticResource App.BadgeHot}" />
+    <SolidColorBrush x:Key="App.BadgeNewBrush" Color="{StaticResource App.BadgeNew}" />
+    <SolidColorBrush x:Key="App.BadgeAIBrush" Color="{StaticResource App.BadgeAI}" />
+    <SolidColorBrush x:Key="App.BadgeNeutralBrush" Color="{StaticResource App.BadgeNeutral}" />
+    <SolidColorBrush x:Key="App.OverlayMaskBrush" Color="{StaticResource App.OverlayMask}" />
+    <SolidColorBrush x:Key="App.TooltipBackgroundBrush" Color="{StaticResource App.TooltipBackground}" />
+    <SolidColorBrush x:Key="App.TooltipInnerBackgroundBrush" Color="{StaticResource App.TooltipInnerBackground}" />
+
+    <!-- Compatibility keys -->
+    <SolidColorBrush x:Key="GrayBrush10" Color="{StaticResource App.Surface0}" />
+    <SolidColorBrush x:Key="ButtonSelectBrush" Color="{StaticResource App.ScrollbarThumbHover}" />
+    <SolidColorBrush x:Key="DarkBrush" Color="{StaticResource App.ScrollbarThumbDrag}" />
+
+</ResourceDictionary>

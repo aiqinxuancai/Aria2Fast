@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="50"
     d:DesignWidth="300"
+    TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     mc:Ignorable="d">
 
     <Grid>
@@ -17,7 +18,7 @@
                     <Setter Property="Background" Value="Transparent" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                            <Setter Property="Background" Value="#006ABE" />
+                            <Setter Property="Background" Value="{DynamicResource App.FocusRingBrush}" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -44,7 +45,7 @@
                         <ProgressBar
                             Height="2"
                             VerticalAlignment="Bottom"
-                            Foreground="#CC57C3F1"
+                            Foreground="{DynamicResource App.AccentSecondaryBrush}"
                             Maximum="10000"
                             Style="{StaticResource FlatProgressBarNoBorder}"
                             Visibility="{Binding Data.Status, Converter={StaticResource DownloadProgressVisibilityConverter}}">
@@ -89,10 +90,10 @@
                                     </TextBlock.Text>
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#FFFFFF" />
+                                            <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                    <Setter Property="Foreground" Value="#FFFFFF" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -105,7 +106,7 @@
                                 Height="18"
                                 MinWidth="40"
                                 Margin="5,0,0,0"
-                                Background="#DCDEE2"
+                                Background="{DynamicResource App.BadgeNeutralBrush}"
                                 CornerRadius="4">
                                 <Border.Visibility>
                                     <MultiBinding Converter="{StaticResource ErrorStatusEasyNeedShowContver}">
@@ -117,7 +118,7 @@
                                     Margin="4,0,4,0"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Foreground="#515A6E">
+                                    Foreground="{DynamicResource App.TextPrimaryBrush}">
                                     <TextBlock.Text>
                                         <MultiBinding Converter="{StaticResource ErrorStatusEasyContver}">
                                             <Binding Path="ErrorMessageMin" />
@@ -126,10 +127,10 @@
                                     </TextBlock.Text>
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#FFFFFF" />
+                                            <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                    <Setter Property="Foreground" Value="#FFFFFF" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -141,8 +142,8 @@
                                 Height="18"
                                 MinWidth="40"
                                 Margin="5,0,0,0"
-                                Background="#E6F7FF"
-                                BorderBrush="#91D5FF"
+                                Background="{DynamicResource App.PanelBackgroundBrush}"
+                                BorderBrush="{DynamicResource App.StateInfoBrush}"
                                 BorderThickness="1"
                                 CornerRadius="4"
                                 Visibility="{Binding FromSubscription, Converter={StaticResource BoolVisibilityConverter}}">
@@ -156,14 +157,14 @@
                                     Margin="4,0,4,0"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Foreground="#1890FF"
+                                    Foreground="{DynamicResource App.StateInfoBrush}"
                                     Text="订阅">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#FFFFFF" />
+                                            <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                    <Setter Property="Foreground" Value="#FFFFFF" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -175,7 +176,7 @@
                                 Height="18"
                                 MinWidth="40"
                                 Margin="5,0,0,0"
-                                Background="#DCDEE2"
+                                Background="{DynamicResource App.BadgeNeutralBrush}"
                                 CornerRadius="4">
                                 <Border.Visibility>
                                     <MultiBinding Converter="{StaticResource ExistVisibilityConverter}">
@@ -187,14 +188,14 @@
                                     Margin="4,0,4,0"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Foreground="#515A6E"
+                                    Foreground="{DynamicResource App.TextPrimaryBrush}"
                                     Text="做种">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#FFFFFF" />
+                                            <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                    <Setter Property="Foreground" Value="#FFFFFF" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

@@ -31,7 +31,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Wpf.Ui;
-using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace Aria2Fast
@@ -81,7 +80,7 @@ namespace Aria2Fast
             DataContext = this;
 
             InitializeComponent();
-            ApplicationThemeManager.Apply(this);
+            ThemeManager.ApplyTheme(AppConfig.Instance.ConfigData.AppTheme, this);
             //ApplicationThemeManager.Apply(ApplicationTheme.Light);
            
             Instance = this;
@@ -437,29 +436,22 @@ namespace Aria2Fast
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                SolidColorBrush myBrush = new SolidColorBrush();
-
                 switch (status)
                 {
                     case LinkStatus.Linking:
                         //LinkStatusProgressBar.IsIndeterminate = true;
                         LinkStatusProgressRing.Visibility = Visibility.Visible;
-                        myBrush.Color = (Color)ColorConverter.ConvertFromString("#2db7f5");
-                        LinkStatusBorder.Background = myBrush;
+                        LinkStatusBorder.SetResourceReference(Border.BackgroundProperty, "App.StatusLinkingBrush");
                         break;
                     case LinkStatus.Error:
                         //LinkStatusProgressBar.IsIndeterminate = false;
                         LinkStatusProgressRing.Visibility = Visibility.Collapsed;
-                        myBrush.Color = (Color)ColorConverter.ConvertFromString("#ffed4014");
-                        LinkStatusBorder.Background = myBrush;
+                        LinkStatusBorder.SetResourceReference(Border.BackgroundProperty, "App.StatusErrorBrush");
                         break;
                     case LinkStatus.Success:
                         //LinkStatusProgressBar.IsIndeterminate = false;
                         LinkStatusProgressRing.Visibility = Visibility.Collapsed;
-                        myBrush.Color = (Color)ColorConverter.ConvertFromString("#65B741");
-                        LinkStatusBorder.Background = myBrush;
-
-
+                        LinkStatusBorder.SetResourceReference(Border.BackgroundProperty, "App.StatusSuccessBrush");
                         break;
 
                 }

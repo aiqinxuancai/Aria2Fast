@@ -3,29 +3,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    >
 
-    <Color x:Key="AQColorWhite">#EEFFFFFF</Color>
     <Color x:Key="AQColorTransparent">#00000000</Color>
-    <Color x:Key="AQColorBase">#FF2d8cf0</Color>
 
-
-    <SolidColorBrush x:Key="AQForeground" Color="{StaticResource AQColorWhite}" />
+    <SolidColorBrush x:Key="AQForeground" Color="{DynamicResource App.TextOnAccent}" />
+    <SolidColorBrush x:Key="AQForegroundBlack" Color="{DynamicResource App.Text}" />
     <SolidColorBrush x:Key="AQBorderBrushTransparent" Color="{StaticResource AQColorTransparent}" />
-    <SolidColorBrush x:Key="AQBrushBase" Color="{StaticResource AQColorBase}" />
-
-    <Color x:Key="AQColorBlack">#EE17233d</Color>
-    <SolidColorBrush x:Key="AQForegroundBlack" Color="{StaticResource AQColorBlack}" />
-
 
     <!--  Blue  -->
-    <Color x:Key="AQColorBackgroundNormal">#FF2d8cf0</Color>
-    <Color x:Key="AQColorBackgroundPressed">#C82d8cf0</Color>
-    <Color x:Key="AQColorBackgroundMouseOver">#DC2d8cf0</Color>
-    <Color x:Key="AQColorBackgroundEnabled">#662d8cf0</Color>
-
-    <SolidColorBrush x:Key="AQBackgroundNormal" Color="{StaticResource AQColorBackgroundNormal}" />
-    <SolidColorBrush x:Key="AQBackgroundPressed" Color="{StaticResource AQColorBackgroundPressed}" />
-    <SolidColorBrush x:Key="AQBackgroundMouseOver" Color="{StaticResource AQColorBackgroundMouseOver}" />
-    <SolidColorBrush x:Key="AQBackgroundEnabled" Color="{StaticResource AQColorBackgroundEnabled}" />
+    <SolidColorBrush x:Key="AQBackgroundNormal" Color="{DynamicResource App.Accent}" />
+    <SolidColorBrush x:Key="AQBackgroundPressed" Color="{DynamicResource App.AccentPressed}" />
+    <SolidColorBrush x:Key="AQBackgroundMouseOver" Color="{DynamicResource App.AccentHover}" />
+    <SolidColorBrush x:Key="AQBackgroundEnabled" Color="{DynamicResource App.AccentDisabled}" />
 
     <Style x:Key="AQButtonBlue" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource AQBackgroundNormal}" />
@@ -59,7 +47,7 @@
                                             FillBehavior="HoldEnd"
                                             RepeatBehavior="1x"
                                             Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource AQColorBackgroundMouseOver}"
+                                            To="{StaticResource App.AccentHover}"
                                             Duration="0:0:0.25" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -126,7 +114,7 @@
                                             FillBehavior="HoldEnd"
                                             RepeatBehavior="1x"
                                             Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource AQColorBackgroundMouseOver}"
+                                            To="{StaticResource App.AccentHover}"
                                             Duration="0:0:0.25" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -161,15 +149,10 @@
     </Style>
 
     <!--  Black-Highlight  -->
-    <Color x:Key="AQColorBackgroundHighlightBlackNormal">#FFE6E6E6</Color>
-    <Color x:Key="AQColorBackgroundHighlightBlackPressed">#C8E6E6E6</Color>
-    <Color x:Key="AQColorBackgroundHighlightBlackMouseOver">#DCCCCCCC</Color>
-    <Color x:Key="AQColorBackgroundHighlightBlackEnabled">#66E6E6E6</Color>
-
-    <SolidColorBrush x:Key="AQBackgroundHighlightBlackNormal" Color="{StaticResource AQColorBackgroundHighlightBlackNormal}" />
-    <SolidColorBrush x:Key="AQBackgroundHighlightBlackPressed" Color="{StaticResource AQColorBackgroundHighlightBlackPressed}" />
-    <SolidColorBrush x:Key="AQBackgroundHighlightBlackMouseOver" Color="{StaticResource AQColorBackgroundHighlightBlackMouseOver}" />
-    <SolidColorBrush x:Key="AQBackgroundHighlightBlackEnabled" Color="{StaticResource AQColorBackgroundHighlightBlackEnabled}" />
+    <SolidColorBrush x:Key="AQBackgroundHighlightBlackNormal" Color="{DynamicResource App.Highlight}" />
+    <SolidColorBrush x:Key="AQBackgroundHighlightBlackPressed" Color="{DynamicResource App.HighlightPressed}" />
+    <SolidColorBrush x:Key="AQBackgroundHighlightBlackMouseOver" Color="{DynamicResource App.HighlightHover}" />
+    <SolidColorBrush x:Key="AQBackgroundHighlightBlackEnabled" Color="{DynamicResource App.HighlightDisabled}" />
 
     <Style x:Key="AQButtonBlackHighlight" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource AQBackgroundHighlightBlackNormal}" />
@@ -198,7 +181,7 @@
                                             FillBehavior="HoldEnd"
                                             RepeatBehavior="1x"
                                             Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource AQColorBackgroundHighlightBlackMouseOver}"
+                                            To="{StaticResource App.HighlightHover}"
                                             Duration="0:0:0.25" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -235,15 +218,10 @@
 
 
     <!--  Red  -->
-    <Color x:Key="AQColorBackgroundRedNormal">#FFed4014</Color>
-    <Color x:Key="AQColorBackgroundRedPressed">#C8ed4014</Color>
-    <Color x:Key="AQColorBackgroundRedMouseOver">#DCed4014</Color>
-    <Color x:Key="AQColorBackgroundRedEnabled">#66ed4014</Color>
-
-    <SolidColorBrush x:Key="AQBackgroundRedNormal" Color="{StaticResource AQColorBackgroundRedNormal}" />
-    <SolidColorBrush x:Key="AQBackgroundRedPressed" Color="{StaticResource AQColorBackgroundRedPressed}" />
-    <SolidColorBrush x:Key="AQBackgroundRedMouseOver" Color="{StaticResource AQColorBackgroundRedMouseOver}" />
-    <SolidColorBrush x:Key="AQBackgroundRedEnabled" Color="{StaticResource AQColorBackgroundRedEnabled}" />
+    <SolidColorBrush x:Key="AQBackgroundRedNormal" Color="{DynamicResource App.Danger}" />
+    <SolidColorBrush x:Key="AQBackgroundRedPressed" Color="{DynamicResource App.DangerPressed}" />
+    <SolidColorBrush x:Key="AQBackgroundRedMouseOver" Color="{DynamicResource App.DangerHover}" />
+    <SolidColorBrush x:Key="AQBackgroundRedEnabled" Color="{DynamicResource App.DangerDisabled}" />
 
     <Style x:Key="AQButtonRed" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource AQBackgroundRedNormal}" />
@@ -273,7 +251,7 @@
                                             FillBehavior="HoldEnd"
                                             RepeatBehavior="1x"
                                             Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource AQColorBackgroundRedMouseOver}"
+                                            To="{StaticResource App.DangerHover}"
                                             Duration="0:0:0.25" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -308,15 +286,10 @@
 
 
     <!--  Green  -->
-    <Color x:Key="AQColorBackgroundGreenNormal">#FF65B741</Color>
-    <Color x:Key="AQColorBackgroundGreenPressed">#C865B741</Color>
-    <Color x:Key="AQColorBackgroundGreenMouseOver">#DC65B741</Color>
-    <Color x:Key="AQColorBackgroundGreenEnabled">#6665B741</Color>
-
-    <SolidColorBrush x:Key="AQBackgroundGreenNormal" Color="{StaticResource AQColorBackgroundGreenNormal}" />
-    <SolidColorBrush x:Key="AQBackgroundGreenPressed" Color="{StaticResource AQColorBackgroundGreenPressed}" />
-    <SolidColorBrush x:Key="AQBackgroundGreenMouseOver" Color="{StaticResource AQColorBackgroundGreenMouseOver}" />
-    <SolidColorBrush x:Key="AQBackgroundGreenEnabled" Color="{StaticResource AQColorBackgroundGreenEnabled}" />
+    <SolidColorBrush x:Key="AQBackgroundGreenNormal" Color="{DynamicResource App.Success}" />
+    <SolidColorBrush x:Key="AQBackgroundGreenPressed" Color="{DynamicResource App.SuccessPressed}" />
+    <SolidColorBrush x:Key="AQBackgroundGreenMouseOver" Color="{DynamicResource App.SuccessHover}" />
+    <SolidColorBrush x:Key="AQBackgroundGreenEnabled" Color="{DynamicResource App.SuccessDisabled}" />
 
     <Style x:Key="AQButtonGreen" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource AQBackgroundGreenNormal}" />
@@ -346,7 +319,7 @@
                                             FillBehavior="HoldEnd"
                                             RepeatBehavior="1x"
                                             Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource AQColorBackgroundGreenMouseOver}"
+                                            To="{StaticResource App.SuccessHover}"
                                             Duration="0:0:0.25" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -381,15 +354,10 @@
 
 
     <!--  Orange  -->
-    <Color x:Key="AQColorBackgroundOrangeNormal">#FFff9900</Color>
-    <Color x:Key="AQColorBackgroundOrangePressed">#C8ff9900</Color>
-    <Color x:Key="AQColorBackgroundOrangeMouseOver">#DCff9900</Color>
-    <Color x:Key="AQColorBackgroundOrangeEnabled">#66ff9900</Color>
-
-    <SolidColorBrush x:Key="AQBackgroundOrangeNormal" Color="{StaticResource AQColorBackgroundOrangeNormal}" />
-    <SolidColorBrush x:Key="AQBackgroundOrangePressed" Color="{StaticResource AQColorBackgroundOrangePressed}" />
-    <SolidColorBrush x:Key="AQBackgroundOrangeMouseOver" Color="{StaticResource AQColorBackgroundOrangeMouseOver}" />
-    <SolidColorBrush x:Key="AQBackgroundOrangeEnabled" Color="{StaticResource AQColorBackgroundOrangeEnabled}" />
+    <SolidColorBrush x:Key="AQBackgroundOrangeNormal" Color="{DynamicResource App.Warning}" />
+    <SolidColorBrush x:Key="AQBackgroundOrangePressed" Color="{DynamicResource App.WarningPressed}" />
+    <SolidColorBrush x:Key="AQBackgroundOrangeMouseOver" Color="{DynamicResource App.WarningHover}" />
+    <SolidColorBrush x:Key="AQBackgroundOrangeEnabled" Color="{DynamicResource App.WarningDisabled}" />
 
     <Style x:Key="AQButtonOrange" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource AQBackgroundOrangeNormal}" />
@@ -419,7 +387,7 @@
                                             FillBehavior="HoldEnd"
                                             RepeatBehavior="1x"
                                             Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource AQColorBackgroundOrangeMouseOver}"
+                                            To="{StaticResource App.WarningHover}"
                                             Duration="0:0:0.25" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -454,15 +422,15 @@
 
 
     <!--  默认按钮，黑色边框白色底，悬停时蓝色  -->
-    <SolidColorBrush x:Key="AQDefaultNormal" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="AQDefaultPressed" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="AQDefaultMouseOver" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="AQDefaultDisable" Color="#F7F7F7" />
+    <SolidColorBrush x:Key="AQDefaultNormal" Color="{DynamicResource App.Surface0}" />
+    <SolidColorBrush x:Key="AQDefaultPressed" Color="{DynamicResource App.Surface1}" />
+    <SolidColorBrush x:Key="AQDefaultMouseOver" Color="{DynamicResource App.Surface0}" />
+    <SolidColorBrush x:Key="AQDefaultDisable" Color="{DynamicResource App.Surface0}" />
 
-    <SolidColorBrush x:Key="AQDefaultBorderBrush" Color="#dcdee2" />
-    <SolidColorBrush x:Key="AQDefaultBorderMouseOverBrush" Color="#2d8cf0" />
+    <SolidColorBrush x:Key="AQDefaultBorderBrush" Color="{DynamicResource App.Border}" />
+    <SolidColorBrush x:Key="AQDefaultBorderMouseOverBrush" Color="{DynamicResource App.Accent}" />
 
-    <SolidColorBrush x:Key="AQDefaultDisableFont" Color="#c5c8ce" />
+    <SolidColorBrush x:Key="AQDefaultDisableFont" Color="{DynamicResource App.Subtext0}" />
 
 
     <Style x:Key="AQButtonDefault" TargetType="Button">
@@ -501,14 +469,14 @@
                                             RepeatBehavior="1x"
                                             Storyboard.TargetName="ButtonBorder"
                                             Storyboard.TargetProperty="(Control.BorderBrush).(SolidColorBrush.Color)"
-                                            To="#2d8cf0"
+                                            To="{StaticResource App.Accent}"
                                             Duration="0:0:0.25" />
                                         <ColorAnimation
                                             AutoReverse="False"
                                             FillBehavior="HoldEnd"
                                             RepeatBehavior="1x"
                                             Storyboard.TargetProperty="(Control.Foreground).(SolidColorBrush.Color)"
-                                            To="#2d8cf0"
+                                            To="{StaticResource App.Accent}"
                                             Duration="0:0:0.25" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -564,12 +532,12 @@
         <Setter Property="Cursor" Value="Hand"/>-->
         <Setter Property="Foreground">
             <Setter.Value>
-                <SolidColorBrush Opacity="1" Color="White" />
+                <SolidColorBrush Opacity="1" Color="{DynamicResource App.TextOnAccent}" />
             </Setter.Value>
         </Setter>
         <Setter Property="Background">
             <Setter.Value>
-                <SolidColorBrush Opacity="1" Color="#28C2FF" />
+                <SolidColorBrush Opacity="1" Color="{DynamicResource App.Accent}" />
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
@@ -580,7 +548,7 @@
                         x:Name="border"
                         Padding="4,2"
                         Background="{TemplateBinding Background}"
-                        BorderBrush="Gray"
+                        BorderBrush="{DynamicResource App.BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="3"
                         SnapsToDevicePixels="True">
@@ -608,7 +576,7 @@
                                 FillBehavior="HoldEnd"
                                 RepeatBehavior="1x"
                                 Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
-                                To="#D2F898"
+                                To="{StaticResource App.AccentHover}"
                                 Duration="0:0:0.25" />
                         </Storyboard>
                     </BeginStoryboard>

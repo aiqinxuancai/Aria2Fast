@@ -10,6 +10,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <contver:SubscriptionToColorConverter x:Key="SubscriptionToColorConverter" />
@@ -30,6 +31,7 @@
                 Grid.Row="0"
                 Margin="10,20,0,0"
                 FontSize="24"
+                Foreground="{DynamicResource App.TextPrimaryBrush}"
                 Text="{Binding Title}" />
             <ItemsControl
                 x:Name="MyListView"
@@ -236,6 +238,7 @@
                                 Margin="3,5,0,0"
                                 VerticalAlignment="Center"
                                 FontWeight="Bold"
+                                Foreground="{DynamicResource App.TextPrimaryBrush}"
                                 Text="{Binding Name}"
                                 TextTrimming="CharacterEllipsis" />
 
@@ -257,7 +260,7 @@
                                                 MouseUp="Border_MouseLeftButtonUp">
                                                 <TextBlock
                                                     Margin="5,2,5,2"
-                                                    Foreground="White"
+                                                    Foreground="{DynamicResource App.TextOnAccentBrush}"
                                                     Text="{Binding Name}" />
                                             </Border>
                                         </DataTemplate>

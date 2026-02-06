@@ -9,6 +9,7 @@
     Height="44"
     d:DesignHeight="50"
     d:DesignWidth="300"
+    TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     mc:Ignorable="d">
 
 
@@ -19,7 +20,7 @@
                     <Setter Property="Background" Value="Transparent" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                            <Setter Property="Background" Value="#10000000" />
+                            <Setter Property="Background" Value="{DynamicResource App.OverlayMaskBrush}" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -38,10 +39,10 @@
                         Text="{Binding Title}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#808695" />
+                                <Setter Property="Foreground" Value="{DynamicResource App.TextSecondaryBrush}" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                        <Setter Property="Foreground" Value="#2d8cf0" />
+                                        <Setter Property="Foreground" Value="{DynamicResource App.AccentBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

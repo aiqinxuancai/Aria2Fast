@@ -11,6 +11,7 @@
     x:Name="Self"
     d:DesignHeight="450"
     d:DesignWidth="500"
+    TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     mc:Ignorable="d">
     <Page.Resources>
         <converter:DownloadSizeContver x:Key="DownloadSizeContver" />
@@ -22,7 +23,7 @@
             BlurRadius="5"
             Direction="135"
             ShadowDepth="2"
-            Color="#33000000" />
+            Color="{DynamicResource App.ShadowColor}" />
     </Page.Resources>
 
     <Grid>
@@ -91,21 +92,21 @@
                             <Border CornerRadius="4">
                                 <Border.ToolTip>
                                     <ToolTip
-                                        Background="#00000000"
-                                        BorderBrush="#00000000"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
                                         ToolTipService.HasDropShadow="True"
                                         ToolTipService.ShowOnDisabled="True">
                                         <ToolTip.Template>
                                             <ControlTemplate TargetType="{x:Type ToolTip}">
                                                 <Border
-                                                    Background="White"
-                                                    BorderBrush="#20000000"
+                                                    Background="{DynamicResource App.TooltipBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource App.SeparatorBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="5">
                                                     <Border Padding="5,5,5,5" CornerRadius="4">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
-                                                                <Setter Property="Background" Value="#DDFFFFFF" />
+                                                                <Setter Property="Background" Value="{DynamicResource App.TooltipInnerBackgroundBrush}" />
                                                             </Style>
                                                         </Border.Style>
                                                         <ui:Card>
@@ -152,7 +153,7 @@
                                         <Setter Property="Background" Value="Transparent" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                <Setter Property="Background" Value="#006ABE" />
+                                                <Setter Property="Background" Value="{DynamicResource App.FocusRingBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -183,8 +184,8 @@
                                             <Border
                                                 Height="18"
                                                 MinWidth="40"
-                                                Background="#60FFFFFF"
-                                                BorderBrush="#E8EAEC"
+                                                Background="{DynamicResource App.CardBackgroundElevatedBrush}"
+                                                BorderBrush="{DynamicResource App.SeparatorBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="4"
                                                 ToolTip="总任务数">
@@ -194,10 +195,10 @@
                                                     Text="{Binding TaskFullCount}">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="#515a6e" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                                    <Setter Property="Foreground" Value="#FFFFFF" />
+                                                                    <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -210,7 +211,7 @@
                                                 MinWidth="40"
                                                 Margin="5,0,0,0"
                                                 HorizontalAlignment="Center"
-                                                Background="#65B741"
+                                                Background="{DynamicResource App.StateSuccessBrush}"
                                                 CornerRadius="4"
                                                 ToolTip="已添加任务数/匹配任务数">
                                                 <StackPanel
@@ -218,14 +219,14 @@
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Orientation="Horizontal">
-                                                    <ui:SymbolIcon Foreground="#FFFFFF" Symbol="CheckmarkCircle20" />
+                                                    <ui:SymbolIcon Foreground="{DynamicResource App.TextOnAccentBrush}" Symbol="CheckmarkCircle20" />
                                                     <TextBlock Margin="2,0,0,0" Text="{Binding AlreadyAddedDownloadModel.Count}">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="#FFFFFF" />
+                                                                <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                                                        <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -235,10 +236,10 @@
                                                     <TextBlock Margin="2,0,2,0" Text="/">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="#FFFFFF" />
+                                                                <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                                                        <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -247,10 +248,10 @@
                                                     <TextBlock Margin="0,0,2,0" Text="{Binding TaskMatchCount}">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="#FFFFFF" />
+                                                                <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                                        <Setter Property="Foreground" Value="#FFFFFF" />
+                                                                        <Setter Property="Foreground" Value="{DynamicResource App.TextOnAccentBrush}" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
