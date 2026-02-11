@@ -58,7 +58,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path $ariaPath
           Invoke-WebRequest -Uri "https://github.com/aiqinxuancai/aria2/releases/download/release-1.37.7/aria2-1.37.7-win-64bit-build1.zip" -OutFile "aria2.zip"
           Expand-Archive -Path "aria2.zip" -DestinationPath $tempDir
-          Get-ChildItem -Path $tempDir\aria2-1.37.0-win-64bit-build1\* | Move-Item -Destination $ariaPath
+          Get-ChildItem -Path $tempDir\aria2-1.37.7-win-64bit-build1\* | Move-Item -Destination $ariaPath
           Remove-Item -Path $tempDir -Recurse -Force
         shell: powershell
       - name: Compress
