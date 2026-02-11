@@ -40,6 +40,7 @@ namespace Aria2Fast.Service
         public const string KARIA2_STATUS_ERROR = "error";
         public const string KARIA2_STATUS_COMPLETE = "complete";
         public const string KARIA2_STATUS_REMOVED = "removed";
+        public const string GA_EVENT_ID_DOWNLOAD_SUCCESS = "Download:Success";
 
 
         public IObservable<Aria2Event> EventReceived => _eventReceivedSubject.AsObservable();
@@ -528,6 +529,7 @@ namespace Aria2Fast.Service
                         }
 
                         EasyLogManager.Logger.Info($"下载完成 {task.SubscriptionName}");
+                        Aria2Fast.Services.GameAnalyticsManager.Instance.TrackDesignEvent(GA_EVENT_ID_DOWNLOAD_SUCCESS, 1f);
                         if (AppConfig.Instance.ConfigData.PushDeerOpen)
                         {
                             var taskIdentity = $"{CurrentRpc}|{task.Data.Gid}";

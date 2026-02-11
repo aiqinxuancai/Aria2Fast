@@ -9,7 +9,6 @@ namespace Aria2Fast.Services.GameAnalytics
     using Flurl.Http;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    using Org.BouncyCastle.Asn1.Icao;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -46,7 +45,7 @@ namespace Aria2Fast.Services.GameAnalytics
 
         // --- Sending Strategy Properties ---
         private Timer _sendTimer;
-        private readonly object _sendLock = new object(); // Lock to prevent concurrent sends
+        private readonly SemaphoreSlim _sendSemaphore = new SemaphoreSlim(1, 1);
 
         public GameAnalyticsClient(string baseUrl, string gameKey, string secretKey, string userId)
         {
@@ -81,7 +80,7 @@ namespace Aria2Fast.Services.GameAnalytics
             var url = $"{_baseUrl}/v2/{_gameKey}/init";
             var response = await SendRequestAsync(url, initPayload);
 
-            if (response != null && !response.Contains("disabled"))
+            if (response.IsSuccess && IsInitEnabled(response.ResponseBody))
             {
                 _canSendEvents = true;
                 Debug.WriteLine("[GA] GameAnalytics initialized successfully.");
@@ -113,7 +112,7 @@ namespace Aria2Fast.Services.GameAnalytics
             // 4. Send 'user' event
             AddUserEvent();
 
-            SendQueueAsync();
+            _ = SendQueueAsync();
         }
 
         public async Task EndSessionAsync()
@@ -248,9 +247,11 @@ namespace Aria2Fast.Services.GameAnalytics
 
         private void AddEventToQueue(Dictionary<string, object> eventPayload)
         {
+            int queueCount;
             lock (_eventQueue)
             {
                 _eventQueue.Add(eventPayload);
+                queueCount = _eventQueue.Count;
             }
 
             // Save state for session recovery, unless it's the session_end event itself
@@ -260,7 +261,7 @@ namespace Aria2Fast.Services.GameAnalytics
             }
 
             // Check if batch size limit is reached and trigger a send
-            if (_eventQueue.Count >= GA_BATCH_SIZE_LIMIT)
+            if (queueCount >= GA_BATCH_SIZE_LIMIT)
             {
                 Debug.WriteLine("[GA] Batch size limit reached, flushing queue.");
                 _ = SendQueueAsync();
@@ -269,43 +270,68 @@ namespace Aria2Fast.Services.GameAnalytics
 
         private async Task SendQueueAsync()
         {
-            List<Dictionary<string, object>> eventsToSend;
-            lock (_eventQueue)
+            if (!_canSendEvents)
             {
-                if (_eventQueue.Count == 0) return;
-                // Create a copy of the queue to send, to avoid blocking during the HTTP request
-                eventsToSend = new List<Dictionary<string, object>>(_eventQueue);
+                return;
             }
 
-            var url = $"{_baseUrl}/v2/{_gameKey}/events";
-
-            // Use a lock to prevent sending multiple batches concurrently
-            lock (_sendLock)
+            if (!await _sendSemaphore.WaitAsync(0))
             {
-                // This check is a bit redundant with the outer one, but safe
-                if (eventsToSend.Count == 0) return;
+                return;
             }
 
-            var response = await SendRequestAsync(url, eventsToSend);
-
-            if (response != null)
+            try
             {
-                // If sending was successful, remove the sent events from the main queue
-                lock (_eventQueue)
+                var url = $"{_baseUrl}/v2/{_gameKey}/events";
+
+                while (true)
                 {
-                    // This removal is safe because we're removing the exact same references
-                    _eventQueue.RemoveAll(e => eventsToSend.Contains(e));
+                    List<Dictionary<string, object>> eventsToSend;
+                    lock (_eventQueue)
+                    {
+                        if (_eventQueue.Count == 0)
+                        {
+                            return;
+                        }
+
+                        eventsToSend = _eventQueue
+                            .Take(GA_BATCH_SIZE_LIMIT)
+                            .ToList();
+                    }
+
+                    var response = await SendRequestAsync(url, eventsToSend);
+
+                    if (response.IsSuccess)
+                    {
+                        lock (_eventQueue)
+                        {
+                            _eventQueue.RemoveAll(e => eventsToSend.Contains(e));
+                            Debug.WriteLine($"[GA] Successfully sent {eventsToSend.Count} events. {_eventQueue.Count} remaining.");
+                        }
+                        continue;
+                    }
+
+                    if (response.ShouldDropEvents)
+                    {
+                        lock (_eventQueue)
+                        {
+                            _eventQueue.RemoveAll(e => eventsToSend.Contains(e));
+                            Debug.WriteLine($"[GA] Dropped {eventsToSend.Count} invalid events (HTTP 400/401). {_eventQueue.Count} remaining.");
+                        }
+                        continue;
+                    }
+
+                    Debug.WriteLine($"[GA] Failed to send {eventsToSend.Count} events. They will be retried later.");
+                    return;
                 }
-                Debug.WriteLine($"[GA] Successfully sent {eventsToSend.Count} events. {_eventQueue.Count} remaining.");
             }
-            else
+            finally
             {
-               
-                Debug.WriteLine($"[GA] Failed to send {eventsToSend.Count} events. They will be retried later.");
+                _sendSemaphore.Release();
             }
         }
 
-        private async Task<string> SendRequestAsync(string url, object payload)
+        private async Task<GaHttpResponse> SendRequestAsync(string url, object payload)
         {
             // 1. 手动将 C# 对象序列化为 JSON 字符串。
             // 使用紧凑的格式，不进行任何美化，以减少数据量并确保一致性。
@@ -326,22 +352,35 @@ namespace Aria2Fast.Services.GameAnalytics
 
                 // 使用 Debug.WriteLine 代替 FLLogDebug
                 Debug.WriteLine($"[GA] 成功响应: {response}");
-                return response;
+                return new GaHttpResponse(response, isSuccess: true);
             }
             catch (FlurlHttpException ex)
             {
-                var errorResponse = await ex.GetResponseStringAsync();
+                var statusCode = ex.Call?.Response?.StatusCode;
+                string errorResponse = string.Empty;
+                try
+                {
+                    errorResponse = await ex.GetResponseStringAsync();
+                }
+                catch
+                {
+                    // ignored - we still log the exception message below
+                }
+
                 // 详细记录错误，包括请求的 JSON 内容，这对于调试至关重要！
                 Debug.WriteLine($"[GA] 请求失败: {ex.Message}");
                 Debug.WriteLine($"[GA] 失败的负载: {payloadJson}");
                 Debug.WriteLine($"[GA] 服务器响应: {errorResponse}");
-                return null;
+                return new GaHttpResponse(
+                    errorResponse,
+                    isSuccess: false,
+                    shouldDropEvents: statusCode == 400 || statusCode == 401);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[GA] 请求期间发生意外错误: {ex.Message}");
                 Debug.WriteLine($"[GA] 发生意外错误的负载: {payloadJson}");
-                return null;
+                return new GaHttpResponse(string.Empty, isSuccess: false);
             }
         }
 
@@ -425,7 +464,15 @@ namespace Aria2Fast.Services.GameAnalytics
             var lastSessionId = recoveryData["session_id"]?.ToString();
             var sessionStartTs = recoveryData["session_start_ts"]?.Value<long>() ?? 0;
             var lastAnnotations = recoveryData["last_event_annotations"]?.ToObject<Dictionary<string, object>>();
-            var lastEventTs = Convert.ToInt64(lastAnnotations["client_ts"]);
+            if (string.IsNullOrWhiteSpace(lastSessionId) ||
+                lastAnnotations == null ||
+                !lastAnnotations.TryGetValue("client_ts", out var lastEventTsValue) ||
+                !long.TryParse(lastEventTsValue?.ToString(), out var lastEventTs))
+            {
+                Debug.WriteLine("[GA] Recovery data is incomplete. Clearing stale session recovery state.");
+                ClearSessionStateForRecovery();
+                return;
+            }
 
             var sessionLength = (int)(lastEventTs - sessionStartTs);
 
@@ -488,12 +535,51 @@ namespace Aria2Fast.Services.GameAnalytics
             return eventIdBuilder.ToString();
         }
 
+        private bool IsInitEnabled(string responseBody)
+        {
+            if (string.IsNullOrWhiteSpace(responseBody))
+            {
+                return false;
+            }
+
+            try
+            {
+                var responseJson = JObject.Parse(responseBody);
+                var enabledToken = responseJson["enabled"];
+                if (enabledToken != null && enabledToken.Type == JTokenType.Boolean)
+                {
+                    return enabledToken.Value<bool>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[GA] Failed to parse init response. Fallback to legacy disabled check. {ex.Message}");
+            }
+
+            return !responseBody.Contains("disabled", StringComparison.OrdinalIgnoreCase);
+        }
+
         public void Dispose()
         {
             // Ensure the timer is stopped and disposed of when the client is no longer needed.
             InvalidateSendTimer();
+            _sendSemaphore.Dispose();
         }
 
         #endregion
+    }
+
+    internal class GaHttpResponse
+    {
+        public GaHttpResponse(string responseBody, bool isSuccess, bool shouldDropEvents = false)
+        {
+            ResponseBody = responseBody;
+            IsSuccess = isSuccess;
+            ShouldDropEvents = shouldDropEvents;
+        }
+
+        public string ResponseBody { get; }
+        public bool IsSuccess { get; }
+        public bool ShouldDropEvents { get; }
     }
 }
