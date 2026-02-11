@@ -135,7 +135,7 @@ namespace Aria2Fast.View
                         await Aria2ApiManager.Instance.UnpauseTask(item.Data.Gid);
                     }
                 }
-                Aria2ApiManager.Instance.UpdateTask();
+                await Aria2ApiManager.Instance.UpdateTask();
 
             }
             catch (Exception ex)
@@ -158,7 +158,7 @@ namespace Aria2Fast.View
                     }
                 }
 
-                Aria2ApiManager.Instance.UpdateTask();
+                await Aria2ApiManager.Instance.UpdateTask();
 
             }
             catch (Exception ex)

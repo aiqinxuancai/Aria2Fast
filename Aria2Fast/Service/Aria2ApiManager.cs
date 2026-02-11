@@ -59,9 +59,8 @@ namespace Aria2Fast.Service
         private static ConcurrentQueue<string> _outputQueue = new ConcurrentQueue<string>();
         private readonly Subject<Aria2Event> _eventReceivedSubject = new();
         private Process? _aria2Process = null;
-        private static object _lockForUpdateTask = new object();
-
         private readonly SemaphoreSlim _updateLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _updateTaskLock = new SemaphoreSlim(1, 1);
         private CancellationTokenSource _debounceCts;
 
         public static Aria2ApiManager Instance
@@ -496,15 +495,25 @@ namespace Aria2Fast.Service
         /// <exception cref="NotImplementedException"></exception>
         internal async Task<bool> UpdateTask()
         {
-            var tasks = await _client.TellAllAsync();
+            await _updateTaskLock.WaitAsync();
+            try
+            {
+                var tasks = await _client.TellAllAsync();
+                if (tasks == null)
+                {
+                    return false;
+                }
 
-            lock (_lockForUpdateTask)
-            {                
                 //检查是否有下载完成的数据
-                if (tasks != null && tasks.Count() > 0)
+                if (tasks.Count() > 0)
                 {
                     foreach (var task in TaskList)
                     {
+                        if (task.Data == null || string.IsNullOrWhiteSpace(task.Data.Gid))
+                        {
+                            continue;
+                        }
+
                         var clearTask = tasks.Any(a =>
                         {
                             return a.Gid == task.Data.Gid &&
@@ -513,19 +522,29 @@ namespace Aria2Fast.Service
                         }
                         );
 
-                        if (clearTask)
+                        if (!clearTask)
                         {
-                            EasyLogManager.Logger.Info($"下载完成 {task.SubscriptionName}");
+                            continue;
                         }
-                        if (clearTask && AppConfig.Instance.ConfigData.PushDeerOpen)
+
+                        EasyLogManager.Logger.Info($"下载完成 {task.SubscriptionName}");
+                        if (AppConfig.Instance.ConfigData.PushDeerOpen)
                         {
-                            PushDeer.SendPushDeer($"[{task.SubscriptionName}]下载完成");
+                            var taskIdentity = $"{CurrentRpc}|{task.Data.Gid}";
+                            var canPush = PushDeerPushHistoryStore.Instance.TryMarkTaskPushed(taskIdentity, task.SubscriptionName);
+                            if (canPush)
+                            {
+                                _ = PushDeer.SendPushDeer($"[{task.SubscriptionName}]下载完成");
+                            }
+                            else
+                            {
+                                EasyLogManager.Logger.Info($"跳过重复PushDeer推送 {task.SubscriptionName} {taskIdentity}");
+                            }
                         }
 
                         _eventReceivedSubject.OnNext(new DownloadSuccessEvent(task.SubscriptionName));
                     }
                 }
-
 
                 MainWindow.Instance.Dispatcher.Invoke(() =>
                 {
@@ -557,9 +576,13 @@ namespace Aria2Fast.Service
                         TaskList[i].Data = tasks[i];
                     }
                 });
+
+                return tasks.Count() > 0;
             }
-            
-            return tasks.Count() > 0;
+            finally
+            {
+                _updateTaskLock.Release();
+            }
         }
 
 
@@ -720,7 +743,7 @@ namespace Aria2Fast.Service
                             Connected = true;
                             CurrentRpc = rpc;
                             _eventReceivedSubject.OnNext(new LoginResultEvent(true));
-                            UpdateTask();
+                            await UpdateTask();
                             return true;
                         }
                         else
@@ -761,6 +784,7 @@ namespace Aria2Fast.Service
         public void Dispose()
         {
             _updateLock?.Dispose();
+            _updateTaskLock?.Dispose();
             _debounceCts?.Dispose();
             // ... 其他清理代码
         }
