@@ -133,6 +133,11 @@
 
                                 </Grid>
                                 <StackPanel Margin="0,10,0,0">
+                                    <ui:ToggleSwitch
+                                        Content="开机启动"
+                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.LaunchAtStartup}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,10,0,0">
                                     <StackPanel.Style>
                                         <Style TargetType="StackPanel">
                                             <Setter Property="Visibility" Value="Collapsed" />

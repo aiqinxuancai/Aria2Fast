@@ -64,7 +64,8 @@ namespace Aria2Fast.Service
                     } },
 
                     { nameof(CurrentRemoteAria2NodeIndex), () => Aria2ApiManager.Instance.UpdateRpcAndTest() },
-                    { nameof(AppTheme), () => ThemeManager.ApplyTheme(AppTheme) }
+                    { nameof(AppTheme), () => ThemeManager.ApplyTheme(AppTheme) },
+                    { nameof(LaunchAtStartup), () => StartupLaunchManager.Sync(LaunchAtStartup) }
 
                 };
             this.PropertyChanged += AppConfigData_PropertyChanged;
@@ -118,6 +119,11 @@ namespace Aria2Fast.Service
         public bool SubscriptionProxyOpen { get; set; } = false;
 
         public string SubscriptionProxy { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 是否开机启动
+        /// </summary>
+        public bool LaunchAtStartup { get; set; } = false;
 
         /// <summary>
         /// OpenAIKey 用于RSS为集中订阅时，使用OpenAI提取连接中的作品名称
