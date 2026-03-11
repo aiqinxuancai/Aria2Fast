@@ -68,7 +68,7 @@
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="true">
                             <Setter Property="Background" Value="Transparent" />
-                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                            <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
                             <Setter Property="BorderBrush" Value="Transparent" />
                         </Trigger>
                         <MultiDataTrigger>
@@ -78,7 +78,7 @@
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Background" Value="Transparent" />
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                                <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
                                 <Setter Property="BorderBrush" Value="Transparent" />
                             </MultiDataTrigger.Setters>
                         </MultiDataTrigger>
@@ -153,7 +153,7 @@
                                         <Setter Property="Background" Value="Transparent" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource App.FocusRingBrush}" />
+                                                <Setter Property="Background" Value="{DynamicResource App.InteractiveHoverBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

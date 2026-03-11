@@ -62,7 +62,7 @@
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="true">
                             <Setter Property="Background" Value="Transparent" />
-                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                            <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
                             <Setter Property="BorderBrush" Value="Transparent" />
                         </Trigger>
                         <MultiDataTrigger>
@@ -72,7 +72,7 @@
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Background" Value="Transparent" />
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                                <Setter Property="Foreground" Value="{DynamicResource App.TextPrimaryBrush}" />
                                 <Setter Property="BorderBrush" Value="Transparent" />
                             </MultiDataTrigger.Setters>
                         </MultiDataTrigger>
