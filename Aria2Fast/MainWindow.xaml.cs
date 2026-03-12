@@ -47,6 +47,7 @@ namespace Aria2Fast
         private bool _needExit = false;
 
         private const string TaskbarCreatedMessageName = "TaskbarCreated";
+        private static readonly Uri WindowIconUri = new("pack://application:,,,/icon.ico", UriKind.Absolute);
         private uint _taskbarCreatedMessage;
         private HwndSource? _mainHwndSource;
         private HwndSourceHook? _mainHwndSourceHook;
@@ -87,9 +88,6 @@ namespace Aria2Fast
 
             SourceInitialized += MainWindow_SourceInitialized;
             Closed += MainWindow_Closed;
-
-            IntPtr hWnd = new WindowInteropHelper(GetWindow(this)).EnsureHandle();
-            Win11Style.LoadWin11Style(hWnd);
             EasyLogManager.Logger.Info("主界面初始化");
 
         }
@@ -103,6 +101,10 @@ namespace Aria2Fast
         {
             InitNavigationViewItem();
 
+            RefreshWindowIcon("MetroWindow_Loaded");
+            Dispatcher.BeginInvoke(
+                DispatcherPriority.ApplicationIdle,
+                new Action(() => RefreshWindowIcon("Loaded-ApplicationIdle")));
 
             EnsureNotifyIconRegistered("MetroWindow_Loaded");
 
@@ -174,6 +176,8 @@ namespace Aria2Fast
                 _mainHwndSourceHook ??= WndProc;
                 _mainHwndSource.AddHook(_mainHwndSourceHook);
 
+                Win11Style.LoadWin11Style(hwnd);
+                RefreshWindowIcon("SourceInitialized");
                 EnsureNotifyIconRegistered("SourceInitialized");
             }
             catch (Exception ex)
@@ -208,6 +212,29 @@ namespace Aria2Fast
             }
 
             return IntPtr.Zero;
+        }
+
+        private void RefreshWindowIcon(string reason)
+        {
+            try
+            {
+                var iconSource = BitmapFrame.Create(
+                    WindowIconUri,
+                    BitmapCreateOptions.IgnoreImageCache,
+                    BitmapCacheOption.OnLoad);
+
+                if (iconSource.CanFreeze)
+                {
+                    iconSource.Freeze();
+                }
+
+                SetCurrentValue(IconProperty, iconSource);
+                EasyLogManager.Logger.Info($"主窗口图标已刷新 ({reason})");
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+            }
         }
 
         private void EnsureNotifyIconRegistered(string reason)
@@ -465,6 +492,7 @@ namespace Aria2Fast
         {
             this.Show();
             this.WindowState = WindowState.Normal;
+            RefreshWindowIcon("ShowWindow");
             this.Activate();
         }
 

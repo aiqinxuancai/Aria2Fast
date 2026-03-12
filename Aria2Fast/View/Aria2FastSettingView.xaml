@@ -133,11 +133,6 @@
 
                                 </Grid>
                                 <StackPanel Margin="0,10,0,0">
-                                    <ui:ToggleSwitch
-                                        Content="开机启动"
-                                        IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.LaunchAtStartup}" />
-                                </StackPanel>
-                                <StackPanel Margin="0,10,0,0">
                                     <StackPanel.Style>
                                         <Style TargetType="StackPanel">
                                             <Setter Property="Visibility" Value="Collapsed" />
@@ -245,6 +240,23 @@
                                 </StackPanel>
 
                             </StackPanel>
+                        </ui:Card>
+
+                        <ui:Card Margin="0,10,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <ui:ToggleSwitch
+                                    Margin="0,0,16,0"
+                                    Content="开机启动"
+                                    VerticalAlignment="Center"
+                                    IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.LaunchAtStartup}" />
+
+                                
+                            </Grid>
                         </ui:Card>
                     </StackPanel>
                 </StackPanel>
