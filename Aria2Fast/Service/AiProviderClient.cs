@@ -3,10 +3,10 @@ using Google.GenAI.Types;
 using OpenAI;
 using OpenAI.Chat;
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ClientModel;
 
 namespace Aria2Fast.Service
 {
@@ -27,6 +27,16 @@ namespace Aria2Fast.Service
             return !string.IsNullOrWhiteSpace(GetApiKey());
         }
 
+        public static bool SupportsFunctionTools()
+        {
+            if (!HasApiKey())
+            {
+                return false;
+            }
+
+            return AppConfig.Instance.ConfigData.AiProvider != AiProviderType.Gemini;
+        }
+
         public static async Task<string> SendAsync(string userMessage, string systemMessage)
         {
             if (string.IsNullOrWhiteSpace(userMessage))
@@ -43,34 +53,135 @@ namespace Aria2Fast.Service
             return await SendOpenAICompatibleAsync(provider, userMessage, systemMessage);
         }
 
+        public static async Task<string> SendWithToolsAsync(string userMessage, string systemMessage, IEnumerable<AiFunctionTool> tools)
+        {
+            if (string.IsNullOrWhiteSpace(userMessage) || tools == null)
+            {
+                return string.Empty;
+            }
+
+            var provider = AppConfig.Instance.ConfigData.AiProvider;
+            if (provider == AiProviderType.Gemini)
+            {
+                return string.Empty;
+            }
+
+            var toolList = tools.Where(tool => tool != null).ToList();
+            if (toolList.Count == 0)
+            {
+                return await SendAsync(userMessage, systemMessage);
+            }
+
+            return await SendOpenAICompatibleWithToolsAsync(provider, userMessage, systemMessage, toolList);
+        }
+
         private static async Task<string> SendOpenAICompatibleAsync(AiProviderType provider, string userMessage, string systemMessage)
         {
+            var client = CreateOpenAICompatibleClient(provider, out _);
+            if (client == null)
+            {
+                return string.Empty;
+            }
+
+            var messages = CreateInitialMessages(userMessage, systemMessage);
+            var completionResult = await client.CompleteChatAsync(messages);
+            var content = completionResult.Value.Content.FirstOrDefault()?.Text;
+            return content ?? string.Empty;
+        }
+
+        private static async Task<string> SendOpenAICompatibleWithToolsAsync(AiProviderType provider, string userMessage, string systemMessage, IReadOnlyList<AiFunctionTool> tools)
+        {
+            var client = CreateOpenAICompatibleClient(provider, out _);
+            if (client == null)
+            {
+                return string.Empty;
+            }
+
+            var messages = CreateInitialMessages(userMessage, systemMessage);
+            var toolMap = tools.ToDictionary(item => item.Name, StringComparer.Ordinal);
+            var options = new ChatCompletionOptions
+            {
+                AllowParallelToolCalls = false
+            };
+
+            foreach (var tool in tools)
+            {
+                options.Tools.Add(ChatTool.CreateFunctionTool(
+                    functionName: tool.Name,
+                    functionDescription: tool.Description,
+                    functionParameters: BinaryData.FromString(tool.JsonSchema)));
+            }
+
+            for (int round = 0; round < 6; round++)
+            {
+                var completion = (await client.CompleteChatAsync(messages, options)).Value;
+
+                if (completion.ToolCalls.Count > 0)
+                {
+                    messages.Add(new AssistantChatMessage(completion));
+
+                    foreach (var toolCall in completion.ToolCalls)
+                    {
+                        if (!toolMap.TryGetValue(toolCall.FunctionName, out var tool))
+                        {
+                            messages.Add(new ToolChatMessage(toolCall.Id, "{\"error\":\"unknown tool\"}"));
+                            continue;
+                        }
+
+                        string toolResult;
+                        try
+                        {
+                            toolResult = await tool.InvokeAsync(toolCall.FunctionArguments.ToString());
+                        }
+                        catch (Exception ex)
+                        {
+                            EasyLogManager.Logger.Warning($"[AI] 工具执行失败：{toolCall.FunctionName} {ex.Message}");
+                            toolResult = $"{{\"error\":\"{EscapeToolError(ex.Message)}\"}}";
+                        }
+
+                        messages.Add(new ToolChatMessage(toolCall.Id, toolResult));
+                    }
+
+                    continue;
+                }
+
+                var content = completion.Content.FirstOrDefault()?.Text;
+                return content ?? string.Empty;
+            }
+
+            return string.Empty;
+        }
+
+        private static ChatClient? CreateOpenAICompatibleClient(AiProviderType provider, out string model)
+        {
+            model = GetModel(provider);
+            if (string.IsNullOrWhiteSpace(model))
+            {
+                return null;
+            }
+
             var apiKey = GetApiKey(provider);
             if (string.IsNullOrWhiteSpace(apiKey))
             {
-                return string.Empty;
+                return null;
             }
 
             var options = BuildClientOptions(provider);
-            var model = GetModel(provider);
-            if (string.IsNullOrWhiteSpace(model))
-            {
-                return string.Empty;
-            }
-            ChatClient client = options == null
+            return options == null
                 ? new ChatClient(model: model, apiKey: apiKey)
                 : new ChatClient(model: model, credential: new ApiKeyCredential(apiKey), options: options);
+        }
 
+        private static List<ChatMessage> CreateInitialMessages(string userMessage, string systemMessage)
+        {
             var messages = new List<ChatMessage>();
             if (!string.IsNullOrWhiteSpace(systemMessage))
             {
                 messages.Add(new SystemChatMessage(systemMessage));
             }
-            messages.Add(new UserChatMessage(userMessage));
 
-            var completionResult = await client.CompleteChatAsync(messages);
-            var content = completionResult.Value.Content.FirstOrDefault()?.Text;
-            return content ?? string.Empty;
+            messages.Add(new UserChatMessage(userMessage));
+            return messages;
         }
 
         private static async Task<string> SendGeminiAsync(string userMessage, string systemMessage)
@@ -187,5 +298,18 @@ namespace Aria2Fast.Service
 
             return null;
         }
+
+        private static string EscapeToolError(string message)
+        {
+            return (message ?? string.Empty).Replace("\\", "\\\\").Replace("\"", "\\\"");
+        }
+    }
+
+    internal sealed class AiFunctionTool
+    {
+        public required string Name { get; init; }
+        public required string Description { get; init; }
+        public required string JsonSchema { get; init; }
+        public required Func<string, Task<string>> InvokeAsync { get; init; }
     }
 }

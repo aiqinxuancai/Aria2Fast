@@ -147,6 +147,8 @@ namespace Aria2Fast.Service
 
         public string OpenRouterModelName { get; set; } = string.Empty;
 
+        public string TavilyKey { get; set; } = string.Empty;
+
         public string OpenAIProxy { get; set; } = string.Empty;
 
         public string OpenAIModelName { get; set; } = "gpt-4o-mini";

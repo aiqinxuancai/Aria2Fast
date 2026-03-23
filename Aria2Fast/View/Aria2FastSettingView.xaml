@@ -513,6 +513,17 @@
 
                             </StackPanel>
 
+                            <StackPanel Margin="0,10,0,0">
+                                <TextBlock Text="Tavily API Key" />
+                                <ui:PasswordBox
+                                    Height="32"
+                                    MinWidth="400"
+                                    Margin="0,5,0,0"
+                                    wpfutils:PasswordBoxAssistant.BindPassword="True"
+                                    wpfutils:PasswordBoxAssistant.BoundPassword="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.TavilyKey, Mode=TwoWay}" />
+                                <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.7" Text="仅在 AI 打分信息不足时，用于 Tavily 搜索和网页抓取补充资料。" />
+                            </StackPanel>
+
                             <Separator Margin="0,10,0,0" />
 
                             <StackPanel Margin="0,10,0,0">
