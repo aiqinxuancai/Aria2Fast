@@ -392,10 +392,7 @@ namespace Aria2Fast
 
         private void MetroWindow_Unloaded(object sender, RoutedEventArgs e)
         {
-            //退出
-            SubscriptionManager.Instance.Stop();
             _tokenTaskListSource.Cancel();
-            System.Environment.Exit(System.Environment.ExitCode);
         }
 
         private void ButtonGithub_Click(object sender, RoutedEventArgs e)
@@ -431,18 +428,9 @@ namespace Aria2Fast
             //自行处理事件，改为最小化
         }
 
-        private void TaskbarExitMenu_Click(object sender, RoutedEventArgs e)
+        private async void TaskbarExitMenu_Click(object sender, RoutedEventArgs e)
         {
-            _needExit = true;
-            this.Hide();
-            // this.Close();
-            //TODO 退出进程
-           
-            Task.Run(async () =>
-            {
-                await App.ExitAria2Fast();
-            });
-           
+            await App.ExitAria2Fast();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -507,6 +495,11 @@ namespace Aria2Fast
         private void MyNotifyIcon_LeftClick(object sender, RoutedEventArgs e)
         {
             ShowWindow();
+        }
+
+        public void MarkAsExiting()
+        {
+            _needExit = true;
         }
 
         private void ShowWindowMenuItem_Click(object sender, RoutedEventArgs e)

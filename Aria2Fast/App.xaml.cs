@@ -27,6 +27,8 @@ namespace Aria2Fast
     public partial class App : Application
     {
         private const string MutexName = "Aria2Fast_Process_Mutex";
+        private static readonly SemaphoreSlim ExitSemaphore = new SemaphoreSlim(1, 1);
+        private static bool _isExiting;
 
         private Mutex _mutex;
 
@@ -73,36 +75,107 @@ namespace Aria2Fast
 
         public static async Task ExitAria2Fast()
         {
-            Debug.WriteLine("开始退出");
-            await GameAnalyticsManager.Instance.ShutdownAsync();
-
-            if (Aria2Fast.MainWindow.Instance != null)
+            await ExitSemaphore.WaitAsync();
+            try
             {
-                Debug.WriteLine("销毁主窗口");
-                try
+                if (_isExiting)
                 {
-                    Aria2Fast.MainWindow.Instance.Dispatcher.BeginInvoke(new Action(() => {
-                        Aria2Fast.MainWindow.Instance.Close();
-                    }));
+                    return;
                 }
-                catch (Exception ex)
+
+                if (!await ConfirmExitAsync())
                 {
-                    Debug.WriteLine($"销毁主窗口错误{ex}");
+                    return;
                 }
-                
+
+                _isExiting = true;
+                Debug.WriteLine("开始退出");
+
+                Current?.Dispatcher.Invoke(() =>
+                {
+                    if (Current != null)
+                    {
+                        Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                    }
+                });
+
+                Aria2Fast.MainWindow.Instance?.MarkAsExiting();
+
+                Debug.WriteLine("开始停止订阅器#2");
+                SubscriptionManager.Instance.Stop();
+                await Aria2ApiManager.Instance.StopManagedLocalAria2Async();
+                await GameAnalyticsManager.Instance.ShutdownAsync();
+
+                if (Aria2Fast.MainWindow.Instance != null)
+                {
+                    Debug.WriteLine("销毁主窗口");
+                    try
+                    {
+                        await Aria2Fast.MainWindow.Instance.Dispatcher.InvokeAsync(() =>
+                        {
+                            Aria2Fast.MainWindow.Instance.Close();
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"销毁主窗口错误{ex}");
+                    }
+                }
+
+                Current?.Dispatcher.Invoke(() =>
+                {
+                    if (Current != null)
+                    {
+                        Current.Shutdown();
+                    }
+                });
             }
-            Debug.WriteLine("开始停止订阅器#2");
-            SubscriptionManager.Instance.Stop();
-
-            // 启动一个任务，1 秒后强制退出
-            await Task.Run(() =>
+            finally
             {
-                Thread.Sleep(2000); // 等待 1 秒
-                Debug.WriteLine("强制退出");
-                Environment.Exit(0); // 强制退出
-                
+                ExitSemaphore.Release();
+            }
+        }
+
+        private static async Task<bool> ConfirmExitAsync()
+        {
+            var shouldCheckLocalAria2Task = AppConfig.Instance.ConfigData.Aria2UseLocal ||
+                                            Aria2ApiManager.Instance.HasManagedLocalAria2Process;
+            if (!shouldCheckLocalAria2Task)
+            {
+                return true;
+            }
+
+            var hasActiveLocalTask = Aria2ApiManager.Instance.HasManagedLocalAria2Process
+                ? await Aria2ApiManager.Instance.HasManagedLocalAria2ActiveTasksAsync()
+                : await Aria2ApiManager.Instance.HasLocalAria2ActiveTasksAsync();
+
+            if (!hasActiveLocalTask)
+            {
+                return true;
+            }
+
+            if (Aria2Fast.MainWindow.Instance == null)
+            {
+                return MessageBox.Show(
+                    "本地存在正在下载的任务，是否确认退出",
+                    "提示",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes;
+            }
+
+            var tcs = new TaskCompletionSource<bool>();
+            await Aria2Fast.MainWindow.Instance.Dispatcher.InvokeAsync(() =>
+            {
+                tcs.TrySetResult(
+                    MessageBox.Show(
+                        Aria2Fast.MainWindow.Instance,
+                        "本地存在正在下载的任务，是否确认退出",
+                        "提示",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question) == MessageBoxResult.Yes);
             });
 
+            return await tcs.Task;
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -143,6 +216,8 @@ namespace Aria2Fast
         {
             try
             {
+                Aria2ApiManager.Instance.StopManagedLocalAria2Async().GetAwaiter().GetResult();
+
                 // 释放互斥体
                 _mutex?.ReleaseMutex();
                 _mutex?.Close();

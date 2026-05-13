@@ -62,6 +62,7 @@ namespace Aria2Fast.Service
         private Process? _aria2Process = null;
         private readonly SemaphoreSlim _updateLock = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim _updateTaskLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _localAria2ProcessLock = new SemaphoreSlim(1, 1);
         private CancellationTokenSource _debounceCts;
 
         public static Aria2ApiManager Instance
@@ -338,6 +339,171 @@ namespace Aria2Fast.Service
             {
                 StartupLocalAria2();
             } 
+        }
+
+        public bool HasManagedLocalAria2Process
+        {
+            get
+            {
+                var process = _aria2Process;
+                if (process == null)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    return !process.HasExited;
+                }
+                catch (Exception ex)
+                {
+                    EasyLogManager.Logger.Error(ex);
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> HasManagedLocalAria2ActiveTasksAsync()
+        {
+            if (!HasManagedLocalAria2Process)
+            {
+                return false;
+            }
+
+            return await HasLocalAria2ActiveTasksCoreAsync().ConfigureAwait(false);
+        }
+
+        public async Task<bool> HasLocalAria2ActiveTasksAsync()
+        {
+            return await HasLocalAria2ActiveTasksCoreAsync().ConfigureAwait(false);
+        }
+
+        private async Task<bool> HasLocalAria2ActiveTasksCoreAsync()
+        {
+            if (string.IsNullOrWhiteSpace(LocalAria2Node.URL))
+            {
+                return false;
+            }
+
+            try
+            {
+                var client = CreateLocalAria2Client();
+                if (client == null)
+                {
+                    return false;
+                }
+
+                var tasks = await client.TellActiveAsync().ConfigureAwait(false);
+                return tasks?.Any(a => a.Status == KARIA2_STATUS_ACTIVE) == true;
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+
+                if (Connected && CurrentRpc == LocalAria2Node.URL)
+                {
+                    return TaskList.Any(a => a.Data?.Status == KARIA2_STATUS_ACTIVE);
+                }
+
+                return false;
+            }
+        }
+
+        public async Task StopManagedLocalAria2Async()
+        {
+            await _localAria2ProcessLock.WaitAsync().ConfigureAwait(false);
+            Process? process = _aria2Process;
+
+            try
+            {
+                if (process == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    if (process.HasExited)
+                    {
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    EasyLogManager.Logger.Error(ex);
+                    return;
+                }
+
+                EasyLogManager.Logger.Info($"准备关闭当前应用启动的本地Aria2进程：{process.Id}");
+
+                var localClient = CreateLocalAria2Client();
+                if (localClient != null)
+                {
+                    try
+                    {
+                        await localClient.SaveSessionAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        EasyLogManager.Logger.Error(ex);
+                    }
+
+                    try
+                    {
+                        await localClient.ShutdownAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        EasyLogManager.Logger.Error(ex);
+
+                        try
+                        {
+                            await localClient.ForceShutdownAsync().ConfigureAwait(false);
+                        }
+                        catch (Exception forceEx)
+                        {
+                            EasyLogManager.Logger.Error(forceEx);
+                        }
+                    }
+                }
+
+                var exited = await WaitForProcessExitAsync(process, 5000).ConfigureAwait(false);
+                if (!exited)
+                {
+                    EasyLogManager.Logger.Info($"本地Aria2未在预期时间内退出，尝试结束进程：{process.Id}");
+                    try
+                    {
+                        process.Kill(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        EasyLogManager.Logger.Error(ex);
+                    }
+
+                    await WaitForProcessExitAsync(process, 2000).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                if (ReferenceEquals(_aria2Process, process))
+                {
+                    _aria2Process = null;
+                }
+
+                if (process != null)
+                {
+                    try
+                    {
+                        process.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        EasyLogManager.Logger.Error(ex);
+                    }
+                }
+
+                _localAria2ProcessLock.Release();
+            }
         }
         
 
@@ -787,8 +953,32 @@ namespace Aria2Fast.Service
         {
             _updateLock?.Dispose();
             _updateTaskLock?.Dispose();
+            _localAria2ProcessLock?.Dispose();
             _debounceCts?.Dispose();
             // ... 其他清理代码
+        }
+
+        private Aria2NetClient? CreateLocalAria2Client()
+        {
+            if (string.IsNullOrWhiteSpace(LocalAria2Node.URL))
+            {
+                return null;
+            }
+
+            return new Aria2NetClient(LocalAria2Node.URL, LocalAria2Node.Token);
+        }
+
+        private static async Task<bool> WaitForProcessExitAsync(Process process, int timeoutMs)
+        {
+            try
+            {
+                return await Task.Run(() => process.WaitForExit(timeoutMs));
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error(ex);
+                return true;
+            }
         }
 
         private static bool IsGid(string gid)
