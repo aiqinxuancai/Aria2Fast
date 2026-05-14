@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using Aria2Fast.Service;
+using Microsoft.Win32;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
@@ -20,21 +21,27 @@ namespace Aria2Fast.Utils
                 return;
             }
 
-            var normalizedTheme = NormalizeTheme(theme);
-            var appTheme = normalizedTheme == CatppuccinTheme.Latte || normalizedTheme == CatppuccinTheme.Default
-                ? ApplicationTheme.Light
-                : ApplicationTheme.Dark;
+            var normalizedTheme = NormalizeConfiguredTheme(theme);
+            var effectiveTheme = ResolveEffectiveTheme(normalizedTheme);
+            var appTheme = effectiveTheme == CatppuccinTheme.Dark
+                ? ApplicationTheme.Dark
+                : ApplicationTheme.Light;
 
-            var updateAccent = normalizedTheme == CatppuccinTheme.Default;
+            var updateAccent = effectiveTheme == CatppuccinTheme.Light;
             ApplicationThemeManager.Apply(appTheme, WindowBackdropType.None, updateAccent);
 
-            if (normalizedTheme != CatppuccinTheme.Default)
+            if (effectiveTheme == CatppuccinTheme.Dark)
             {
-                var accent = GetAccent(normalizedTheme);
+                var accent = GetAccent(effectiveTheme);
                 ApplicationAccentColorManager.Apply(accent, appTheme, false);
             }
 
-            ReplaceThemeDictionary(normalizedTheme);
+            ReplaceThemeDictionary(effectiveTheme);
+        }
+
+        public static bool IsAutoTheme(CatppuccinTheme theme)
+        {
+            return NormalizeConfiguredTheme(theme) == CatppuccinTheme.Auto;
         }
 
         private static void ReplaceThemeDictionary(CatppuccinTheme theme)
@@ -50,7 +57,8 @@ namespace Aria2Fast.Utils
                 RemoveThemeDictionaries(window.Resources.MergedDictionaries);
             }
 
-            var themeSource = new Uri($"{ThemeUriPrefix}{theme}{ThemeUriSuffix}", UriKind.Absolute);
+            var themeName = GetThemeResourceName(theme);
+            var themeSource = new Uri($"{ThemeUriPrefix}{themeName}{ThemeUriSuffix}", UriKind.Absolute);
             Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = themeSource });
         }
 
@@ -75,25 +83,62 @@ namespace Aria2Fast.Utils
         {
             return theme switch
             {
-                CatppuccinTheme.Latte => Color.FromRgb(0x1E, 0x66, 0xF5),
-                CatppuccinTheme.Frappe => Color.FromRgb(0x8C, 0xAA, 0xEE),
-                CatppuccinTheme.Macchiato => Color.FromRgb(0x8A, 0xAD, 0xF4),
-                CatppuccinTheme.Mocha => Color.FromRgb(0x89, 0xB4, 0xFA),
+                CatppuccinTheme.Dark => Color.FromRgb(0x8C, 0xAA, 0xEE),
                 _ => Colors.Blue
             };
         }
 
-        private static CatppuccinTheme NormalizeTheme(CatppuccinTheme theme)
+        public static CatppuccinTheme NormalizeConfiguredTheme(CatppuccinTheme theme)
         {
             return theme switch
             {
-                CatppuccinTheme.Default => CatppuccinTheme.Default,
-                CatppuccinTheme.Latte => CatppuccinTheme.Latte,
-                CatppuccinTheme.Frappe => CatppuccinTheme.Frappe,
-                CatppuccinTheme.Macchiato => CatppuccinTheme.Macchiato,
-                CatppuccinTheme.Mocha => CatppuccinTheme.Mocha,
-                _ => CatppuccinTheme.Default
+                CatppuccinTheme.Auto => CatppuccinTheme.Auto,
+                CatppuccinTheme.Light => CatppuccinTheme.Light,
+                CatppuccinTheme.Dark => CatppuccinTheme.Dark,
+                CatppuccinTheme.Default => CatppuccinTheme.Light,
+                CatppuccinTheme.Latte => CatppuccinTheme.Light,
+                CatppuccinTheme.Frappe => CatppuccinTheme.Dark,
+                CatppuccinTheme.Macchiato => CatppuccinTheme.Dark,
+                CatppuccinTheme.Mocha => CatppuccinTheme.Dark,
+                _ => CatppuccinTheme.Auto
             };
+        }
+
+        private static CatppuccinTheme ResolveEffectiveTheme(CatppuccinTheme theme)
+        {
+            return theme == CatppuccinTheme.Auto
+                ? GetSystemPreferredTheme()
+                : theme;
+        }
+
+        private static string GetThemeResourceName(CatppuccinTheme theme)
+        {
+            return theme switch
+            {
+                CatppuccinTheme.Dark => nameof(CatppuccinTheme.Frappe),
+                _ => nameof(CatppuccinTheme.Default)
+            };
+        }
+
+        private static CatppuccinTheme GetSystemPreferredTheme()
+        {
+            const string personalizeKey = @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+            const string appsUseLightTheme = "AppsUseLightTheme";
+
+            try
+            {
+                var value = Registry.GetValue(personalizeKey, appsUseLightTheme, 1);
+                if (value is int intValue && intValue == 0)
+                {
+                    return CatppuccinTheme.Dark;
+                }
+            }
+            catch
+            {
+                // ignore and fallback to light theme
+            }
+
+            return CatppuccinTheme.Light;
         }
     }
 }

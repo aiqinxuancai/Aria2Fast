@@ -166,7 +166,7 @@ namespace Aria2Fast.Service
         public string OpenAIHost { get; set; } = string.Empty;
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public CatppuccinTheme AppTheme { get; set; } = CatppuccinTheme.Default;
+        public CatppuccinTheme AppTheme { get; set; } = CatppuccinTheme.Auto;
 
         //当前客户端ID
         public string ClientId { get; set; } = string.Empty;
@@ -353,6 +353,8 @@ namespace Aria2Fast.Service
 
         public bool Init()
         {
+            var shouldSaveConfig = false;
+
             try
             {
 
@@ -369,7 +371,10 @@ namespace Aria2Fast.Service
                 lock (_lock)
                 {
                     var fileContent = File.ReadAllText(_configPath);
-                    var appData = JsonConvert.DeserializeObject<AppConfigData>(fileContent);
+                    var appData = JsonConvert.DeserializeObject<AppConfigData>(fileContent) ?? new AppConfigData();
+                    var normalizedTheme = ThemeManager.NormalizeConfiguredTheme(appData.AppTheme);
+                    shouldSaveConfig = normalizedTheme != appData.AppTheme;
+                    appData.AppTheme = normalizedTheme;
                     ConfigData = appData;
                     ConfigData.PropertyChanged += AppConfigData_PropertyChanged;
                 }
@@ -377,6 +382,11 @@ namespace Aria2Fast.Service
                 if (string.IsNullOrWhiteSpace(ConfigData.ClientId))
                 {
                     ConfigData.ClientId = Guid.NewGuid().ToString();
+                    shouldSaveConfig = true;
+                }
+
+                if (shouldSaveConfig)
+                {
                     Save();
                 }
                 Debug.WriteLine($"初始化配置完毕");

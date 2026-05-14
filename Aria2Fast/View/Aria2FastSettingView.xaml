@@ -68,29 +68,19 @@
                         <TextBlock Foreground="{DynamicResource App.TextPrimaryBrush}" Text="主题" />
                         <WrapPanel Margin="0,5,0,0">
                             <RadioButton
-                                Content="默认 (浅色)"
+                                Content="自动"
                                 GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Default}" />
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Auto}" />
                             <RadioButton
-                                Content="Latte (浅色)"
+                                Content="浅色"
                                 Margin="12,0,0,0"
                                 GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Latte}" />
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light}" />
                             <RadioButton
                                 Margin="12,0,0,0"
-                                Content="Frappe (柔暗)"
+                                Content="深色"
                                 GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Frappe}" />
-                            <RadioButton
-                                Margin="12,0,0,0"
-                                Content="Macchiato (中暗)"
-                                GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Macchiato}" />
-                            <RadioButton
-                                Margin="12,0,0,0"
-                                Content="Mocha (特暗)"
-                                GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Mocha}" />
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark}" />
                         </WrapPanel>
                     </StackPanel>
                 </ui:Card>

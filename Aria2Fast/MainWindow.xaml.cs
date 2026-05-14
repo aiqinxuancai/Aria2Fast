@@ -47,6 +47,8 @@ namespace Aria2Fast
         private bool _needExit = false;
 
         private const string TaskbarCreatedMessageName = "TaskbarCreated";
+        private const int WmSettingChange = 0x001A;
+        private const int WmThemeChanged = 0x031A;
         private static readonly Uri WindowIconUri = new("pack://application:,,,/icon.ico", UriKind.Absolute);
         private uint _taskbarCreatedMessage;
         private HwndSource? _mainHwndSource;
@@ -209,6 +211,14 @@ namespace Aria2Fast
                 Dispatcher.BeginInvoke(
                     DispatcherPriority.Background,
                     new Action(() => RecreateNotifyIcon("TaskbarCreated")));
+            }
+
+            if (ThemeManager.IsAutoTheme(AppConfig.Instance.ConfigData.AppTheme)
+                && (msg == WmSettingChange || msg == WmThemeChanged))
+            {
+                Dispatcher.BeginInvoke(
+                    DispatcherPriority.Background,
+                    new Action(() => ThemeManager.ApplyTheme(AppConfig.Instance.ConfigData.AppTheme, this)));
             }
 
             return IntPtr.Zero;
