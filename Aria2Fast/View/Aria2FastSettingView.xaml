@@ -70,17 +70,17 @@
                             <RadioButton
                                 Content="自动"
                                 GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Auto}" />
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Auto}" MinWidth="80" />
                             <RadioButton
                                 Content="浅色"
                                 Margin="12,0,0,0"
                                 GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light}" />
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light}" MinWidth="80" />
                             <RadioButton
                                 Margin="12,0,0,0"
                                 Content="深色"
                                 GroupName="AppTheme"
-                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark}" />
+                                IsChecked="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AppTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark}" MinWidth="80"/>
                         </WrapPanel>
                     </StackPanel>
                 </ui:Card>
