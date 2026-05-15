@@ -9,7 +9,6 @@
 <h2 align="center">Aria2Fast</h2>
 </p>
 <p align="center">
-<img src="https://visitor.apptest.dev/?page_id=githubaria2fast" alt="visitor badge"/>
 <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/aiqinxuancai/Aria2Fast">
 </p>
 <p align="center" color="#6a737d">
