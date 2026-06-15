@@ -1,40 +1,38 @@
-using Google.GenAI;
-using Google.GenAI.Types;
+using Flurl.Http;
+using Newtonsoft.Json.Linq;
 using OpenAI;
 using OpenAI.Chat;
 using System;
-using System.ClientModel;
 using System.Collections.Generic;
+using System.ClientModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Aria2Fast.Service
 {
     internal static class AiProviderClient
     {
-        private const string OpenAIDefaultModel = "gpt-4o-mini";
-        private const string DeepSeekDefaultModel = "deepseek-chat";
-        private const string MiniMaxDefaultModel = "MiniMax-M2.1";
-        private const string GeminiDefaultModel = "gemini-2.5-flash";
+        private const int DefaultTimeoutSeconds = 120;
 
-        private static readonly Uri DeepSeekEndpoint = new Uri("https://api.deepseek.com/v1");
-        private static readonly Uri MiniMaxEndpoint = new Uri("https://api.minimax.io/v1");
-        private static readonly Uri AihubmixEndpoint = new Uri("https://aihubmix.com/v1");
-        private static readonly Uri OpenRouterEndpoint = new Uri("https://openrouter.ai/api/v1");
+        private static AiConfig? CurrentConfig => AppConfig.Instance.ConfigData.CurrentAiConfig;
 
         public static bool HasApiKey()
         {
-            return !string.IsNullOrWhiteSpace(GetApiKey());
+            var config = CurrentConfig;
+            return config != null && config.IsValid();
         }
 
         public static bool SupportsFunctionTools()
         {
-            if (!HasApiKey())
+            var config = CurrentConfig;
+            if (config == null || !config.IsValid())
             {
                 return false;
             }
 
-            return AppConfig.Instance.ConfigData.AiProvider != AiProviderType.Gemini;
+            // 仅 OpenAI Chat Completions 协议走 SDK，支持函数调用
+            return config.Protocol == AiProtocolType.OpenAIChatCompletions;
         }
 
         public static async Task<string> SendAsync(string userMessage, string systemMessage)
@@ -44,13 +42,25 @@ namespace Aria2Fast.Service
                 return string.Empty;
             }
 
-            var provider = AppConfig.Instance.ConfigData.AiProvider;
-            if (provider == AiProviderType.Gemini)
+            var config = CurrentConfig;
+            if (config == null || !config.IsValid())
             {
-                return await SendGeminiAsync(userMessage, systemMessage);
+                return string.Empty;
             }
 
-            return await SendOpenAICompatibleAsync(provider, userMessage, systemMessage);
+            switch (config.Protocol)
+            {
+                case AiProtocolType.OpenAIChatCompletions:
+                    return await SendOpenAIChatAsync(config, userMessage, systemMessage);
+                case AiProtocolType.OpenAIResponses:
+                    return await SendOpenAIResponsesAsync(config, userMessage, systemMessage);
+                case AiProtocolType.Claude:
+                    return await SendClaudeAsync(config, userMessage, systemMessage);
+                case AiProtocolType.Gemini:
+                    return await SendGeminiAsync(config, userMessage, systemMessage);
+                default:
+                    return string.Empty;
+            }
         }
 
         public static async Task<string> SendWithToolsAsync(string userMessage, string systemMessage, IEnumerable<AiFunctionTool> tools)
@@ -60,10 +70,16 @@ namespace Aria2Fast.Service
                 return string.Empty;
             }
 
-            var provider = AppConfig.Instance.ConfigData.AiProvider;
-            if (provider == AiProviderType.Gemini)
+            var config = CurrentConfig;
+            if (config == null || !config.IsValid())
             {
                 return string.Empty;
+            }
+
+            if (config.Protocol != AiProtocolType.OpenAIChatCompletions)
+            {
+                // 其他协议暂不支持函数调用，回退到普通对话
+                return await SendAsync(userMessage, systemMessage);
             }
 
             var toolList = tools.Where(tool => tool != null).ToList();
@@ -72,104 +88,123 @@ namespace Aria2Fast.Service
                 return await SendAsync(userMessage, systemMessage);
             }
 
-            return await SendOpenAICompatibleWithToolsAsync(provider, userMessage, systemMessage, toolList);
+            return await SendOpenAIChatWithToolsAsync(config, userMessage, systemMessage, toolList);
         }
 
-        private static async Task<string> SendOpenAICompatibleAsync(AiProviderType provider, string userMessage, string systemMessage)
+        #region OpenAI Chat Completions (SDK)
+
+        private static ChatClient CreateOpenAIChatClient(AiConfig config)
         {
-            var client = CreateOpenAICompatibleClient(provider, out _);
-            if (client == null)
+            var endpoint = new Uri(AiProtocol.NormalizeBaseUrl(config.BaseUrl) + ResolveOpenAiVersionPath(config.BaseUrl));
+            var options = new OpenAIClientOptions
             {
-                return string.Empty;
-            }
-
-            var messages = CreateInitialMessages(userMessage, systemMessage);
-            var completionResult = await client.CompleteChatAsync(messages);
-            var content = completionResult.Value.Content.FirstOrDefault()?.Text;
-            return content ?? string.Empty;
-        }
-
-        private static async Task<string> SendOpenAICompatibleWithToolsAsync(AiProviderType provider, string userMessage, string systemMessage, IReadOnlyList<AiFunctionTool> tools)
-        {
-            var client = CreateOpenAICompatibleClient(provider, out _);
-            if (client == null)
-            {
-                return string.Empty;
-            }
-
-            var messages = CreateInitialMessages(userMessage, systemMessage);
-            var toolMap = tools.ToDictionary(item => item.Name, StringComparer.Ordinal);
-            var options = new ChatCompletionOptions
-            {
-                AllowParallelToolCalls = false
+                Endpoint = endpoint
             };
 
-            foreach (var tool in tools)
-            {
-                options.Tools.Add(ChatTool.CreateFunctionTool(
-                    functionName: tool.Name,
-                    functionDescription: tool.Description,
-                    functionParameters: BinaryData.FromString(tool.JsonSchema)));
-            }
-
-            for (int round = 0; round < 6; round++)
-            {
-                var completion = (await client.CompleteChatAsync(messages, options)).Value;
-
-                if (completion.ToolCalls.Count > 0)
-                {
-                    messages.Add(new AssistantChatMessage(completion));
-
-                    foreach (var toolCall in completion.ToolCalls)
-                    {
-                        if (!toolMap.TryGetValue(toolCall.FunctionName, out var tool))
-                        {
-                            messages.Add(new ToolChatMessage(toolCall.Id, "{\"error\":\"unknown tool\"}"));
-                            continue;
-                        }
-
-                        string toolResult;
-                        try
-                        {
-                            toolResult = await tool.InvokeAsync(toolCall.FunctionArguments.ToString());
-                        }
-                        catch (Exception ex)
-                        {
-                            EasyLogManager.Logger.Warning($"[AI] 工具执行失败：{toolCall.FunctionName} {ex.Message}");
-                            toolResult = $"{{\"error\":\"{EscapeToolError(ex.Message)}\"}}";
-                        }
-
-                        messages.Add(new ToolChatMessage(toolCall.Id, toolResult));
-                    }
-
-                    continue;
-                }
-
-                var content = completion.Content.FirstOrDefault()?.Text;
-                return content ?? string.Empty;
-            }
-
-            return string.Empty;
+            return new ChatClient(model: config.ModelName, credential: new ApiKeyCredential(config.ApiKey), options: options);
         }
 
-        private static ChatClient? CreateOpenAICompatibleClient(AiProviderType provider, out string model)
+        /// <summary>
+        /// OpenAI SDK 的 Endpoint 需要指向版本根（如 /v1），SDK 内部会拼 /chat/completions
+        /// </summary>
+        private static string ResolveOpenAiVersionPath(string baseUrl)
         {
-            model = GetModel(provider);
-            if (string.IsNullOrWhiteSpace(model))
+            var root = AiProtocol.NormalizeBaseUrl(baseUrl);
+            var lastSlash = root.LastIndexOf('/');
+            var lastSegment = lastSlash >= 0 && lastSlash < root.Length - 1
+                ? root.Substring(lastSlash + 1)
+                : string.Empty;
+
+            if (!string.IsNullOrEmpty(lastSegment)
+                && lastSegment.StartsWith("v", StringComparison.OrdinalIgnoreCase)
+                && lastSegment.Length > 1
+                && char.IsDigit(lastSegment[1]))
             {
-                return null;
+                return string.Empty;
             }
 
-            var apiKey = GetApiKey(provider);
-            if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                return null;
-            }
+            return "/v1";
+        }
 
-            var options = BuildClientOptions(provider);
-            return options == null
-                ? new ChatClient(model: model, apiKey: apiKey)
-                : new ChatClient(model: model, credential: new ApiKeyCredential(apiKey), options: options);
+        private static async Task<string> SendOpenAIChatAsync(AiConfig config, string userMessage, string systemMessage)
+        {
+            try
+            {
+                var client = CreateOpenAIChatClient(config);
+                var messages = CreateInitialMessages(userMessage, systemMessage);
+                var completionResult = await client.CompleteChatAsync(messages);
+                return completionResult.Value.Content.FirstOrDefault()?.Text ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Warning($"[AI] OpenAI Chat 请求失败：{ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        private static async Task<string> SendOpenAIChatWithToolsAsync(AiConfig config, string userMessage, string systemMessage, IReadOnlyList<AiFunctionTool> tools)
+        {
+            try
+            {
+                var client = CreateOpenAIChatClient(config);
+                var messages = CreateInitialMessages(userMessage, systemMessage);
+                var toolMap = tools.ToDictionary(item => item.Name, StringComparer.Ordinal);
+                var options = new ChatCompletionOptions
+                {
+                    AllowParallelToolCalls = false
+                };
+
+                foreach (var tool in tools)
+                {
+                    options.Tools.Add(ChatTool.CreateFunctionTool(
+                        functionName: tool.Name,
+                        functionDescription: tool.Description,
+                        functionParameters: BinaryData.FromString(tool.JsonSchema)));
+                }
+
+                for (int round = 0; round < 6; round++)
+                {
+                    var completion = (await client.CompleteChatAsync(messages, options)).Value;
+
+                    if (completion.ToolCalls.Count > 0)
+                    {
+                        messages.Add(new AssistantChatMessage(completion));
+
+                        foreach (var toolCall in completion.ToolCalls)
+                        {
+                            if (!toolMap.TryGetValue(toolCall.FunctionName, out var tool))
+                            {
+                                messages.Add(new ToolChatMessage(toolCall.Id, "{\"error\":\"unknown tool\"}"));
+                                continue;
+                            }
+
+                            string toolResult;
+                            try
+                            {
+                                toolResult = await tool.InvokeAsync(toolCall.FunctionArguments.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                EasyLogManager.Logger.Warning($"[AI] 工具执行失败：{toolCall.FunctionName} {ex.Message}");
+                                toolResult = $"{{\"error\":\"{EscapeToolError(ex.Message)}\"}}";
+                            }
+
+                            messages.Add(new ToolChatMessage(toolCall.Id, toolResult));
+                        }
+
+                        continue;
+                    }
+
+                    return completion.Content.FirstOrDefault()?.Text ?? string.Empty;
+                }
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Warning($"[AI] OpenAI Chat(工具) 请求失败：{ex.Message}");
+                return string.Empty;
+            }
         }
 
         private static List<ChatMessage> CreateInitialMessages(string userMessage, string systemMessage)
@@ -184,120 +219,170 @@ namespace Aria2Fast.Service
             return messages;
         }
 
-        private static async Task<string> SendGeminiAsync(string userMessage, string systemMessage)
+        #endregion
+
+        #region OpenAI Responses (HTTP)
+
+        private static async Task<string> SendOpenAIResponsesAsync(AiConfig config, string userMessage, string systemMessage)
         {
-            var apiKey = GetApiKey(AiProviderType.Gemini);
-            if (string.IsNullOrWhiteSpace(apiKey))
+            try
             {
-                return string.Empty;
-            }
-
-            var client = new Client(apiKey: apiKey);
-
-            GenerateContentConfig? config = null;
-            if (!string.IsNullOrWhiteSpace(systemMessage))
-            {
-                config = new GenerateContentConfig
+                var url = AiProtocol.BuildRequestUrl(config.Protocol, config.BaseUrl, config.ModelName);
+                var input = new List<object>();
+                if (!string.IsNullOrWhiteSpace(systemMessage))
                 {
-                    SystemInstruction = new Content
+                    input.Add(new { role = "system", content = systemMessage });
+                }
+                input.Add(new { role = "user", content = userMessage });
+
+                var response = await url
+                    .WithTimeout(TimeSpan.FromSeconds(DefaultTimeoutSeconds))
+                    .WithHeader("Authorization", $"Bearer {config.ApiKey}")
+                    .PostJsonAsync(new
                     {
-                        Parts = new List<Part>
+                        model = config.ModelName,
+                        input
+                    })
+                    .ReceiveString();
+
+                var root = JObject.Parse(response);
+
+                // 优先解析 output_text 便捷字段
+                var outputText = root.Value<string>("output_text");
+                if (!string.IsNullOrWhiteSpace(outputText))
+                {
+                    return outputText;
+                }
+
+                // 解析 output 数组中的文本
+                var builder = new StringBuilder();
+                if (root["output"] is JArray outputArray)
+                {
+                    foreach (var item in outputArray.OfType<JObject>())
+                    {
+                        if (item["content"] is JArray contentArray)
                         {
-                            new Part { Text = systemMessage }
+                            foreach (var contentItem in contentArray.OfType<JObject>())
+                            {
+                                var text = contentItem.Value<string>("text");
+                                if (!string.IsNullOrEmpty(text))
+                                {
+                                    builder.Append(text);
+                                }
+                            }
                         }
                     }
-                };
+                }
+
+                return builder.ToString();
             }
-
-            var response = await client.Models.GenerateContentAsync(
-                model: GeminiDefaultModel,
-                contents: userMessage,
-                config: config
-            );
-
-            var text = response?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
-            return text ?? string.Empty;
-        }
-
-        private static OpenAIClientOptions? BuildClientOptions(AiProviderType provider)
-        {
-            var endpoint = GetEndpoint(provider);
-            if (endpoint == null)
+            catch (Exception ex)
             {
-                return null;
+                EasyLogManager.Logger.Warning($"[AI] OpenAI Responses 请求失败：{ex.Message}");
+                return string.Empty;
             }
-
-            return new OpenAIClientOptions
-            {
-                Endpoint = endpoint
-            };
         }
 
-        private static Uri? GetEndpoint(AiProviderType provider)
-        {
-            return provider switch
-            {
-                AiProviderType.DeepSeek => DeepSeekEndpoint,
-                AiProviderType.MiniMax => MiniMaxEndpoint,
-                AiProviderType.Aihubmix => AihubmixEndpoint,
-                AiProviderType.OpenRouter => OpenRouterEndpoint,
-                AiProviderType.Custom => NormalizeEndpoint(AppConfig.Instance.ConfigData.OpenAIHost),
-                _ => null
-            };
-        }
+        #endregion
 
-        private static string GetModel(AiProviderType provider)
-        {
-            return provider switch
-            {
-                AiProviderType.OpenAI => OpenAIDefaultModel,
-                AiProviderType.DeepSeek => DeepSeekDefaultModel,
-                AiProviderType.MiniMax => MiniMaxDefaultModel,
-                AiProviderType.Aihubmix => AppConfig.Instance.ConfigData.AihubmixModelName,
-                AiProviderType.OpenRouter => AppConfig.Instance.ConfigData.OpenRouterModelName,
-                AiProviderType.Custom => string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.OpenAIModelName)
-                    ? OpenAIDefaultModel
-                    : AppConfig.Instance.ConfigData.OpenAIModelName,
-                _ => OpenAIDefaultModel
-            };
-        }
+        #region Claude (HTTP)
 
-        private static string GetApiKey(AiProviderType? providerOverride = null)
+        private static async Task<string> SendClaudeAsync(AiConfig config, string userMessage, string systemMessage)
         {
-            var provider = providerOverride ?? AppConfig.Instance.ConfigData.AiProvider;
-            return provider switch
+            try
             {
-                AiProviderType.OpenAI => AppConfig.Instance.ConfigData.OpenAIKey,
-                AiProviderType.DeepSeek => AppConfig.Instance.ConfigData.DeepSeekKey,
-                AiProviderType.MiniMax => AppConfig.Instance.ConfigData.MiniMaxKey,
-                AiProviderType.Gemini => AppConfig.Instance.ConfigData.GeminiKey,
-                AiProviderType.Aihubmix => AppConfig.Instance.ConfigData.AihubmixKey,
-                AiProviderType.OpenRouter => AppConfig.Instance.ConfigData.OpenRouterKey,
-                AiProviderType.Custom => AppConfig.Instance.ConfigData.OpenAIKey,
-                _ => AppConfig.Instance.ConfigData.OpenAIKey
-            };
-        }
+                var url = AiProtocol.BuildRequestUrl(config.Protocol, config.BaseUrl, config.ModelName);
+                object body = string.IsNullOrWhiteSpace(systemMessage)
+                    ? new
+                    {
+                        model = config.ModelName,
+                        max_tokens = 4096,
+                        messages = new[] { new { role = "user", content = userMessage } }
+                    }
+                    : new
+                    {
+                        model = config.ModelName,
+                        max_tokens = 4096,
+                        system = systemMessage,
+                        messages = new[] { new { role = "user", content = userMessage } }
+                    };
 
-        private static Uri? NormalizeEndpoint(string endpoint)
-        {
-            if (string.IsNullOrWhiteSpace(endpoint))
-            {
-                return null;
+                var response = await url
+                    .WithTimeout(TimeSpan.FromSeconds(DefaultTimeoutSeconds))
+                    .WithHeader("x-api-key", config.ApiKey)
+                    .WithHeader("anthropic-version", "2023-06-01")
+                    .PostJsonAsync(body)
+                    .ReceiveString();
+
+                var root = JObject.Parse(response);
+                var builder = new StringBuilder();
+                if (root["content"] is JArray contentArray)
+                {
+                    foreach (var item in contentArray.OfType<JObject>())
+                    {
+                        if (string.Equals(item.Value<string>("type"), "text", StringComparison.OrdinalIgnoreCase))
+                        {
+                            builder.Append(item.Value<string>("text"));
+                        }
+                    }
+                }
+
+                return builder.ToString();
             }
-
-            if (!endpoint.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                && !endpoint.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                endpoint = "https://" + endpoint;
+                EasyLogManager.Logger.Warning($"[AI] Claude 请求失败：{ex.Message}");
+                return string.Empty;
             }
-
-            if (Uri.TryCreate(endpoint, UriKind.Absolute, out var uri))
-            {
-                return uri;
-            }
-
-            return null;
         }
+
+        #endregion
+
+        #region Gemini (HTTP)
+
+        private static async Task<string> SendGeminiAsync(AiConfig config, string userMessage, string systemMessage)
+        {
+            try
+            {
+                var url = AiProtocol.BuildRequestUrl(config.Protocol, config.BaseUrl, config.ModelName);
+                object body = string.IsNullOrWhiteSpace(systemMessage)
+                    ? new
+                    {
+                        contents = new[]
+                        {
+                            new { role = "user", parts = new[] { new { text = userMessage } } }
+                        }
+                    }
+                    : new
+                    {
+                        system_instruction = new { parts = new[] { new { text = systemMessage } } },
+                        contents = new[]
+                        {
+                            new { role = "user", parts = new[] { new { text = userMessage } } }
+                        }
+                    };
+
+                var response = await url
+                    .WithTimeout(TimeSpan.FromSeconds(DefaultTimeoutSeconds))
+                    .WithHeader("x-goog-api-key", config.ApiKey)
+                    .PostJsonAsync(body)
+                    .ReceiveString();
+
+                var root = JObject.Parse(response);
+                var text = root["candidates"]?
+                    .FirstOrDefault()?["content"]?["parts"]?
+                    .FirstOrDefault()?["text"]?.ToString();
+
+                return text ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Warning($"[AI] Gemini 请求失败：{ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        #endregion
 
         private static string EscapeToolError(string message)
         {

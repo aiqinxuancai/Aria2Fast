@@ -126,44 +126,105 @@ namespace Aria2Fast.Service
         public bool LaunchAtStartup { get; set; } = false;
 
         /// <summary>
-        /// OpenAIKey 用于RSS为集中订阅时，使用OpenAI提取连接中的作品名称
+        /// 多组 AI 配置
         /// </summary>
-        public string OpenAIKey { get; set; } = string.Empty;
+        private ObservableCollection<AiConfig> _aiConfigs = new();
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public AiProviderType AiProvider { get; set; } = AiProviderType.DeepSeek;
+        public ObservableCollection<AiConfig> AiConfigs
+        {
+            get => _aiConfigs;
+            set
+            {
+                if (_aiConfigs != null)
+                {
+                    _aiConfigs.CollectionChanged -= AiConfigs_CollectionChanged;
+                    foreach (var config in _aiConfigs)
+                    {
+                        ((INotifyPropertyChanged)config).PropertyChanged -= AiConfig_PropertyChanged;
+                    }
+                }
 
-        public string DeepSeekKey { get; set; } = string.Empty;
+                _aiConfigs = value;
 
-        public string MiniMaxKey { get; set; } = string.Empty;
+                if (_aiConfigs != null)
+                {
+                    _aiConfigs.CollectionChanged += AiConfigs_CollectionChanged;
+                    foreach (var config in _aiConfigs)
+                    {
+                        ((INotifyPropertyChanged)config).PropertyChanged += AiConfig_PropertyChanged;
+                    }
+                }
+            }
+        }
 
-        public string GeminiKey { get; set; } = string.Empty;
+        /// <summary>
+        /// 当前选中的 AI 配置 Id
+        /// </summary>
+        public string CurrentAiConfigId { get; set; } = string.Empty;
 
-        public string AihubmixKey { get; set; } = string.Empty;
+        /// <summary>
+        /// 当前生效的 AI 配置（未配置时为 null）
+        /// </summary>
+        [JsonIgnore]
+        public AiConfig CurrentAiConfig
+        {
+            get
+            {
+                if (AiConfigs == null || AiConfigs.Count == 0)
+                {
+                    return null;
+                }
 
-        public string AihubmixModelName { get; set; } = string.Empty;
+                if (!string.IsNullOrWhiteSpace(CurrentAiConfigId))
+                {
+                    foreach (var config in AiConfigs)
+                    {
+                        if (config.Id == CurrentAiConfigId)
+                        {
+                            return config;
+                        }
+                    }
+                }
 
-        public string OpenRouterKey { get; set; } = string.Empty;
+                return AiConfigs[0];
+            }
+        }
 
-        public string OpenRouterModelName { get; set; } = string.Empty;
+        private void AiConfigs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (AiConfig item in e.NewItems)
+                {
+                    ((INotifyPropertyChanged)item).PropertyChanged += AiConfig_PropertyChanged;
+                }
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (AiConfig item in e.OldItems)
+                {
+                    ((INotifyPropertyChanged)item).PropertyChanged -= AiConfig_PropertyChanged;
+                }
+            }
+
+            OnPropertyChanged(nameof(AiConfigs));
+            OnPropertyChanged(nameof(CurrentAiConfig));
+        }
+
+        private void AiConfig_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            AppConfig.Instance?.RequestSave();
+            OnPropertyChanged(nameof(CurrentAiConfig));
+        }
 
         public string TavilyKey { get; set; } = string.Empty;
-
-        public string OpenAIProxy { get; set; } = string.Empty;
-
-        public string OpenAIModelName { get; set; } = "gpt-4o-mini";
 
         public bool OpenAIOpen { get; set; } = false;
 
         public bool OpenAISummaryTranslateOpen { get; set; } = false;
 
         public bool OpenAIAiReviewOpen { get; set; } = false;
-
-
-        /// <summary>
-        /// 用于第三方转发服务的实现
-        /// </summary>
-        public string OpenAIHost { get; set; } = string.Empty;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public CatppuccinTheme AppTheme { get; set; } = CatppuccinTheme.Auto;
@@ -430,6 +491,10 @@ namespace Aria2Fast.Service
                 {
                     ConfigData.RemoteAria2Nodes[0].Token = ConfigData.Aria2Token;
                 }
+
+                // 重新挂载 AI 配置集合，确保反序列化后集合与子项变更都会触发保存
+                ConfigData.AiConfigs = ConfigData.AiConfigs ?? new ObservableCollection<AiConfig>();
+
                 ConfigData.Init();
             }
         }

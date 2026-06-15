@@ -115,6 +115,76 @@ namespace Aria2Fast.View
         {
             BrowserHelper.OpenUrlBrowser("https://github.com/aiqinxuancai/Aria2Fast");
         }
+
+        #region AI 配置
+
+        private void AddAiConfig_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Dialogs.AiConfigEditWindow(null)
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                var configs = AppConfig.Instance.ConfigData.AiConfigs;
+                configs.Add(dialog.EditingConfig);
+
+                // 第一组配置自动设为当前生效
+                if (string.IsNullOrWhiteSpace(AppConfig.Instance.ConfigData.CurrentAiConfigId) || configs.Count == 1)
+                {
+                    AppConfig.Instance.ConfigData.CurrentAiConfigId = dialog.EditingConfig.Id;
+                }
+
+                AppConfig.Instance.Save();
+            }
+        }
+
+        private void EditAiConfig_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.CommandParameter is AiConfig config)
+            {
+                var dialog = new Dialogs.AiConfigEditWindow(config)
+                {
+                    Owner = Window.GetWindow(this)
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    config.CopyFrom(dialog.EditingConfig);
+                    AppConfig.Instance.Save();
+                }
+            }
+        }
+
+        private void ApplyAiConfig_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.CommandParameter is AiConfig config)
+            {
+                AppConfig.Instance.ConfigData.CurrentAiConfigId = config.Id;
+                AppConfig.Instance.Save();
+                MainWindow.Instance.ShowSnackbar("已切换", $"当前 AI 配置：{config.Name}");
+            }
+        }
+
+        private void RemoveAiConfig_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.CommandParameter is AiConfig config)
+            {
+                AppConfig.Instance.ConfigData.AiConfigs.Remove(config);
+
+                // 若删掉的是当前生效配置，则回退到第一组
+                if (AppConfig.Instance.ConfigData.CurrentAiConfigId == config.Id)
+                {
+                    var first = AppConfig.Instance.ConfigData.AiConfigs.FirstOrDefault();
+                    AppConfig.Instance.ConfigData.CurrentAiConfigId = first?.Id ?? string.Empty;
+                }
+
+                AppConfig.Instance.Save();
+            }
+        }
+
+        #endregion
     }
 }
 
