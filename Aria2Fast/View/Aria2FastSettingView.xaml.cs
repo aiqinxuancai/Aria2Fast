@@ -109,6 +109,11 @@ namespace Aria2Fast.View
             BrowserHelper.OpenUrlBrowser("https://api2d.com/r/211572");
         }
 
+        private void LinkTavily_Click(object sender, RoutedEventArgs e)
+        {
+            BrowserHelper.OpenUrlBrowser("https://app.tavily.com/home");
+        }
+
 
 
         private void HomePageTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

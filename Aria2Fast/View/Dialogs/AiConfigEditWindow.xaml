@@ -9,7 +9,7 @@
     xmlns:wpfutils="clr-namespace:Aria2Fast.Utils"
     Title="AI 配置"
     Width="520"
-    Height="560"
+    Height="640"
     Background="{DynamicResource App.PageBackgroundBrush}"
     TextElement.Foreground="{DynamicResource App.TextPrimaryBrush}"
     ExtendsContentIntoTitleBar="True"
@@ -74,6 +74,21 @@
                     PlaceholderText="例如：https://api.openai.com"
                     Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" />
 
+                <ui:Card Margin="0,8,0,0" Padding="12,10,12,10">
+                    <StackPanel>
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource App.TextSecondaryBrush}"
+                            Text="实际请求地址" />
+                        <TextBlock
+                            Margin="0,4,0,0"
+                            FontFamily="Consolas"
+                            Foreground="{DynamicResource App.AccentBrush}"
+                            Text="{Binding RequestUrlPreview}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+                </ui:Card>
+
                 <TextBlock
                     Margin="0,14,0,0"
                     Foreground="{DynamicResource App.TextPrimaryBrush}"
@@ -91,21 +106,6 @@
                     Margin="0,5,0,0"
                     wpfutils:PasswordBoxAssistant.BindPassword="True"
                     wpfutils:PasswordBoxAssistant.BoundPassword="{Binding ApiKey, Mode=TwoWay}" />
-
-                <ui:Card Margin="0,16,0,0" Padding="12,10,12,10">
-                    <StackPanel>
-                        <TextBlock
-                            FontSize="12"
-                            Foreground="{DynamicResource App.TextSecondaryBrush}"
-                            Text="实际请求地址" />
-                        <TextBlock
-                            Margin="0,4,0,0"
-                            FontFamily="Consolas"
-                            Foreground="{DynamicResource App.AccentBrush}"
-                            Text="{Binding RequestUrlPreview}"
-                            TextWrapping="Wrap" />
-                    </StackPanel>
-                </ui:Card>
             </StackPanel>
         </ScrollViewer>
 

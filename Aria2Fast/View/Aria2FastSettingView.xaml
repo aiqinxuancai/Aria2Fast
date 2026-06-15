@@ -447,19 +447,19 @@
                                 </DataTemplate>
                             </ui:ListView.ItemTemplate>
                         </ui:ListView>
-
-                        <TextBlock
-                            Margin="2,6,0,0"
-                            FontSize="12"
-                            Foreground="{DynamicResource App.TextSecondaryBrush}"
-                            Text="尚未添加任何 AI 配置，点击右上角“添加配置”开始。"
-                            Visibility="{Binding Source={x:Static service:AppConfig.Instance}, Path=ConfigData.AiConfigs.Count, Converter={StaticResource ZeroToVisibilityConverter}}" />
                     </StackPanel>
                 </ui:Card>
 
                 <ui:Card Margin="0,10,0,0">
                     <StackPanel>
-                        <TextBlock Foreground="{DynamicResource App.TextPrimaryBrush}" Text="Tavily API Key" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center" Foreground="{DynamicResource App.TextPrimaryBrush}" Text="Tavily API Key" />
+                            <ui:HyperlinkButton
+                                Margin="6,0,0,0"
+                                Padding="4,0,4,0"
+                                Click="LinkTavily_Click"
+                                Content="获取 Key" />
+                        </StackPanel>
                         <ui:PasswordBox
                             Height="32"
                             MinWidth="400"
