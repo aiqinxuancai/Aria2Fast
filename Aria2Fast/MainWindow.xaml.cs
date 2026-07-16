@@ -75,6 +75,12 @@ namespace Aria2Fast
                     },
                 },
             },
+            // WPF UI 的返回日志不保存 DataContext，详情页必须缓存才能带着动漫参数返回。
+            new NavigationViewItem(typeof(MikanAnimeRssView))
+            {
+                NavigationCacheMode = NavigationCacheMode.Required,
+                Visibility = Visibility.Collapsed,
+            },
         };
 
 
@@ -319,7 +325,7 @@ namespace Aria2Fast
         {
             foreach (NavigationViewItem item in NavigationItems)
             {
-                var mainBorder = item.Template.FindName("MainBorder", item) as Border;
+                var mainBorder = item.Template?.FindName("MainBorder", item) as Border;
                 if (mainBorder != null)
                 {
                     mainBorder.MinWidth = 200; // 或您想要的任意数值

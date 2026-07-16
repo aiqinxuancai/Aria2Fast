@@ -305,14 +305,7 @@ namespace Aria2Fast.View
 
         private void Back()
         {
-            if (_anime != null && !string.IsNullOrEmpty(_anime.Name))
-            {
-                MainWindow.Instance.RootNavigation.Navigate(typeof(MikanAnimeRssView), _anime);
-            }
-            else
-            {
-                MainWindow.Instance.RootNavigation.GoBack();
-            }
+            MainWindow.Instance.RootNavigation.GoBack();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

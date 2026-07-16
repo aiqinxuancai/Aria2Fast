@@ -10,6 +10,7 @@
     xmlns:services="clr-namespace:Aria2Fast.Service"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="AnimeListView"
+    ScrollViewer.CanContentScroll="False"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -27,49 +28,52 @@
         <Binding Path="Instance" Source="{x:Static services:MikanManager.Instance}" />
     </Page.DataContext>
 
-    <Grid>
-        <StackPanel
-            Margin="10,8,0,0"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Orientation="Horizontal">
+    <ScrollViewer
+        x:Name="PageScrollViewer"
+        HorizontalContentAlignment="Stretch"
+        HorizontalScrollBarVisibility="Disabled"
+        VerticalContentAlignment="Top"
+        VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <StackPanel
+                Margin="10,8,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Orientation="Horizontal">
 
-            <ui:TextBox
-                x:Name="SearchTextBox"
-                Width="180"
-                PlaceholderText="搜索"
-                TextChanged="SearchTextBox_TextChanged" />
+                <ui:TextBox
+                    x:Name="SearchTextBox"
+                    Width="180"
+                    PlaceholderText="搜索"
+                    TextChanged="SearchTextBox_TextChanged" />
 
-            <Button
-                x:Name="GetListButton"
-                Width="80"
-                Margin="10,0,0,0"
-                Click="GetListButton_Click"
-                Content="刷新列表"
-                IsEnabled="{Binding IsLoading}" />
+                <Button
+                    x:Name="GetListButton"
+                    Width="80"
+                    Margin="10,0,0,0"
+                    Click="GetListButton_Click"
+                    Content="刷新列表"
+                    IsEnabled="{Binding IsLoading}" />
 
-            <Button
-                x:Name="ClearAiCacheButton"
-                Width="110"
-                Margin="10,0,0,0"
-                Click="ClearAiCacheButton_Click"
-                Content="清空AI缓存" />
-        </StackPanel>
+                <Button
+                    x:Name="ClearAiCacheButton"
+                    Width="110"
+                    Margin="10,0,0,0"
+                    Click="ClearAiCacheButton_Click"
+                    Content="清空AI缓存" />
+            </StackPanel>
 
-
-        <ItemsControl
-            Margin="0,45,0,0"
-            HorizontalContentAlignment="Stretch"
-            VerticalContentAlignment="Stretch"
-            ItemsSource="{Binding Master.AnimeDays, IsAsync=True}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-
-
-
-    </Grid>
+            <ItemsControl
+                Margin="0,45,0,0"
+                HorizontalContentAlignment="Stretch"
+                VerticalContentAlignment="Stretch"
+                ItemsSource="{Binding Master.AnimeDays, IsAsync=True}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
 </Page>

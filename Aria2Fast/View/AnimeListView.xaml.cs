@@ -1,6 +1,7 @@
 ﻿
 using Aria2Fast.Service;
 using Aria2Fast.Service.Model;
+using Aria2Fast.Service.Model.SubscriptionModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using Wpf.Ui.Abstractions.Controls;
 
 
 namespace Aria2Fast.View
@@ -23,8 +26,10 @@ namespace Aria2Fast.View
     /// <summary>
     /// AnimeListView.xaml 的交互逻辑
     /// </summary>
-    public partial class AnimeListView : Page
+    public partial class AnimeListView : Page, INavigationAware
     {
+        private double _scrollOffset;
+
         public AnimeListView()
         {
             InitializeComponent();
@@ -54,14 +59,14 @@ namespace Aria2Fast.View
                 //启动一个订阅画面
                 //WindowAddSubscription.Show(MainWindow.Instance, clickedRssItem.Url, animeItem.Name);
 
-                var data = (clickedRssItem.Url, animeItem.Name);
-                MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), data);
+                var data = (clickedRssItem.Url, animeItem.Name, animeItem, new SubscriptionModel());
+                MainWindow.Instance.RootNavigation.NavigateWithHierarchy(typeof(AddSubscriptionView), data);
             } 
             else if (animeItem != null)
             {
                 //await Task.Delay(50);
                 //TestN.IsOpen = true;
-                MainWindow.Instance.RootNavigation.Navigate(typeof(MikanAnimeRssView), animeItem);
+                MainWindow.Instance.RootNavigation.NavigateWithHierarchy(typeof(MikanAnimeRssView), animeItem);
                 //MainWindow.Instance.RootNavigation.
                 //在使用NavigationView的Navigate方法时，如果传递的View的高度大于NavigationView的区域时，
 
@@ -105,6 +110,21 @@ namespace Aria2Fast.View
             MikanManager.Instance.SearchText = SearchTextBox.Text;
             this.DataContext = null;
             this.DataContext = MikanManager.Instance;
+        }
+
+        public Task OnNavigatedFromAsync()
+        {
+            _scrollOffset = PageScrollViewer.VerticalOffset;
+            return Task.CompletedTask;
+        }
+
+        public Task OnNavigatedToAsync()
+        {
+            Dispatcher.BeginInvoke(
+                DispatcherPriority.Loaded,
+                new Action(() => PageScrollViewer.ScrollToVerticalOffset(_scrollOffset)));
+
+            return Task.CompletedTask;
         }
     }
 }

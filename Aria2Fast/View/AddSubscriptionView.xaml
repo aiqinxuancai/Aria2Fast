@@ -29,11 +29,24 @@
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
 
-        <TextBlock
+        <StackPanel
             Grid.Row="0"
-            Margin="10,10,10,0"
-            FontSize="16"
-            Text="添加订阅" />
+            Margin="10,10,10,14"
+            Orientation="Horizontal">
+            <ui:Button
+                Width="36"
+                Height="36"
+                Appearance="Transparent"
+                Click="CancelButton_Click"
+                Icon="{ui:SymbolIcon ChevronLeft20}"
+                Padding="0"
+                ToolTip="返回" />
+            <TextBlock
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                FontSize="16"
+                Text="添加订阅" />
+        </StackPanel>
 
         <Border
             Grid.Row="1"

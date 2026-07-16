@@ -27,6 +27,11 @@ namespace Aria2Fast.View
             InitializeComponent();
         }
 
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Instance.RootNavigation.GoBack();
+        }
+
         private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var b = sender as Border;
@@ -35,10 +40,8 @@ namespace Aria2Fast.View
 
             MikanAnimeRss mikanAnimeRss = (MikanAnimeRss)b.DataContext;
 
-            //MainWindow.Instance.RootNavigation.NavigateWithHierarchy(typeof(MikanAnimeRssView), animeItem);
             //弹出订阅页面？
-            //MainWindow.Instance.RootNavigation.IsBackButtonVisible = Wpf.Ui.Controls.NavigationViewBackButtonVisible.Visible;
-            MainWindow.Instance.RootNavigation.Navigate(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name, mikanAnime, new SubscriptionModel()));
+            MainWindow.Instance.RootNavigation.NavigateWithHierarchy(typeof(AddSubscriptionView), (mikanAnimeRss.Url, mikanAnime.Name, mikanAnime, new SubscriptionModel()));
         }
     }
 }

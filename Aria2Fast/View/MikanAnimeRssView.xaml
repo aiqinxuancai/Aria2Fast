@@ -75,6 +75,17 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Top">
 
+            <ui:Button
+                Width="36"
+                Height="36"
+                Margin="0,0,0,12"
+                HorizontalAlignment="Left"
+                Appearance="Transparent"
+                Click="BackButton_Click"
+                Icon="{ui:SymbolIcon ChevronLeft20}"
+                Padding="0"
+                ToolTip="返回" />
+
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
