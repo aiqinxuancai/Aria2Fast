@@ -1,4 +1,5 @@
 ﻿using Flurl.Http;
+using Aria2Fast.Service;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -84,23 +85,35 @@ namespace Aria2Fast.Utils
                         img.StreamSource = new MemoryStream(result);
                         File.WriteAllBytes(localFilePath, result);
                     }
+                    else
+                    {
+                        EasyLogManager.Logger.Error($"[图片] 下载内容为空: {uri}");
+                    }
                 }
                 catch (Exception ex)
                 {
-
+                    EasyLogManager.Logger.Error($"[图片] 下载失败: {uri}，原因: {ex}");
                 }
 
 
 
             }
 
-            img.CacheOption = BitmapCacheOption.OnLoad;
-            img.EndInit();
-            if (img.CanFreeze && !img.IsFrozen) // 检查能否冻结，并且还没有被冻结
+            try
             {
-                img.Freeze();
+                img.CacheOption = BitmapCacheOption.OnLoad;
+                img.EndInit();
+                if (img.CanFreeze && !img.IsFrozen) // 检查能否冻结，并且还没有被冻结
+                {
+                    img.Freeze();
+                }
             }
-            
+            catch (Exception ex)
+            {
+                EasyLogManager.Logger.Error($"[图片] 解码失败: {uri}，原因: {ex}");
+                return null;
+            }
+
             return img;
         }
 
@@ -112,8 +125,18 @@ namespace Aria2Fast.Utils
                 using (HttpClient client = new HttpClient())
                 {
                     var response = await client.GetAsync(url);
-                    response.EnsureSuccessStatusCode();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        EasyLogManager.Logger.Error($"[图片] HTTP 下载失败: {url}，状态码: {(int)response.StatusCode} {response.ReasonPhrase}");
+                        return null;
+                    }
+
                     var imageData = await response.Content.ReadAsByteArrayAsync();
+                    if (imageData.Length == 0)
+                    {
+                        EasyLogManager.Logger.Error($"[图片] 下载内容为空: {url}");
+                        return null;
+                    }
 
                     var bitmap = new BitmapImage();
                     using (var stream = new System.IO.MemoryStream(imageData))
@@ -128,9 +151,9 @@ namespace Aria2Fast.Utils
                     return bitmap;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Handle exceptions
+                EasyLogManager.Logger.Error($"[图片] 加载失败: {url}，原因: {ex}");
                 return null;
             }
         }

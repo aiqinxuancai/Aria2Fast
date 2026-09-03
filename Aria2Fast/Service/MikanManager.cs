@@ -36,7 +36,7 @@ namespace Aria2Fast.Service
 
         public const string kMikanCacheFile = "MikanCache.json";
 
-        public const string kUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0";
+        public const string kUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0";
 
         private const int kAiMaxConcurrency = 5;
 
